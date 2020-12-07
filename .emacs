@@ -24,18 +24,17 @@
 (eval-when-compile
   ;; Following line is not needed if use-package.el is in ~/.emacs.d
   ;; (add-to-list 'load-path "<path where use-package is installed>")
-  (require 'use-package))
+  (require 'use-package)
+  )
 
 ;;; Use packages
 
 (use-package compile
   :init
   (winner-mode t)
-  (window-numbering-mode t)
   (global-linum-mode t)
   (show-paren-mode t)
-  (scroll-bar-mode -1)
-  (load-theme 'arc-dark)
+  ;; (scroll-bar-mode -1)
   (add-to-list
    'default-frame-alist
    '(font . "CodeNewRoman Nerd Font Mono-12"))
@@ -69,7 +68,13 @@
 		(comment-dwim arg))))
    ))
 
+(use-package window-numbering
+  :ensure t
+  :init
+  (window-numbering-mode t))
+
 (use-package vimish-fold
+  :ensure t
   :custom
   (vimish-fold-dir (expand-file-name "vimish-fold/" "~/.emacs.d"))
   :config
@@ -133,10 +138,14 @@ If region is active, adds or removes vimish folds."
   :hook
   (after-init . global-flycheck-mode))
 
-(use-package company
+(use-package company-quickhelp
   :ensure t
   :init
   (company-quickhelp-mode t)
+  )
+
+(use-package company
+  :ensure t
   :custom
   (company-show-numbers t)
   :bind
@@ -155,7 +164,6 @@ If region is active, adds or removes vimish folds."
 (use-package spaceline
   :ensure t
   :functions spaceline-compile
-  :commands spaceline-compile
   :config
   (spaceline-spacemacs-theme)
   (spaceline-compile
@@ -202,9 +210,10 @@ If region is active, adds or removes vimish folds."
   )
 
 (use-package slime
+  :disabled
   :init
   (slime-setup)
   :custom
   (inferior-lisp-program "sbcl"))
 
-;;; cust.el ends here
+;;; .emacs ends here

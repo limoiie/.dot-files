@@ -14,8 +14,7 @@
    'package-archives
    '("marmalade" . "https://marmalade-repo.org/packages/")
    t)
-  (package-initialize)
-  )
+  (package-initialize))
 
 ;; This is only needed once, near the top of the file
 (eval-when-compile
@@ -27,17 +26,30 @@
 ;;; Use packages
 
 (use-package compile
+  :custom
+  (inhibit-startup-screen t)
   :init
   (winner-mode t)
   (global-linum-mode t)
   (show-paren-mode t)
   (electric-pair-mode t)
   (electric-quote-mode t)
-  (load-theme 'tsdh-dark)
-  ;; (scroll-bar-mode -1)
-  (add-to-list
-   'default-frame-alist
-   '(font . "CodeNewRoman Nerd Font Mono-12"))
+  (load-theme 'atom-one-dark)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (set-face-attribute 'default nil :font "CodeNewRoman Nerd Font Mono-16")
+  (set-face-attribute 'info-menu-header nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'info-title-1 nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'info-title-2 nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'info-title-3 nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'info-title-4 nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'mode-line nil :font "CodeNewRoman Nerd Font Mono-16")
+  (set-face-attribute 'tab-line nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'tooltip nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'tab-bar nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'tab-bar-tab nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'tab-bar-tab-inactive nil :font "CodeNewRoman Nerd Font Mono")
+  (set-face-attribute 'variable-pitch nil :font "CodeNewRoman Nerd Font Mono")
   :bind
   (("C-x 4 u" . winner-undo)
    ("C-x 4 j" . winner-redo)
@@ -65,8 +77,7 @@
 	      (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
 		  (comment-or-uncomment-region (line-beginning-position)
 					       (line-end-position))
-		(comment-dwim arg))))
-   ))
+		(comment-dwim arg))))))
 
 (use-package vimish-fold
   :ensure t
@@ -89,8 +100,7 @@
      (when (eq 'code (overlay-get ov 'hs))
        (overlay-put ov 'help-echo
 		    (buffer-substring (overlay-start ov)
-				      (overlay-end ov)))
-       )))
+				      (overlay-end ov))))))
   :config
   (defun toggle-fold ()
     ;; ref https://www.reddit.com/r/emacs/comments/btwg00/folding_combined_hideshow_and_vimishfold/
@@ -104,10 +114,9 @@ If region is active, adds or removes vimish folds."
       (unless (delq nil (mapcar #'vimish-fold--toggle (overlays-at (point))))
         (hs-toggle-hiding))))
   :bind (("C-=" . hs-toggle-hiding)
-	 ("C-[ [27;6;61~" . hs-toggle-hiding) ; for iterm2
+	 ("C-[ [27;6;61~" . hs-toggle-hiding)
 	 ("C--" . toggle-fold)
-	 ("C-[ [27;6;45~" . toggle-fold)      ; for iterm2
-	 )
+	 ("C-[ [27;6;45~" . toggle-fold))
   :hook
   (prog-mode . hs-minor-mode))
 
@@ -163,8 +172,7 @@ If region is active, adds or removes vimish folds."
 (use-package company-quickhelp
   :ensure t
   :init
-  (company-quickhelp-mode t)
-  )
+  (company-quickhelp-mode t))
 
 (use-package spaceline
   :ensure t
@@ -211,8 +219,7 @@ If region is active, adds or removes vimish folds."
        :priority 96)
       (global :when active)
       (buffer-position :priority 99)
-      (hud :priority 99)))
-  )
+      (hud :priority 99))))
 
 (use-package slime
   :disabled
@@ -235,5 +242,44 @@ If region is active, adds or removes vimish folds."
 (use-package grip-mode
   :ensure t
   :hook ((markdown-mode org-mode) . grip-mode))
+
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+  (define-key pdf-view-mode-map (kbd "C-r") 'isearch-backward)
+  (add-hook 'pdf-view-mode-hook (lambda ()
+				  ;; automatically turns on midnight-mode for pdfs
+				  (bms/pdf-midnite-amber))))
+
+(use-package company-auctex
+  :ensure t
+  :init (company-auctex-init))
+
+(use-package tex
+  :ensure auctex
+  :mode ("\\.tex\\'" . TeX-latex-mode)
+  :config (progn
+	    (setq TeX-source-correlate-mode t)
+	    (setq TeX-source-correlate-method 'synctex)
+	    (setq TeX-auto-save t)
+	    (setq TeX-parse-self t)
+	    (setq-default TeX-master "paper.tex")
+	    (setq reftex-plug-into-AUCTeX t)
+	    (pdf-tools-install)
+	    (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+		  TeX-source-correlate-start-server t)
+	    ;; Update PDF buffers after successful LaTeX runs
+	    (add-hook 'TeX-after-compilation-finished-functions
+		      #'TeX-revert-document-buffer)
+	    (add-hook 'LaTeX-mode-hook
+		      (lambda ()
+			(reftex-mode t)
+			(flyspell-mode t)))
+	    )
+  )
 
 ;;; .emacs ends here

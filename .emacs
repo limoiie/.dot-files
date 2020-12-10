@@ -1,4 +1,4 @@
-;; package --- custom configuration for Emacs
+;;; package --- custom configuration for Emacs
 ;;; Commentary:
 ;;; Code:
 
@@ -17,9 +17,6 @@
   (package-initialize)
   )
 
-;; (put 'narrow-to-region 'disabled nil)
-
-
 ;; This is only needed once, near the top of the file
 (eval-when-compile
   ;; Following line is not needed if use-package.el is in ~/.emacs.d
@@ -34,6 +31,9 @@
   (winner-mode t)
   (global-linum-mode t)
   (show-paren-mode t)
+  (electric-pair-mode t)
+  (electric-quote-mode t)
+  (load-theme 'tsdh-dark)
   ;; (scroll-bar-mode -1)
   (add-to-list
    'default-frame-alist
@@ -67,11 +67,6 @@
 					       (line-end-position))
 		(comment-dwim arg))))
    ))
-
-(use-package window-numbering
-  :ensure t
-  :init
-  (window-numbering-mode t))
 
 (use-package vimish-fold
   :ensure t
@@ -109,9 +104,18 @@ If region is active, adds or removes vimish folds."
       (unless (delq nil (mapcar #'vimish-fold--toggle (overlays-at (point))))
         (hs-toggle-hiding))))
   :bind (("C-=" . hs-toggle-hiding)
-	 ("C--" . toggle-fold))
+	 ("C-[ [27;6;61~" . hs-toggle-hiding) ; for iterm2
+	 ("C--" . toggle-fold)
+	 ("C-[ [27;6;45~" . toggle-fold)      ; for iterm2
+	 )
   :hook
   (prog-mode . hs-minor-mode))
+
+;; config window navigation
+(use-package window-numbering
+  :ensure t
+  :init
+  (window-numbering-mode t))
 
 ;; see also https://github.com/abo-abo/ace-window
 (use-package ace-window
@@ -130,6 +134,7 @@ If region is active, adds or removes vimish folds."
   :bind
   (("C-:" . avy-goto-line)
    ("C-;" . avy-goto-char)
+   ("C-[ [27;6;59~" . avy-goto-char) ; for iterm2
    ("M-g e" . avy-goto-word-0)
    ("M-g w" . avy-goto-word-1)))
 
@@ -137,12 +142,6 @@ If region is active, adds or removes vimish folds."
   :ensure t
   :hook
   (after-init . global-flycheck-mode))
-
-(use-package company-quickhelp
-  :ensure t
-  :init
-  (company-quickhelp-mode t)
-  )
 
 (use-package company
   :ensure t
@@ -160,6 +159,12 @@ If region is active, adds or removes vimish folds."
    ("C-n"     . company-select-next))
   :hook
   (after-init . global-company-mode))
+
+(use-package company-quickhelp
+  :ensure t
+  :init
+  (company-quickhelp-mode t)
+  )
 
 (use-package spaceline
   :ensure t
@@ -215,5 +220,20 @@ If region is active, adds or removes vimish folds."
   (slime-setup)
   :custom
   (inferior-lisp-program "sbcl"))
+
+;; see also https://jblevins.org/projects/markdown-mode/
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
+;; see also https://github.com/seagle0128/grip-mode
+;; preview markdown or org files with grip -- github flavored
+(use-package grip-mode
+  :ensure t
+  :hook ((markdown-mode org-mode) . grip-mode))
 
 ;;; .emacs ends here

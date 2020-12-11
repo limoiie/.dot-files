@@ -117,8 +117,7 @@ If region is active, adds or removes vimish folds."
 	 ("C-[ [27;6;61~" . hs-toggle-hiding)
 	 ("C--" . toggle-fold)
 	 ("C-[ [27;6;45~" . toggle-fold))
-  :hook
-  (prog-mode . hs-minor-mode))
+  :hook (prog-mode . hs-minor-mode))
 
 ;; config window navigation
 (use-package window-numbering
@@ -149,8 +148,8 @@ If region is active, adds or removes vimish folds."
 
 (use-package flycheck
   :ensure t
-  :hook
-  (after-init . global-flycheck-mode))
+  :hook (after-init . global-flycheck-mode))
+
 
 (use-package company
   :ensure t
@@ -166,13 +165,18 @@ If region is active, adds or removes vimish folds."
    ("<tab>"   . company-complete-selection)
    ("C-p"     . company-select-previous)
    ("C-n"     . company-select-next))
-  :hook
-  (after-init . global-company-mode))
+  :hook (after-init . global-company-mode))
 
 (use-package company-quickhelp
   :ensure t
   :init
   (company-quickhelp-mode t))
+
+(use-package company-auctex
+  :ensure t
+  :init
+  (company-auctex-init))
+
 
 (use-package spaceline
   :ensure t
@@ -228,6 +232,7 @@ If region is active, adds or removes vimish folds."
   :custom
   (inferior-lisp-program "sbcl"))
 
+
 ;; see also https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
   :ensure t
@@ -235,14 +240,23 @@ If region is active, adds or removes vimish folds."
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  ;; :init
+  ;; (setq markdown-command "multimarkdown")
+  )
 
 ;; see also https://github.com/seagle0128/grip-mode
 ;; preview markdown or org files with grip -- github flavored
 (use-package grip-mode
   :ensure t
-  :hook ((markdown-mode org-mode) . grip-mode))
+  :after markdown-mode
+  :custom
+  (grip-preview-use-webkit t)  ; use embedded webkit to preview
+  :bind (:map markdown-mode-command-map
+              ("g" . grip-mode))
+  )
 
+
+;; see also https://github.com/politza/pdf-tools
 (use-package pdf-tools
   :ensure t
   :config
@@ -251,13 +265,10 @@ If region is active, adds or removes vimish folds."
   (setq pdf-annot-activate-created-annotations t)
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   (define-key pdf-view-mode-map (kbd "C-r") 'isearch-backward)
-  (add-hook 'pdf-view-mode-hook (lambda ()
-				  ;; automatically turns on midnight-mode for pdfs
-				  (bms/pdf-midnite-amber))))
+  ;; automatically turns on midnight-mode for pdfs
+  ;; (add-hook 'pdf-view-mode-hook (lambda () (bms/pdf-midnite-amber)))
+  )
 
-(use-package company-auctex
-  :ensure t
-  :init (company-auctex-init))
 
 (use-package tex
   :ensure auctex
@@ -269,17 +280,22 @@ If region is active, adds or removes vimish folds."
 	    (setq TeX-parse-self t)
 	    (setq-default TeX-master "paper.tex")
 	    (setq reftex-plug-into-AUCTeX t)
-	    (pdf-tools-install)
+	    ;; make pdf-tool as the default pdf viewer for emacs
 	    (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+		  TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
 		  TeX-source-correlate-start-server t)
 	    ;; Update PDF buffers after successful LaTeX runs
 	    (add-hook 'TeX-after-compilation-finished-functions
 		      #'TeX-revert-document-buffer)
-	    (add-hook 'LaTeX-mode-hook
-		      (lambda ()
-			(reftex-mode t)
-			(flyspell-mode t)))
-	    )
+	    ;; disable linum-mode in pdf-view-mode,
+	    ;;   see also https://github.com/politza/pdf-tools#known-problems
+	    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode -1))))
+	    ;; (add-hook 'LaTeX-mode-hook (lambda ()
+	    ;; 				 (reftex-mode t)
+	    ;; 				 (flyspell-mode t)))
+
+  :hook ((LaTex-mode . reftex-mode)
+	 (LaTex-mode . flyspell-mode))
   )
 
 ;;; .emacs ends here

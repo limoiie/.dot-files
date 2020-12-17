@@ -67,7 +67,13 @@
 	      (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
 		  (comment-or-uncomment-region (line-beginning-position)
 					       (line-end-position))
-		(comment-dwim arg))))))
+		(comment-dwim arg))))
+   ("C-c o" . (lambda ()
+		(interactive)
+		(if (active-minibuffer-window)
+		    (select-window (active-minibuffer-window))
+		  (error "Minibuffer is not active!"))))
+   ))
 
 (use-package vimish-fold
   :ensure t

@@ -283,6 +283,7 @@ If region is active, adds or removes vimish folds."
 	    (setq TeX-source-correlate-method 'synctex)
 	    (setq TeX-auto-save t)
 	    (setq TeX-parse-self t)
+	    (setq TeX-fold-mode t)
 	    (setq-default TeX-master "paper.tex")
 	    (setq reftex-plug-into-AUCTeX t)
 	    ;; make pdf-tool as the default pdf viewer for emacs
@@ -292,8 +293,8 @@ If region is active, adds or removes vimish folds."
 	    (add-to-list 'TeX-engine-alist
 			 '(xetex-tmp
 			   "A TeX-engine that supports unicode content and store tmp files into ./Tmp"
-			   "xetex -file-line-error --synctex=1 -interaction=nonstopmode -output-directory=Tmp"
-			   "xelatex -file-line-error --synctex=1 -interaction=nonstopmode -output-directory=Tmp"
+			   "xetex -output-directory=Tmp"
+			   "xelatex -output-directory=Tmp"
 			   ConTeXt-engine))
 	    ;; Update PDF buffers after successful LaTeX runs
 	    (add-hook 'TeX-after-compilation-finished-functions
@@ -301,12 +302,9 @@ If region is active, adds or removes vimish folds."
 	    ;; disable linum-mode in pdf-view-mode,
 	    ;;   see also https://github.com/politza/pdf-tools#known-problems
 	    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode -1))))
-	    ;; (add-hook 'LaTeX-mode-hook (lambda ()
-	    ;; 				 (reftex-mode t)
-	    ;; 				 (flyspell-mode t)))
-
-  :hook ((LaTex-mode . reftex-mode)
-	 (LaTex-mode . flyspell-mode))
+	    (add-hook 'LaTeX-mode-hook (lambda ()
+					 (reftex-mode t)
+					 (flyspell-mode t)))
   )
 
 ;;; .emacs ends here

@@ -29,15 +29,15 @@
   :custom
   (inhibit-startup-screen t)
   :init
-  (winner-mode t)
-  (global-linum-mode t)
-  (show-paren-mode t)
   (electric-pair-mode t)
   (electric-quote-mode t)
+  (global-linum-mode t)
   (load-theme 'atom-one-dark)
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
+  (show-paren-mode t)
   (tool-bar-mode -1)
+  (winner-mode t)
   (add-to-list 'default-frame-alist '(font . "CodeNewRoman Nerd Font Mono-16"))
   (set-face-attribute 'mode-line nil :font "CodeNewRoman Nerd Font Mono-16")
   :bind

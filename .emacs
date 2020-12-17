@@ -168,6 +168,15 @@ If region is active, adds or removes vimish folds."
   :init
   (company-quickhelp-mode t))
 
+(use-package company-bibtex
+  :ensure t
+  :after company
+  :init
+  (add-to-list 'company-backends 'company-bibtex)
+  :custom
+  (company-bibtex-bibliography
+   '("/Users/ligengwang/Projects/tex/Ph.D-docs/ucasthesis/Biblio/ref.bib")))
+
 (use-package company-auctex
   :ensure t
   :init

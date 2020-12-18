@@ -146,7 +146,6 @@ If region is active, adds or removes vimish folds."
   :ensure t
   :hook (after-init . global-flycheck-mode))
 
-
 (use-package company
   :ensure t
   :custom
@@ -283,7 +282,6 @@ If region is active, adds or removes vimish folds."
 	    (setq TeX-source-correlate-method 'synctex)
 	    (setq TeX-auto-save t)
 	    (setq TeX-parse-self t)
-	    (setq TeX-fold-mode t)
 	    (setq-default TeX-master "paper.tex")
 	    (setq reftex-plug-into-AUCTeX t)
 	    ;; make pdf-tool as the default pdf viewer for emacs
@@ -301,10 +299,30 @@ If region is active, adds or removes vimish folds."
 		      #'TeX-revert-document-buffer)
 	    ;; disable linum-mode in pdf-view-mode,
 	    ;;   see also https://github.com/politza/pdf-tools#known-problems
-	    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode -1))))
+	    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode -1)))
 	    (add-hook 'LaTeX-mode-hook (lambda ()
-					 (reftex-mode t)
-					 (flyspell-mode t)))
+					 ;; for fold macros, envs and math
+					 (TeX-fold-mode t)
+					 (add-to-list 'TeX-fold-macro-spec-list '("[cp]" ("citep")))
+					 (add-to-list 'TeX-fold-macro-spec-list '("[ct]" ("citet")))
+					 (TeX-fold-mode t)
+					 )))
+  ; outline-mode is for outline the sections (hide, show, navgation)
+  :bind-keymap ("C-o" . outline-mode-prefix-map)
+  :hook ((LaTeX-mode . reftex-mode)
+	 (LaTeX-mode . flyspell-mode)
+	 (LaTeX-mode . outline-minor-mode))
+  )
+
+
+(use-package multiple-cursors
+  :ensure t
+  :bind
+  (("C-S-c C-S-c" . 'mc/edit-lines)
+   ("C->" . 'mc/mark-next-like-this)
+   ("C-<" . 'mc/mark-previous-like-this)
+   ("C-c C-<" . 'mc/mark-all-like-this)
+   )
   )
 
 ;;; .emacs ends here

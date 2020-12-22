@@ -318,7 +318,9 @@ If region is active, adds or removes vimish folds."
 		      #'TeX-revert-document-buffer)
 	    ;; disable linum-mode in pdf-view-mode,
 	    ;;   see also https://github.com/politza/pdf-tools#known-problems
-	    (add-hook 'pdf-view-mode-hook (lambda () (linum-mode -1)))
+	    (add-hook 'pdf-view-mode-hook (lambda ()
+					    (linum-mode -1)
+					    (pdf-view-midnight-minor-mode t)))
 	    (add-hook 'LaTeX-mode-hook (lambda ()
 					 ;; for fold macros, envs and math
 					 (TeX-fold-mode t)
@@ -347,5 +349,11 @@ If region is active, adds or removes vimish folds."
    ("C-c C-<" . 'mc/mark-all-like-this)
    )
   )
+
+(use-package cnfonts
+  :ensure t
+  :init
+  (cnfonts-enable)
+  (cnfonts-set-spacemacs-fallback-fonts))
 
 ;;; .emacs ends here

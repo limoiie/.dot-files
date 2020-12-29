@@ -355,10 +355,46 @@ If region is active, adds or removes vimish folds."
    )
   )
 
-(use-package cnfonts
+(use-package bap-mode
+  :ensure t
+  )
+
+(use-package merlin
+  :after company
+  :init
+  (defun opam-path (path)
+    (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
+      (concat opam-share-dir "/" path)))
+  (add-to-list 'load-path (opam-path "emacs/site-lisp"))
+  (add-to-list 'load-path (opam-path "tuareg"))
+  (autoload 'merlin-mode "merlin" "Merlin mode" t)
+  (require 'dot)
+  (add-to-list 'company-backends 'merlin-company-backend)
+  :custom
+  (merlin-completion-with-doc t)
+  (merlin-use-auto-complete-mode nil)
+  (tuareg-font-lock-symbols t)
+  (merlin-command 'opam)
+  (merlin-locate-preference 'mli)
+  :hook((tuareg-mode . merlin-mode)
+	(caml-mode   . merlin-mode)
+	)
+  :bind
+  (("C-c TAB" . 'company-complete)
+   ("C-c C-d" . 'merlin-document)
+   ("C-c d"   . 'merlin-destruct)
+   )
+  )
+
+(use-package helm
   :ensure t
   :init
-  (cnfonts-enable)
-  (cnfonts-set-spacemacs-fallback-fonts))
+  (helm-mode t)
+  :bind
+  (("M-x"     . 'helm-M-x)
+   ("C-x C-f" . 'helm-find-files)
+   ("C-x r b" . 'helm-filtered-bookmarks)
+   )
+  )
 
 ;;; .emacs ends here

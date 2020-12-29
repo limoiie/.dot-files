@@ -30,6 +30,7 @@
 (use-package compile
   :custom
   (inhibit-startup-screen t)
+  (byte-compile-warnings '(cl-functions))
   :init
   (electric-pair-mode t)
   (electric-quote-mode t)
@@ -381,7 +382,8 @@ If region is active, adds or removes vimish folds."
 
 (use-package merlin
   :after company
-  :functions (merlin-document merlin-destruct opam-path)
+  :functions opam-path
+  :commands (merlin-document merlin-destruct)
   :init
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))

@@ -14,7 +14,10 @@
    'package-archives
    '("marmalade" . "https://marmalade-repo.org/packages/")
    t)
-  (package-initialize))
+  (when (<= emacs-major-version 26)
+    (package-initialize)
+    )
+  )
 
 ;; This is only needed once, near the top of the file
 (eval-when-compile

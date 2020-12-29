@@ -90,8 +90,8 @@
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
   ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-  (doom-themes-treemacs-config)
+  ;; (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+  ;; (doom-themes-treemacs-config)
   
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
@@ -250,7 +250,9 @@ If region is active, adds or removes vimish folds."
        :priority 96)
       (global :when active)
       (buffer-position :priority 99)
-      (hud :priority 99))))
+      (hud :priority 99))
+    )
+  )
 
 (use-package slime
   :disabled
@@ -289,28 +291,33 @@ If region is active, adds or removes vimish folds."
   :config
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-page)
-  (setq pdf-annot-activate-created-annotations t)
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
-  (define-key pdf-view-mode-map (kbd "C-r") 'isearch-backward)
-  ;; automatically turns on midnight-mode for pdfs
-  ;; (add-hook 'pdf-view-mode-hook (lambda () (bms/pdf-midnite-amber)))
+  :custom
+  (pdf-annot-activate-created-annotations t)
+  :bind (:map pdf-view-mode-map
+	      ("C-s" . 'isearch-forward)
+	      ("C-r" . 'isearch-backward))
   )
 
 
 (use-package tex
   :ensure auctex
   :mode ("\\.tex\\'" . TeX-latex-mode)
+  :defines TeX-fold-macro-spec-list
+  :functions (TeX-revert-document-buffer pdf-view-midnight-minor-mode)
+  :custom
+  ;; tex customization
+  (TeX-source-correlate-mode t)
+  (TeX-source-correlate-method 'synctex)
+  (TeX-auto-save t)
+  (TeX-parse-self t)
+  (TeX-master "paper.tex")  ;; could setq-default be put in :custom?
+  ;; reftex
+  (reftex-plug-into-AUCTeX t)
+  ;; pdf tools
+  (TeX-view-program-selection '((output-pdf "PDF Tools")))
+  (TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
+  (TeX-source-correlate-start-server t)
   :config (progn
-	    (setq TeX-source-correlate-mode t)
-	    (setq TeX-source-correlate-method 'synctex)
-	    (setq TeX-auto-save t)
-	    (setq TeX-parse-self t)
-	    (setq-default TeX-master "paper.tex")
-	    (setq reftex-plug-into-AUCTeX t)
-	    ;; make pdf-tool as the default pdf viewer for emacs
-	    (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
-		  TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-		  TeX-source-correlate-start-server t)
 	    (add-to-list 'TeX-engine-alist
 			 '(xetex-tmp
 			   "A TeX-engine that supports unicode content and store tmp files into ./Tmp"
@@ -322,28 +329,29 @@ If region is active, adds or removes vimish folds."
 		      #'TeX-revert-document-buffer)
 	    ;; disable linum-mode in pdf-view-mode,
 	    ;;   see also https://github.com/politza/pdf-tools#known-problems
-	    (add-hook 'pdf-view-mode-hook (lambda ()
-					    (linum-mode -1)
-					    (pdf-view-midnight-minor-mode t)))
-	    (add-hook 'LaTeX-mode-hook (lambda ()
-					 ;; for fold macros, envs and math
-					 (TeX-fold-mode t)
-					 (add-to-list 'TeX-fold-macro-spec-list '("[cp]" ("citep")))
-					 (add-to-list 'TeX-fold-macro-spec-list '("[ct]" ("citet")))
-					 (add-to-list 'TeX-fold-macro-spec-list '("{1}[{2}]" ("env")))
-					 (add-to-list 'TeX-fold-macro-spec-list '("{3}[{1}]" ("multicolumn")))
-					 (add-to-list 'TeX-fold-macro-spec-list '("# {1}" ("section" "section*")) t)
-					 (add-to-list 'TeX-fold-macro-spec-list '("## {1}" ("subsection" "subsection*")) t)
-					 (add-to-list 'TeX-fold-macro-spec-list '("### {1}" ("subsubsection" "subsubsection*")) t)
-					 (TeX-fold-mode t)
-					 )))
+	    (add-hook 'pdf-view-mode-hook
+		      (lambda ()
+			(linum-mode -1)
+			(pdf-view-midnight-minor-mode t)))
+	    (add-hook 'LaTeX-mode-hook
+		      (lambda ()
+			;; for fold macros, envs and math
+			(TeX-fold-mode t)
+			(add-to-list 'TeX-fold-macro-spec-list '("[cp]" ("citep")))
+			(add-to-list 'TeX-fold-macro-spec-list '("[ct]" ("citet")))
+			(add-to-list 'TeX-fold-macro-spec-list '("{1}[{2}]" ("env")))
+			(add-to-list 'TeX-fold-macro-spec-list '("{3}[{1}]" ("multicolumn")))
+			(add-to-list 'TeX-fold-macro-spec-list '("# {1}" ("section" "section*")) t)
+			(add-to-list 'TeX-fold-macro-spec-list '("## {1}" ("subsection" "subsection*")) t)
+			(add-to-list 'TeX-fold-macro-spec-list '("### {1}" ("subsubsection" "subsubsection*")) t)
+			(TeX-fold-mode t)
+			)))
 					; outline-mode is for outline the sections (hide, show, navgation)
   :bind-keymap ("C-o" . outline-mode-prefix-map)
   :hook ((LaTeX-mode . reftex-mode)
 	 (LaTeX-mode . flyspell-mode)
 	 (LaTeX-mode . outline-minor-mode))
   )
-
 
 (use-package multiple-cursors
   :ensure t
@@ -355,12 +363,25 @@ If region is active, adds or removes vimish folds."
    )
   )
 
+(use-package helm
+  :ensure t
+  :init
+  (helm-mode t)
+  :bind
+  (("M-x"     . 'helm-M-x)
+   ("C-x C-f" . 'helm-find-files)
+   ("C-x r b" . 'helm-filtered-bookmarks)
+   )
+  )
+
 (use-package bap-mode
   :ensure t
+  :after helm
   )
 
 (use-package merlin
   :after company
+  :functions (merlin-document merlin-destruct opam-path)
   :init
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
@@ -386,15 +407,4 @@ If region is active, adds or removes vimish folds."
    )
   )
 
-(use-package helm
-  :ensure t
-  :init
-  (helm-mode t)
-  :bind
-  (("M-x"     . 'helm-M-x)
-   ("C-x C-f" . 'helm-find-files)
-   ("C-x r b" . 'helm-filtered-bookmarks)
-   )
-  )
-
-;;; .emacs ends here
+;;; init.el ends here

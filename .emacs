@@ -82,7 +82,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+  (load-theme 'doom-opera t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -175,11 +175,12 @@ If region is active, adds or removes vimish folds."
   :bind
   (:map
    company-mode-map
-   ("S-<tab>" . company-complete-common)
+   ("C-\\" . company-complete-common)
    ("C-?"     . company-manual-begin)
    :map
    company-active-map
    ("<tab>"   . company-complete-selection)
+   ("C-e"     . company-complete-selection)
    ("C-p"     . company-select-previous)
    ("C-n"     . company-select-next))
   :hook (after-init . global-company-mode))

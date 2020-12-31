@@ -79,21 +79,22 @@
 
 (use-package doom-themes
   :ensure t
+  :custom
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-opera t)
+  (load-theme 'doom-dark+)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  
+
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
   ;; or for treemacs users
   ;; (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   ;; (doom-themes-treemacs-config)
-  
+
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
@@ -127,11 +128,11 @@
 If region is active, adds or removes vimish folds."
     (interactive)
     (if (region-active-p)
-        (unless
-            (ignore-errors (vimish-fold (region-beginning) (region-end)))
-          (vimish-fold-delete))
+	(unless
+	    (ignore-errors (vimish-fold (region-beginning) (region-end)))
+	  (vimish-fold-delete))
       (unless (delq nil (mapcar #'vimish-fold--toggle (overlays-at (point))))
-        (hs-toggle-hiding))))
+	(hs-toggle-hiding))))
   :bind (("C-=" . hs-toggle-hiding)
 	 ("C-[ [27;6;61~" . hs-toggle-hiding)
 	 ("C--" . toggle-fold)
@@ -268,8 +269,8 @@ If region is active, adds or removes vimish folds."
   :ensure t
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
   ;; :init
   ;; (setq markdown-command "multimarkdown")
   )
@@ -282,7 +283,7 @@ If region is active, adds or removes vimish folds."
   :custom
   (grip-preview-use-webkit t)  ; use embedded webkit to preview
   :bind (:map markdown-mode-command-map
-              ("g" . grip-mode))
+	      ("g" . grip-mode))
   )
 
 

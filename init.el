@@ -381,9 +381,13 @@ If region is active, adds or removes vimish folds."
   :after helm
   )
 
+(use-package ocp-indent
+  :ensure t
+  )
+
 (use-package merlin
-  :after company
-  :functions opam-path
+  :after (company ocp-indent)
+  :functions (opam-path recompile)
   :commands (merlin-document merlin-destruct)
   :init
   (defun opam-path (path)
@@ -394,6 +398,12 @@ If region is active, adds or removes vimish folds."
   (autoload 'merlin-mode "merlin" "Merlin mode" t)
   (require 'dot)
   (add-to-list 'company-backends 'merlin-company-backend)
+  :config
+  (add-hook 'tuareg-mode-hook
+	    (lambda ()
+              (ocp-setup-indent)
+              ;; (add-hook 'before-save-hook 'ocp-indent-buffer)
+	      ))
   :custom
   (merlin-completion-with-doc t)
   (merlin-use-auto-complete-mode nil)

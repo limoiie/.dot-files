@@ -31,6 +31,7 @@
   :custom
   (inhibit-startup-screen t)
   :init
+  (backup-by-copying-when-linked t)  ; preserve hard link from breaking when emacs edits it
   (electric-pair-mode t)
   (electric-quote-mode t)
   (global-linum-mode t)

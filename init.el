@@ -389,7 +389,7 @@ If region is active, adds or removes vimish folds."
 (use-package merlin
   :after (company ocp-indent)
   :functions (opam-path recompile)
-  :commands (merlin-document merlin-destruct)
+  :commands (merlin-document merlin-destruct merlin-switch-to-ml merlin-switch-to-mli)
   :init
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))

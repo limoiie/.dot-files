@@ -30,6 +30,7 @@
 (use-package compile
   :custom
   (inhibit-startup-screen t)
+  (byte-compile-warnings '(cl-functions))
   :init
   (backup-by-copying-when-linked t)  ; preserve hard link from breaking when emacs edits it
   (electric-pair-mode t)
@@ -79,21 +80,22 @@
 
 (use-package doom-themes
   :ensure t
+  :custom
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-opera t)
+  (load-theme 'doom-dark+)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  
+
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
   ;; or for treemacs users
   ;; (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   ;; (doom-themes-treemacs-config)
-  
+
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
@@ -127,11 +129,11 @@
 If region is active, adds or removes vimish folds."
     (interactive)
     (if (region-active-p)
-        (unless
-            (ignore-errors (vimish-fold (region-beginning) (region-end)))
-          (vimish-fold-delete))
+	(unless
+	    (ignore-errors (vimish-fold (region-beginning) (region-end)))
+	  (vimish-fold-delete))
       (unless (delq nil (mapcar #'vimish-fold--toggle (overlays-at (point))))
-        (hs-toggle-hiding))))
+	(hs-toggle-hiding))))
   :bind (("C-=" . hs-toggle-hiding)
 	 ("C-[ [27;6;61~" . hs-toggle-hiding)
 	 ("C--" . toggle-fold)
@@ -268,8 +270,8 @@ If region is active, adds or removes vimish folds."
   :ensure t
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
   ;; :init
   ;; (setq markdown-command "multimarkdown")
   )
@@ -282,7 +284,7 @@ If region is active, adds or removes vimish folds."
   :custom
   (grip-preview-use-webkit t)  ; use embedded webkit to preview
   :bind (:map markdown-mode-command-map
-              ("g" . grip-mode))
+	      ("g" . grip-mode))
   )
 
 
@@ -380,9 +382,14 @@ If region is active, adds or removes vimish folds."
   :after helm
   )
 
+(use-package ocp-indent
+  :ensure t
+  )
+
 (use-package merlin
-  :after company
-  :functions (merlin-document merlin-destruct opam-path)
+  :after (company ocp-indent)
+  :functions (opam-path recompile)
+  :commands (merlin-document merlin-destruct)
   :init
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
@@ -392,20 +399,38 @@ If region is active, adds or removes vimish folds."
   (autoload 'merlin-mode "merlin" "Merlin mode" t)
   (require 'dot)
   (add-to-list 'company-backends 'merlin-company-backend)
+  :config
+  (add-hook 'tuareg-mode-hook
+	    (lambda ()
+              (ocp-setup-indent)
+              ;; (add-hook 'before-save-hook 'ocp-indent-buffer)
+	      ))
   :custom
   (merlin-completion-with-doc t)
   (merlin-use-auto-complete-mode nil)
   (tuareg-font-lock-symbols t)
   (merlin-command 'opam)
   (merlin-locate-preference 'mli)
-  :hook((tuareg-mode . merlin-mode)
-	(caml-mode   . merlin-mode)
-	)
+  :hook ((tuareg-mode . merlin-mode)
+	 (caml-mode   . merlin-mode)
+	 (tuareg-mode . auto-fill-mode)
+	 )
   :bind
-  (("C-c TAB" . 'company-complete)
+  (("C-c c"   . 'recompile)
+   ("C-c C-c" . 'recompile)
+   ("C-c C-g C-m" . 'merlin-switch-to-ml)
+   ("C-c C-g C-i" . 'merlin-switch-to-mli)
+   :map merlin-mode-map
+   ("C-c TAB" . 'company-complete)
    ("C-c C-d" . 'merlin-document)
    ("C-c d"   . 'merlin-destruct)
    )
   )
+
+(use-package elpy
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable))
 
 ;;; init.el ends here

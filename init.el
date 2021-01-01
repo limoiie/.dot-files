@@ -193,20 +193,6 @@ If region is active, adds or removes vimish folds."
   :init
   (company-quickhelp-mode t))
 
-(use-package company-bibtex
-  :ensure t
-  :after company
-  :init
-  (add-to-list 'company-backends 'company-bibtex)
-  :custom
-  (company-bibtex-bibliography
-   '("/Users/ligengwang/Projects/tex/Ph.D-docs/ucasthesis/Biblio/ref.bib")))
-
-(use-package company-auctex
-  :ensure t
-  :init
-  (company-auctex-init))
-
 
 (use-package spaceline
   :ensure t
@@ -291,16 +277,34 @@ If region is active, adds or removes vimish folds."
 ;; see also https://github.com/politza/pdf-tools
 (use-package pdf-tools
   :ensure t
-  :config
-  (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-page)
   :custom
   (pdf-annot-activate-created-annotations t)
+  (pdf-view-display-size 'fit-page)
+  :config
+  (message "==> pdf-tools has been loaded!!!!")
+  (pdf-tools-install)
+  ;; disable linum-mode in pdf-view-mode,
+  ;;   see also https://github.com/politza/pdf-tools#known-problems
+  (add-hook 'pdf-view-mode-hook
+	    (lambda ()
+	      (linum-mode -1)
+	      (pdf-view-midnight-minor-mode t)))
   :bind (:map pdf-view-mode-map
 	      ("C-s" . 'isearch-forward)
 	      ("C-r" . 'isearch-backward))
   )
 
+
+(use-package company-bibtex
+  :ensure t
+  :defer t
+  :custom
+  (company-bibtex-bibliography
+   '("/Users/ligengwang/Projects/tex/Ph.D-docs/ucasthesis/Biblio/ref.bib")))
+
+(use-package company-auctex
+  :ensure t
+  :defer t)
 
 (use-package tex
   :ensure auctex
@@ -320,40 +324,37 @@ If region is active, adds or removes vimish folds."
   (TeX-view-program-selection '((output-pdf "PDF Tools")))
   (TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
   (TeX-source-correlate-start-server t)
-  :config (progn
-	    (add-to-list 'TeX-engine-alist
-			 '(xetex-tmp
-			   "A TeX-engine that supports unicode content and store tmp files into ./Tmp"
-			   "xetex -output-directory=Tmp"
-			   "xelatex -output-directory=Tmp"
-			   ConTeXt-engine))
-	    ;; Update PDF buffers after successful LaTeX runs
-	    (add-hook 'TeX-after-compilation-finished-functions
-		      #'TeX-revert-document-buffer)
-	    ;; disable linum-mode in pdf-view-mode,
-	    ;;   see also https://github.com/politza/pdf-tools#known-problems
-	    (add-hook 'pdf-view-mode-hook
-		      (lambda ()
-			(linum-mode -1)
-			(pdf-view-midnight-minor-mode t)))
-	    (add-hook 'LaTeX-mode-hook
-		      (lambda ()
-			;; for fold macros, envs and math
-			(TeX-fold-mode t)
-			(add-to-list 'TeX-fold-macro-spec-list '("[cp]" ("citep")))
-			(add-to-list 'TeX-fold-macro-spec-list '("[ct]" ("citet")))
-			(add-to-list 'TeX-fold-macro-spec-list '("{1}[{2}]" ("env")))
-			(add-to-list 'TeX-fold-macro-spec-list '("{3}[{1}]" ("multicolumn")))
-			(add-to-list 'TeX-fold-macro-spec-list '("# {1}" ("section" "section*")) t)
-			(add-to-list 'TeX-fold-macro-spec-list '("## {1}" ("subsection" "subsection*")) t)
-			(add-to-list 'TeX-fold-macro-spec-list '("### {1}" ("subsubsection" "subsubsection*")) t)
-			(TeX-fold-mode t)
-			)))
-					; outline-mode is for outline the sections (hide, show, navgation)
+  :config
+  (message "==> tex has been loaded!!!!")
+  (company-auctex-init)
+  (add-to-list 'company-backends 'company-bibtex)
+  (add-to-list 'TeX-engine-alist
+	       '(xetex-tmp
+		 "A TeX-engine that supports unicode content and store tmp files into ./Tmp"
+		 "xetex -output-directory=Tmp"
+		 "xelatex -output-directory=Tmp"
+		 ConTeXt-engine))
+  ;; Update PDF buffers after successful LaTeX runs
+  (add-hook 'TeX-after-compilation-finished-functions
+	    #'TeX-revert-document-buffer)
+  (defun append-more-fold-macro ()
+    "Append more fold macro rules"
+    (TeX-fold-mode t)
+    (add-to-list 'TeX-fold-macro-spec-list '("[cp]" ("citep")))
+    (add-to-list 'TeX-fold-macro-spec-list '("[ct]" ("citet")))
+    (add-to-list 'TeX-fold-macro-spec-list '("{1}[{2}]" ("env")))
+    (add-to-list 'TeX-fold-macro-spec-list '("{3}[{1}]" ("multicolumn")))
+    (add-to-list 'TeX-fold-macro-spec-list '("# {1}" ("section" "section*")) t)
+    (add-to-list 'TeX-fold-macro-spec-list '("## {1}" ("subsection" "subsection*")) t)
+    (add-to-list 'TeX-fold-macro-spec-list '("### {1}" ("subsubsection" "subsubsection*")) t)
+    (TeX-fold-mode t)
+    )
+  ;; outline-mode is for outline the sections (hide, show, navgation)
   :bind-keymap ("C-o" . outline-mode-prefix-map)
   :hook ((LaTeX-mode . reftex-mode)
 	 (LaTeX-mode . flyspell-mode)
-	 (LaTeX-mode . outline-minor-mode))
+	 (LaTeX-mode . outline-minor-mode)
+	 (LaTeX-mode . append-more-fold-macro))
   )
 
 (use-package multiple-cursors
@@ -398,22 +399,23 @@ If region is active, adds or removes vimish folds."
   (add-to-list 'load-path (opam-path "tuareg"))
   (autoload 'merlin-mode "merlin" "Merlin mode" t)
   (require 'dot)
-  (add-to-list 'company-backends 'merlin-company-backend)
-  :config
-  (add-hook 'tuareg-mode-hook
-	    (lambda ()
-              (ocp-setup-indent)
-              ;; (add-hook 'before-save-hook 'ocp-indent-buffer)
-	      ))
   :custom
   (merlin-completion-with-doc t)
   (merlin-use-auto-complete-mode nil)
   (tuareg-font-lock-symbols t)
   (merlin-command 'opam)
   (merlin-locate-preference 'mli)
+  :config
+  (add-to-list 'company-backends 'merlin-company-backend)
+  (defun on-tuareg-mode ()
+    "Run when tuareg mode is on"
+    (ocp-setup-indent)
+    ;; (add-hook 'before-save-hook 'ocp-indent-buffer)
+    )
   :hook ((tuareg-mode . merlin-mode)
 	 (caml-mode   . merlin-mode)
 	 (tuareg-mode . auto-fill-mode)
+	 (tuareg-mode . on-tuareg-mode)
 	 )
   :bind
   (("C-c c"   . 'recompile)

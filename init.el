@@ -272,6 +272,8 @@ If region is active, adds or removes vimish folds."
   :mode (("README\\.md\\'" . gfm-mode)
 	 ("\\.md\\'" . markdown-mode)
 	 ("\\.markdown\\'" . markdown-mode))
+  :config
+  (message "==> markdown-mode has been loaded!!!!")
   ;; :init
   ;; (setq markdown-command "multimarkdown")
   )
@@ -281,6 +283,8 @@ If region is active, adds or removes vimish folds."
 (use-package grip-mode
   :ensure t
   :after markdown-mode
+  :config
+  (message "==> grip-mode has been loaded!!!!")
   :custom
   (grip-preview-use-webkit t)  ; use embedded webkit to preview
   :bind (:map markdown-mode-command-map
@@ -291,11 +295,13 @@ If region is active, adds or removes vimish folds."
 ;; see also https://github.com/politza/pdf-tools
 (use-package pdf-tools
   :ensure t
+  :defer t
   :config
+  (message "==> pdf-tools has been loaded!!!!")
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-page)
-  :custom
-  (pdf-annot-activate-created-annotations t)
+  ;; :custom
+  ;; (pdf-annot-activate-created-annotations t)
   :bind (:map pdf-view-mode-map
 	      ("C-s" . 'isearch-forward)
 	      ("C-r" . 'isearch-backward))
@@ -321,6 +327,7 @@ If region is active, adds or removes vimish folds."
   (TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
   (TeX-source-correlate-start-server t)
   :config (progn
+	    (message "==> tex has been loaded!!!!")
 	    (add-to-list 'TeX-engine-alist
 			 '(xetex-tmp
 			   "A TeX-engine that supports unicode content and store tmp files into ./Tmp"
@@ -358,6 +365,7 @@ If region is active, adds or removes vimish folds."
 
 (use-package multiple-cursors
   :ensure t
+  :defer t
   :bind
   (("C-S-c C-S-c" . 'mc/edit-lines)
    ("C->" . 'mc/mark-next-like-this)
@@ -380,17 +388,22 @@ If region is active, adds or removes vimish folds."
 (use-package bap-mode
   :ensure t
   :after helm
+  :mode (("\\.bir\\'" . bap-mode)
+	 ("\\.bil\\'" . bap-mode)
+	 )
   )
 
 (use-package ocp-indent
   :ensure t
+  :defer t
   )
 
 (use-package merlin
-  :after (company ocp-indent)
+  ;; :after (company ocp-indent)
   :functions (opam-path recompile)
   :commands (merlin-document merlin-destruct merlin-switch-to-ml merlin-switch-to-mli)
-  :init
+  :config
+  (message "==> merlin has been loaded!!!!")
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
       (concat opam-share-dir "/" path)))
@@ -399,7 +412,6 @@ If region is active, adds or removes vimish folds."
   (autoload 'merlin-mode "merlin" "Merlin mode" t)
   (require 'dot)
   (add-to-list 'company-backends 'merlin-company-backend)
-  :config
   (add-hook 'tuareg-mode-hook
 	    (lambda ()
               (ocp-setup-indent)
@@ -418,9 +430,11 @@ If region is active, adds or removes vimish folds."
   :bind
   (("C-c c"   . 'recompile)
    ("C-c C-c" . 'recompile)
+   :map merlin-mode-map
    ("C-c C-g C-m" . 'merlin-switch-to-ml)
    ("C-c C-g C-i" . 'merlin-switch-to-mli)
-   :map merlin-mode-map
+   ("M-."     . 'merlin-locate)
+   ("C-c C-l" . 'merlin-locate-ident)
    ("C-c TAB" . 'company-complete)
    ("C-c C-d" . 'merlin-document)
    ("C-c d"   . 'merlin-destruct)

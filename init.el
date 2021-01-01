@@ -31,8 +31,8 @@
   :custom
   (inhibit-startup-screen t)
   (byte-compile-warnings '(cl-functions))
-  :init
   (backup-by-copying-when-linked t)  ; preserve hard link from breaking when emacs edits it
+  :init
   (electric-pair-mode t)
   (electric-quote-mode t)
   (global-linum-mode t)

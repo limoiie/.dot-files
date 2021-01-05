@@ -169,7 +169,16 @@ If region is active, adds or removes vimish folds."
 
 (use-package flycheck
   :ensure t
-  :hook (after-init . global-flycheck-mode))
+  :config
+  (defun on_cpp_mode ()
+    "Run on c++-mode"
+    (message "flycheck on cpp mode!!!")
+    (setq flycheck-gcc-language-standard "c++2a")
+    (setq flycheck-clang-language-standard "c++2a")
+    )
+  :hook ((after-init . global-flycheck-mode)
+	 (c++-mode   . on_cpp_mode))
+  )
 
 (use-package company
   :ensure t
@@ -446,5 +455,33 @@ If region is active, adds or removes vimish folds."
   :defer t
   :init
   (advice-add 'python-mode :before 'elpy-enable))
+
+
+(use-package company-irony-c-headers
+  :ensure t
+  )
+
+(use-package company-irony
+  :ensure t
+  )
+
+(use-package irony
+  :ensure t
+  :after (company-irony-c-headers company-irony)
+  :config
+  (add-to-list 'company-backends '(company-irony-c-headers company-irony))
+  :hook ((c++-mode  . irony-mode)
+	 (c-mode    . irony-mode)
+	 (objc-mode . irony-mode))
+  )
+
+(use-package leetcode
+  :ensure t
+  :defer t
+  :custom
+  (leetcode-prefer-language "cpp")
+  (leetcode-save-solutions t)
+  (leetcode-directory "~/Projects/leetcode")
+  )
 
 ;;; init.el ends here

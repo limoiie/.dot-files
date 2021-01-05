@@ -431,6 +431,15 @@ If region is active, adds or removes vimish folds."
     (ocp-setup-indent)
     ;; (add-hook 'before-save-hook 'ocp-indent-buffer)
     )
+  (defun merlin-switch-between-ml-mli ()
+    "Switch between ml and mli of the module that with the same name as the current file"
+    (interactive)
+    (let ((ext (file-name-extension (buffer-name)))
+	  (base (file-name-base (buffer-name))))
+      (if (string= ext "ml")
+	   (merlin-switch-to-mli base)
+	(merlin-switch-to-ml base)
+	)))
   :hook ((tuareg-mode . merlin-mode)
 	 (caml-mode   . merlin-mode)
 	 (tuareg-mode . auto-fill-mode)
@@ -442,6 +451,7 @@ If region is active, adds or removes vimish folds."
    :map merlin-mode-map
    ("C-c C-g C-m" . 'merlin-switch-to-ml)
    ("C-c C-g C-i" . 'merlin-switch-to-mli)
+   ("C-c C-g C-g" . 'merlin-switch-between-ml-mli)
    ("M-."     . 'merlin-locate)
    ("C-c C-l" . 'merlin-locate-ident)
    ("C-c TAB" . 'company-complete)

@@ -24,6 +24,8 @@
   ;; Following line is not needed if use-package.el is in ~/.emacs.d
   ;; (add-to-list 'load-path "<path where use-package is installed>")
   (require 'use-package)
+  (setq use-package-verbose t)
+  (setq use-package-minimum-reported-time 0.0001)
   )
 
 ;;; Use packages
@@ -153,8 +155,21 @@ If region is active, adds or removes vimish folds."
 ;; see also https://github.com/joaotavora/yasnippet
 (use-package yasnippet
   :ensure t
-  :init
-  (yas-global-mode t))
+  :commands (yas-reload-all)
+  :config
+  (yas-reload-all)
+  :hook ((c-mode       . yas-minor-mode)
+	 (c++-mode     . yas-minor-mode)
+	 (cc-mode      . yas-minor-mode)
+	 (cmake-mode   . yas-minor-mode)
+	 (caml-mode    . yas-minor-mode)
+	 (java-mode    . yas-minor-mode)
+	 (kotlin-mode  . yas-minor-mode)
+	 (python-mode  . yas-minor-mode)
+	 (rust-mode    . yas-minor-mode)
+	 (latex-mode   . yas-minor-mode)
+	 )
+  )
 
 ;; see also https://github.com/abo-abo/avy
 (use-package avy
@@ -313,12 +328,13 @@ If region is active, adds or removes vimish folds."
 ;; see also https://github.com/politza/pdf-tools
 (use-package pdf-tools
   :ensure t
+  :load-path "site-lisp/pdf-tools/lisp"
+  :magic ("%PDF" . pdf-view-mode)
   :custom
   (pdf-annot-activate-created-annotations t)
   (pdf-view-display-size 'fit-page)
   :config
-  (message "==> pdf-tools has been loaded!!!!")
-  (pdf-tools-install)
+  (pdf-tools-install :no-query)
   ;; disable linum-mode in pdf-view-mode,
   ;;   see also https://github.com/politza/pdf-tools#known-problems
   (add-hook 'pdf-view-mode-hook
@@ -344,6 +360,7 @@ If region is active, adds or removes vimish folds."
 
 (use-package tex
   :ensure auctex
+  :after pdf-tools
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :defines TeX-fold-macro-spec-list
   :functions (TeX-revert-document-buffer pdf-view-midnight-minor-mode)
@@ -395,6 +412,7 @@ If region is active, adds or removes vimish folds."
 
 (use-package multiple-cursors
   :ensure t
+  :disabled t
   :defer t
   :bind
   (("C-S-c C-S-c" . 'mc/edit-lines)
@@ -437,7 +455,8 @@ If region is active, adds or removes vimish folds."
 (use-package merlin
   ;; :after (company ocp-indent)
   :functions (opam-path recompile)
-  :commands (merlin-document merlin-destruct merlin-switch-to-ml merlin-switch-to-mli)
+  :commands (merlin-document merlin-destruct merlin-switch-to-ml merlin-switch-to-mli merlin-switch-between-ml-mli merlin-locate merlin-locate-ident)
+  :defines (merlin-mode-map)
   :init
   (defun opam-path (path)
     (let ((opam-share-dir (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
@@ -466,7 +485,7 @@ If region is active, adds or removes vimish folds."
     (let ((ext (file-name-extension (buffer-name)))
 	  (base (file-name-base (buffer-name))))
       (if (string= ext "ml")
-	   (merlin-switch-to-mli base)
+	  (merlin-switch-to-mli base)
 	(merlin-switch-to-ml base)
 	)))
   :hook ((tuareg-mode . merlin-mode)
@@ -498,10 +517,14 @@ If region is active, adds or removes vimish folds."
 
 (use-package company-irony-c-headers
   :ensure t
+  :defer t
+  :after company
   )
 
 (use-package company-irony
   :ensure t
+  :defer t
+  :after company
   )
 
 (use-package irony

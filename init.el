@@ -80,22 +80,21 @@
 
 (use-package doom-themes
   :ensure t
+  :defines (doom-themes-neotree-file-icons)
   :custom
   (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
   (doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   ;; Global settings (defaults)
-  (load-theme 'doom-dark+)
-
+  (load-theme 'doom-one)
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
+  ;; (setq doom-themes-neotree-file-icons t)
   ;; or for treemacs users
   ;; (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   ;; (doom-themes-treemacs-config)
-
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
@@ -203,53 +202,77 @@ If region is active, adds or removes vimish folds."
   (company-quickhelp-mode t))
 
 
-(use-package spaceline
+(use-package all-the-icons)
+
+(use-package doom-modeline
   :ensure t
-  :functions spaceline-compile
+  :custom
+  (doom-modeline-minor-modes t)
+  (doom-modeline-enable-word-count t)
+  (doom-modeline-icon nil)
+  :init
+  (doom-modeline-mode t)
+  )
+
+(use-package neotree
+  :custom
+  (neo-window-fixed-size nil)
+  :functions (on-toggle)
   :config
-  (spaceline-spacemacs-theme)
-  (spaceline-compile
-    ;; left side
-    '(((persp-name
-	workspace-number
-	window-number)
-       :fallback evil-state
-       :face highlight-face
-       :priority 100)
-      (anzu :priority 95)
-      auto-compile
-      ((buffer-modified buffer-size buffer-id remote-host)
-       :priority 98)
-      (major-mode :priority 79)
-      (process :when active)
-      ((flycheck-error flycheck-warning flycheck-info)
-       :when active
-       :priority 89)
-      (minor-modes :when active
-                   :priority 9)
-      (mu4e-alert-segment :when active)
-      (erc-track :when active)
-      (version-control :when active
-                       :priority 78)
-      (org-pomodoro :when active)
-      (org-clock :when active)
-      nyan-cat)
-    ;; right side
-    '(which-function
-      (python-pyvenv :fallback python-pyenv)
-      (purpose :priority 94)
-      (battery :when active)
-      (selection-info :priority 95)
-      input-method
-      ((buffer-encoding-abbrev
-	point-position
-	line-column)
-       :separator " | "
-       :priority 96)
-      (global :when active)
-      (buffer-position :priority 99)
-      (hud :priority 99))
+  (defun on-toggle ()
+    (interactive)
+    (neotree-toggle)
+    (doom-modeline-mode t)
     )
+  :bind ([f8] . on-toggle))
+
+(use-package spaceline
+  :disabled
+  ;; :functions spaceline-compile
+  ;; :config
+  ;; (spaceline-spacemacs-theme)
+  ;; (spaceline-compile
+  ;;   ;; left side
+  ;;   '(((persp-name
+  ;; 	workspace-number
+  ;; 	window-number)
+  ;;      :fallback evil-state
+  ;;      :face highlight-face
+  ;;      :priority 100)
+  ;;     (anzu :priority 95)
+  ;;     auto-compile
+  ;;     ((buffer-modified buffer-size buffer-id remote-host)
+  ;;      :priority 98)
+  ;;     (major-mode :priority 79)
+  ;;     (process :when active)
+  ;;     ((flycheck-error flycheck-warning flycheck-info)
+  ;;      :when active
+  ;;      :priority 89)
+  ;;     (minor-modes :when active
+  ;;                  :priority 9)
+  ;;     (mu4e-alert-segment :when active)
+  ;;     (erc-track :when active)
+  ;;     (version-control :when active
+  ;;                      :priority 78)
+  ;;     (org-pomodoro :when active)
+  ;;     (org-clock :when active)
+  ;;     nyan-cat)
+  ;;   ;; right side
+  ;;   '(which-function
+  ;;     (python-pyvenv :fallback python-pyenv)
+  ;;     (purpose :priority 94)
+  ;;     (battery :when active)
+  ;;     (selection-info :priority 95)
+  ;;     input-method
+  ;;     ((buffer-encoding-abbrev
+  ;; 	point-position
+  ;; 	line-column)
+  ;;      :separator " | "
+  ;;      :priority 96)
+  ;;     (global :when active)
+  ;;     (buffer-position :priority 99)
+  ;;     (hud :priority 99))
+  ;;   )
   )
 
 (use-package slime
@@ -390,6 +413,12 @@ If region is active, adds or removes vimish folds."
    ("C-x C-f" . 'helm-find-files)
    ("C-x r b" . 'helm-filtered-bookmarks)
    )
+  )
+
+(use-package helm-icons
+  :ensure t
+  :init
+  (helm-icons-enable)
   )
 
 (use-package bap-mode

@@ -546,4 +546,15 @@ If region is active, adds or removes vimish folds."
   (leetcode-directory "~/Projects/leetcode")
   )
 
+;; see also https://github.com/dajva/rg.el
+;; see also https://rgel.readthedocs.io/en/2.0.1/usage.html#installation
+(use-package rg
+  :ensure t
+  :defer t
+  :config
+  (rg-enable-default-bindings)
+  :bind (("C-c s" . rg-menu)
+	 )
+  )
+
 ;;; init.el ends here

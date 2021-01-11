@@ -35,6 +35,7 @@
   (byte-compile-warnings '(cl-functions))
   (backup-by-copying-when-linked t)  ; preserve hard link from breaking when emacs edits it
   :init
+  (setenv "MANWIDTH" "120")
   (electric-pair-mode t)
   (electric-quote-mode t)
   (global-linum-mode t)

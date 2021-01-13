@@ -187,7 +187,6 @@ If region is active, adds or removes vimish folds."
   :config
   (defun on_cpp_mode ()
     "Run on c++-mode"
-    (message "flycheck on cpp mode!!!")
     (setq flycheck-gcc-language-standard "c++2a")
     (setq flycheck-clang-language-standard "c++2a")
     )
@@ -541,10 +540,12 @@ If region is active, adds or removes vimish folds."
 (use-package leetcode
   :ensure t
   :defer t
+  :functions (leetcode-set-code-template-directory)
   :custom
   (leetcode-prefer-language "cpp")
   (leetcode-save-solutions t)
   (leetcode-directory "~/Projects/leetcode")
+  (leetcode-template-directory "~/Projects/leetcode/templates")
   )
 
 ;; see also https://github.com/dajva/rg.el

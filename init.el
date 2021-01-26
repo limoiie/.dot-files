@@ -304,12 +304,15 @@ If region is active, adds or removes vimish folds."
   )
 
 (use-package slime
-  :disabled
-  :init
-  (slime-setup)
-  :custom
-  (inferior-lisp-program "sbcl"))
+  :config
+  (setq inferior-lisp-program "/usr/local/bin/sbcl")
+  (slime-setup '(slime-fancy slime-company)))
 
+(use-package slime-company
+  :after (slime company)
+  :custom
+  (slime-company-completion 'fuzzy)
+  (slime-company-after-completion 'slime-company-just-one-space))
 
 ;; see also https://jblevins.org/projects/markdown-mode/
 (use-package markdown-mode
@@ -553,12 +556,11 @@ If region is active, adds or removes vimish folds."
 (use-package leetcode
   :ensure t
   :defer t
-  :functions (leetcode-set-code-template-directory)
-  :custom
-  (leetcode-prefer-language "cpp")
-  (leetcode-save-solutions t)
-  (leetcode-directory "~/Projects/leetcode")
-  (leetcode-template-directory "~/Projects/leetcode/templates")
+  :config
+  (setq leetcode-prefer-language "cpp")
+  (setq leetcode-save-solutions t)
+  (setq leetcode-directory "~/Projects/leetcode")
+  (setq leetcode-template-directory "~/Projects/leetcode/templates")
   )
 
 ;; see also https://github.com/dajva/rg.el

@@ -570,8 +570,96 @@ If region is active, adds or removes vimish folds."
   :defer t
   :config
   (rg-enable-default-bindings)
-  :bind (("C-c s" . rg-menu)
-	 )
+  :bind (("C-c s" . rg-menu))
+  )
+
+(use-package diff-hl
+  :ensure t
+  :init
+  (global-diff-hl-mode t)
+  ;; (global-diff-hl-amend-mode t)
+  (diff-hl-flydiff-mode t)  ; diff on the fly
+  :config
+  ;; use margin in terminal since no fringe
+  (unless (window-system) (diff-hl-margin-mode))
+  ;; :hook ((dired-mode .  diff-hl-dired-mode))
+  ;; :bind (("C-x v =" . diff-hl-diff-goto-hunk)
+  ;;        ("C-x v n" . diff-hl-diff-revert-hunk)
+  ;;        ("C-x v [" . diff-hl-diff-previous-hunk)
+  ;;        ("C-x v ]" . diff-hl-diff-next-hunk))
+  )
+
+;; disabled because this plugin would shift the code to the right
+;; constantly when any move operation is pressed.
+;; (use-package git-gutter
+;;   :ensure t
+;;   :init
+;;   (global-git-gutter-mode t)
+;;   ;; (git-gutter:linum-setup)
+;;   :bind (("C-x C-g"  . git-gutter)
+;;          ("C-x v ="  . git-gutter:popup-hunk)
+;;          ("C-x p"    . git-gutter:previous-hunk)
+;;          ("C-x n"    . git-gutter:next-hunk)
+;;          ("C-x v s"  . git-gutter:stage-hunk)
+;;          ("C-x v r"  . git-gutter:revert-hunk)
+;;          ))
+
+(use-package magit
+  :ensure t
+  :after diff-hl
+  :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh)))
+
+(use-package ligature
+  :disabled t  ; block ui when fullscreen
+  :load-path "~/.emacs.d/plugins/ligature.el"
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
+
+;; Collection of Emacs Development Environment Tools
+;; Parts of CEDET:
+;;  - ede: see also https://www.gnu.org/software/emacs/manual/html_node/ede/index.html#Top
+;;  - semantic
+;;  - srecode
+;;  - cogre
+;;  - speedbar
+;;  - eieio
+;;  - misc tools
+(use-package cedet
+  ;; :disabled t
+  :init
+  (add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
+  ;; (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+  (add-to-list 'semantic-default-submodes 'global-semantic-idle-local-symbol-highlight-mode)
+  (add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode)
+  (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+  (add-to-list 'semantic-default-submodes 'global-semantic-highlight-edits-mode)
+  :config
+  ;; (global-srecode-minor-mode t)            ; Enable template insertion menu
+  (global-ede-mode nil)
+  (semantic-mode t)
+  (require 'semantic/ia)
   )
 
 ;;; init.el ends here

@@ -100,7 +100,9 @@
   (doom-themes-enable-italic t) ; if nil, italics is universally disabled
   :config
   ;; Global settings (defaults)
-  (load-theme 'doom-one)
+  (if (window-system)
+      (load-theme 'doom-one-light)
+    (load-theme 'doom-dark+))
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
   ;; Enable custom neotree theme (all-the-icons must be installed!)
@@ -235,7 +237,7 @@ If region is active, adds or removes vimish folds."
   :custom
   (doom-modeline-minor-modes t)
   (doom-modeline-enable-word-count t)
-  (doom-modeline-icon nil)
+  (doom-modeline-icon t)
   :init
   (doom-modeline-mode t)
   )

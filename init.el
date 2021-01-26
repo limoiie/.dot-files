@@ -24,8 +24,8 @@
   ;; Following line is not needed if use-package.el is in ~/.emacs.d
   ;; (add-to-list 'load-path "<path where use-package is installed>")
   (require 'use-package)
-  (setq use-package-verbose t)
-  (setq use-package-minimum-reported-time 0.0001)
+  ;; (setq use-package-verbose t)
+  ;; (setq use-package-minimum-reported-time 0.0001)
   )
 
 ;;; Use packages
@@ -34,18 +34,27 @@
   (inhibit-startup-screen t)
   (byte-compile-warnings '(cl-functions))
   (backup-by-copying-when-linked t)  ; preserve hard link from breaking when emacs edits it
+  (whitespace-style '(trailing tabs newline tab-mark newline-mark))
   :init
   (setenv "MANWIDTH" "120")
   (electric-pair-mode t)
-  (electric-quote-mode t)
   (global-linum-mode t)
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
   (show-paren-mode t)
   (tool-bar-mode -1)
   (winner-mode t)
-  (add-to-list 'default-frame-alist '(font . "CodeNewRoman Nerd Font Mono-16"))
-  (set-face-attribute 'mode-line nil :font "CodeNewRoman Nerd Font Mono-16")
+  (add-to-list 'default-frame-alist '(font . "Fira Code-15"))
+  (set-face-attribute 'mode-line nil :font "CodeNewRoman Nerd Font-15")
+  :config
+  (defun infer-indentation-style ()
+    ;; if our source file uses tabs, we use tabs, if spaces spaces, and if
+    ;; neither, we use the current indent-tabs-mode
+    (let ((space-count (how-many "^  " (point-min) (point-max)))
+          (tab-count (how-many "^\t" (point-min) (point-max))))
+      (setq indent-tabs-mode nil)
+      (if (> tab-count space-count)
+	  (setq indent-tabs-mode t))))
   :bind
   (("C-x 4 u" . winner-undo)
    ("C-x 4 j" . winner-redo)
@@ -79,7 +88,9 @@
 		(if (active-minibuffer-window)
 		    (select-window (active-minibuffer-window))
 		  (error "Minibuffer is not active!"))))
-   ))
+   )
+  :hook (prog-mode . infer-indentation-style))
+
 
 (use-package doom-themes
   :ensure t

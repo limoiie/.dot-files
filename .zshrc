@@ -7,12 +7,6 @@ export PATH=/home/limo/.local/bin:/usr/local/cuda-11.4/bin:$PATH
 export PATH=/opt/cmake-3.15.0-rc2-Linux-x86_64/bin:$PATH
 
 export LD_LIBRARY_PATH=/usr/local/cuda-11.4/lib64:$LD_LIBRARY_PATH
-export PYTHONPATH=/home/limo/Projects/research/asm2vec_rebuild:$PYTHONPATH
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-# fzf options
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
-export FZF_COMPLETION_TRIGGER='..'
 
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -102,24 +96,6 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias ls="exa"
-alias la="ls -al"
-alias e="emacs"
-alias et="emacs -nw"
-alias en="emacs -nw"
-alias ec="emacsclient -a '' -c"
-alias v="nvim"
-alias vi="nvim"
-
-# For fg jobs
-alias j1=%1
-alias j2=%2
-alias j3=%3
-alias j4=%4
-alias j5=%5
-
-alias confzsh="emacs ~/.zshrc"
-alias confemacs="emacs ~/.emacs.d/init.el"
 
 # nvm configuration
 export NVM_DIR="$HOME/.nvm"
@@ -147,73 +123,7 @@ test -r /home/limo/.opam/opam-init/init.zsh && . /home/limo/.opam/opam-init/init
 
 [ -f "/home/limo/.ghcup/env" ] && source "/home/limo/.ghcup/env" # ghcup-env
 
-# >>> customized commands >>>
-eval "$(starship init zsh)"
-
-# enable fzf completioin and key-bindings
-source /usr/share/doc/fzf/examples/completion.zsh
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-
-# disable proxy
-function proxy_off() {
-    unset http_proxy
-    unset https_proxy
-    unset ftp_proxy
-    unset rsync_proxy
-    echo -e "Proxy is disabled"
-}
-
-# enable proxy
-function proxy_on() {
-    export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
-    export http_proxy="http://127.0.0.1:7890"
-    export https_proxy=$http_proxy
-    export ftp_proxy=$http_proxy
-    export rsync_proxy=$http_proxy
-    echo -e "Proxy is enabled on $http_proxy!"
-}
-
+# clash
 function run_clash() {
     screen -S clash -dm ~/Downloads/clash-linux-amd64-v1.3.0
 }
-
-# remove all the emacs swap files under current folder
-function clean_emacs_cache() {
-    rm .*~
-}
-
-# Boost z with fzf
-function zf() {
-    dir=$(z -l | tac | fzf | awk '{ $1="" }1' | sed 's/^ *//')
-    if [[ -d "$dir" ]]; then
-       cd $dir
-    fi
-}
-
-# Call fzf with bat as preview
-function fp() {
-    preview="bat --color=always --style=numbers --line-range=:500 {}"
-    fzf $@ --preview $preview
-}
-
-# Beautified git-diff boosted with bat and fzf
-function gdf() {
-    # {-1} stands for the selected file
-    preview="git diff $@ --color=always -- {-1}"
-    git diff $@ --name-only | fzf -m --height=100% --preview $preview
-}
-
-# Boost tail with bat
-function bail() {
-    tail $@ | bat --paging=never -l log
-}
-
-# Boost rg with fzf
-function rgf() {
-    INITIAL_QUERY="" RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case $@" \
-                 FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
-                 fzf --bind "change:reload:$RG_PREFIX {q} || true" \
-                 --ansi --query "$INITIAL_QUERY" \
-                 --height=50% --layout=reverse
-}
-# <<< customized commands <<<

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 COMMON_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.commonrc
 STARSHIP_CONFIG_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/starship.toml
@@ -9,7 +9,7 @@ VIM_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/n
 # text wrapped by these tags in IN_FILE. 
 # If the tags are missing in OUT_FILE, append them at the end of OUT_FILE.
 # If the tags are missing in IN_FILE, wrap the whole file with the tags.
-function update_area() {
+update_area() {
   OPEN_TAG=$1
   CLOSE_TAG=$2
   IN_FILE=$3
@@ -42,7 +42,7 @@ function update_area() {
   rm $TMP_IN_FILE
 }
 
-function adjust_zshrc() {
+adjust_zshrc() {
   # enable useful plugins by default
   cat <<EOT >> "$HOME/.zshrc"
 source "$HOME/.zplug/init.zsh"
@@ -62,7 +62,7 @@ EOT
   zsh -c "source /root/.zshrc"
 }
 
-function update_shell_rc() {
+update_shell_rc() {
   OPEN_TAG="# >>> shared customization >>>" 
   CLOSE_TAG="# <<< shared customization <<<" 
 
@@ -78,18 +78,18 @@ function update_shell_rc() {
   rm $TMP_RC
 }
 
-function update_starship_config() {
+update_starship_config() {
   mkdir -p "$HOME/.config" &&
     curl $STARSHIP_CONFIG_URL -fsSL > "$HOME/.config/starship.toml" || exit -1
 }
 
-function update_vim_config() {
+update_vim_config() {
   mkdir -p "$HOME/.config/nvim" &&
     curl $VIM_CONFIG_URL -fsSL > "$HOME/.config/nvim/init.lua" || exit -1
   curl $VIM_RC_URL -fsSL > "$HOME/.vimrc" || exit -1
 }
 
-function configure() {
+configure() {
   update_shell_rc
   update_starship_config
   update_vim_config

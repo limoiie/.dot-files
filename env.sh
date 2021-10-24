@@ -2,6 +2,8 @@
 
 COMMON_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.commonrc
 STARSHIP_CONFIG_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/starship.toml
+VIM_CONFIG_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/nvim/init.lua
+VIM_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/nvim/init.lua
 
 # Replace the text wrapped by OPEN_TAG and CLOSE_TAG in OUT_FILE with the
 # text wrapped by these tags in IN_FILE. 
@@ -38,6 +40,15 @@ function update_area() {
   rm $TMP_IN_FILE
 }
 
+function adjust_zshrc() {
+  # if starship is installed, disable zsh theme
+  [ -x "$(command -v starship)" ] && \
+    sed -i -e 's/^ZSH_THEME/^# ZSH_THEME/' "$HOME/.zshrc"
+
+  # enable useful plugins by default
+  sed -i -e 's/plugins=(.*)/plugins=(z zsh-syntax-highlighting zsh-autosuggestions)/' "$HOME/.zshrc"
+}
+
 function update_shell_rc() {
   OPEN_TAG="# >>> shared customization >>>" 
   CLOSE_TAG="# <<< shared customization <<<" 
@@ -48,18 +59,26 @@ function update_shell_rc() {
     update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
     update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
   
+  adjust_zshrc
+
   rm $TMP_RC
 }
 
 function update_starship_config() {
-  mkdir -p "$HOME/.config"
-  ! [ -f "$HOME/.config/starship.toml" ] && \
+  mkdir -p "$HOME/.config" &&
     curl $STARSHIP_CONFIG_URL -fsSL > "$HOME/.config/starship.toml"
+}
+
+function update_vim_config() {
+  mkdir -p "$HOME/.config/nvim" &&
+    curl $VIM_CONFIG_URL -fsSL > "$HOME/.config/nvim/init.lua"
+  curl $VIM_RC_URL -fsSL > "$HOME/.vimrc"
 }
 
 function configure() {
   update_shell_rc
   update_starship_config
+  update_vim_config
 }
 
 configure

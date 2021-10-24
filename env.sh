@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COMMON_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.commonrc
+STARSHIP_CONFIG_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/starship.toml
 
 # Replace the text wrapped by OPEN_TAG and CLOSE_TAG in OUT_FILE with the
 # text wrapped by these tags in IN_FILE. 
@@ -43,8 +44,22 @@ function update_shell_rc() {
 
   TMP_RC=$(mktemp /tmp/tmp-rc.XXXX)
 
-  curl $COMMON_RC_URL -sSf > $TMP_RC && \
-    update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc"
+  curl $COMMON_RC_URL -fsSL > $TMP_RC && \
+    update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
+    update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
   
   rm $TMP_RC
 }
+
+function update_starship_config() {
+  mkdir -p "$HOME/.config"
+  ! [ -f "$HOME/.config/starship.toml" ] && \
+    curl $STARSHIP_CONFIG_URL -fsSL > "$HOME/.config/starship.toml"
+}
+
+function configure() {
+  update_shell_rc
+  update_starship_config
+}
+
+configure

@@ -27,7 +27,8 @@ export FZF_COMPLETION_TRIGGER='..'
 [ -x "${NVIM_EXISTS}" ] && alias v="nvim"
 [ -x "${NVIM_EXISTS}" ] && alias vi="nvim"
 
-alias la="ls -al"
+alias la="ls -a"
+alias ll="ls -al"
 alias j1=%1
 alias j2=%2
 alias j3=%3

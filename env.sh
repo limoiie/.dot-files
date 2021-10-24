@@ -15,7 +15,7 @@ function update_area() {
   IN_FILE=$3
   OUT_FILE=$4
 
-  ! [ -f "$OUT_FILE" ] && touch "$OUT_FILE"
+  ! [ -f "$OUT_FILE" ] && echo > "$OUT_FILE"
 
   TMP_IN_FILE=$(mktemp /tmp/tmpin.XXXX)
   cat "$IN_FILE" > $TMP_IN_FILE
@@ -44,10 +44,12 @@ function update_area() {
 
 function adjust_zshrc() {
   # enable useful plugins by default
-  echo 'source "$HOME/.zplug/init.zsh"' >> "$HOME/.zshrc"
-  echo 'zplug "plugins/z", from:oh-my-zsh' >> "$HOME/.zshrc"
-  echo 'zplug "zsh-user/zsh-syntax-highlighting", defer 2' >> "$HOME/.zshrc"
-  echo 'zplug "zsh-user/zsh-autosuggestions"' >> "$HOME/.zshrc"
+  cat <<EOT >> "$HOME/.zshrc"
+source "$HOME/.zplug/init.zsh"
+zplug "plugins/z", from:oh-my-zsh
+zplug "zsh-user/zsh-syntax-highlighting"
+zplug "zsh-user/zsh-autosuggestions"
+EOT
 }
 
 function update_shell_rc() {
@@ -56,7 +58,7 @@ function update_shell_rc() {
 
   TMP_RC=$(mktemp /tmp/tmp-rc.XXXX)
 
-  curl $COMMON_RC_URL -fsSL > $TMP_RC && \
+  curl $COMMON_RC_URL -sSL > $TMP_RC && \
     update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
     update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
   
@@ -67,13 +69,13 @@ function update_shell_rc() {
 
 function update_starship_config() {
   mkdir -p "$HOME/.config" &&
-    curl $STARSHIP_CONFIG_URL -fsSL > "$HOME/.config/starship.toml"
+    curl $STARSHIP_CONFIG_URL -sSL > "$HOME/.config/starship.toml"
 }
 
 function update_vim_config() {
   mkdir -p "$HOME/.config/nvim" &&
-    curl $VIM_CONFIG_URL -fsSL > "$HOME/.config/nvim/init.lua"
-  curl $VIM_RC_URL -fsSL > "$HOME/.vimrc"
+    curl $VIM_CONFIG_URL -sSL > "$HOME/.config/nvim/init.lua"
+  curl $VIM_RC_URL -sSL > "$HOME/.vimrc"
 }
 
 function configure() {

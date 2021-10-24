@@ -1,7 +1,7 @@
 
 # >>> shared customization >>>
 # Inspect commands
-EMACS_EXISTS="$(command -v emacs)"
+EMACS_EXISTS=$(command -v emacs)
 NVIM_EXISTS=$(command -v nvim)
 
 EXA_EXISTS=$(command -v exa)
@@ -14,19 +14,19 @@ STARSHIP_EXISTS=$(command -v starship)
 
 # Environments
 # using bat for man
-[ -x ${BAT_EXISTS} ] && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+[ -x "${BAT_EXISTS}" ] && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 # fzf options
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
 export FZF_COMPLETION_TRIGGER='..'
 
 # Alias
-[ -x ${EXA_EXISTS} ] && alias ls="exa"
-[ -x ${EMACS_EXISTS} ] && alias e="emacs"
-[ -x ${EMACS_EXISTS} ] && alias et="emacs -nw"
-[ -x ${EMACS_EXISTS} ] && alias en="emacs -nw"
-[ -x ${EMACS_EXISTS} ] && alias ec="emacsclient -a '' -c"
-[ -x ${NVIM_EXISTS} ] && alias v="nvim"
-[ -x ${NVIM_EXISTS} ] && alias vi="nvim"
+[ -x "${EXA_EXISTS}" ] && alias ls="exa"
+[ -x "${EMACS_EXISTS}" ] && alias e="emacs"
+[ -x "${EMACS_EXISTS}" ] && alias et="emacs -nw"
+[ -x "${EMACS_EXISTS}" ] && alias en="emacs -nw"
+[ -x "${EMACS_EXISTS}" ] && alias ec="emacsclient -a '' -c"
+[ -x "${NVIM_EXISTS}" ] && alias v="nvim"
+[ -x "${NVIM_EXISTS}" ] && alias vi="nvim"
 
 alias la="ls -al"
 alias j1=%1
@@ -35,7 +35,7 @@ alias j3=%3
 alias j4=%4
 alias j5=%5
 
-[ -x ${STARSHIP_EXISTS} ] && eval "$(starship init zsh)"
+[ -x "${STARSHIP_EXISTS}" ] && eval "$(starship init zsh)"
 
 # enable fzf completioin and key-bindings
 [ -f "/usr/share/doc/fzf/examples/completion.zsh" ] && source "/usr/share/doc/fzf/examples/completion.zsh"
@@ -66,7 +66,7 @@ function clean_emacs_cache() {
 }
 
 # Boost z with fzf
-[ -x ${FZF_EXISTS} ] && function zf() {
+[ -x "${FZF_EXISTS}" ] && function zf() {
     dir=$(z -l | tac | fzf | awk '{ $1="" }1' | sed 's/^ *//')
     if [[ -d "$dir" ]]; then
        cd $dir
@@ -74,25 +74,25 @@ function clean_emacs_cache() {
 }
 
 # Call fzf with bat as preview
-[ -x ${FZF_EXISTS} ] && [ -x ${BAT_EXISTS} ] && function fp() {
+[ -x "${FZF_EXISTS}" ] && [ -x "${BAT_EXISTS}" ] && function fp() {
     preview="bat --color=always --style=numbers --line-range=:500 {}"
     fzf $@ --preview $preview
 }
 
 # Beautified git-diff boosted with bat and fzf
-[ -x ${FZF_EXISTS} ] && [ -x ${GIT_EXISTS} ] && function gdf() {
+[ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && function gdf() {
     # {-1} stands for the selected file
     preview="git diff $@ --color=always -- {-1}"
     git diff $@ --name-only | fzf -m --height=100% --preview $preview
 }
 
 # Boost tail with bat
-[ -x ${BAT_EXISTS} ] && function bail() {
+[ -x "${BAT_EXISTS}" ] && function bail() {
     tail $@ | bat --paging=never -l log
 }
 
 # Boost rg with fzf
-[ -x ${FZF_EXISTS} ] && [ -x ${RG_EXISTS} ] && function rgf() {
+[ -x "${FZF_EXISTS}" ] && [ -x "${RG_EXISTS}" ] && function rgf() {
     INITIAL_QUERY="" RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case $@" \
                  FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
                  fzf --bind "change:reload:$RG_PREFIX {q} || true" \

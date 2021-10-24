@@ -14,7 +14,9 @@ function update_area() {
   CLOSE_TAG=$2
   IN_FILE=$3
   OUT_FILE=$4
- 
+
+  ! [ -f "$OUT_FILE" ] && touch "$OUT_FILE"
+
   TMP_IN_FILE=$(mktemp /tmp/tmpin.XXXX)
   cat "$IN_FILE" > $TMP_IN_FILE
 
@@ -42,9 +44,10 @@ function update_area() {
 
 function adjust_zshrc() {
   # enable useful plugins by default
-  echo 'zplug "plugins/z", from:oh-my-zsh' > "$HOME/.zshrc"
-  echo 'zplug "zsh-user/zsh-syntax-highlighting", defer 2' > "$HOME/.zshrc"
-  echo 'zplug "zsh-user/zsh-autosuggestions"' > "$HOME/.zshrc"
+  echo 'source "$HOME/.zplug/init.zsh"' >> "$HOME/.zshrc"
+  echo 'zplug "plugins/z", from:oh-my-zsh' >> "$HOME/.zshrc"
+  echo 'zplug "zsh-user/zsh-syntax-highlighting", defer 2' >> "$HOME/.zshrc"
+  echo 'zplug "zsh-user/zsh-autosuggestions"' >> "$HOME/.zshrc"
 }
 
 function update_shell_rc() {

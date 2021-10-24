@@ -1,6 +1,7 @@
+
 # >>> shared customization >>>
 # Inspect commands
-EMACS_EXISTS=$(command -v emacs)
+EMACS_EXISTS="$(command -v emacs)"
 NVIM_EXISTS=$(command -v nvim)
 
 EXA_EXISTS=$(command -v exa)

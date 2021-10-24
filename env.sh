@@ -59,7 +59,7 @@ fi
 # source plugins and add commands to the PATH
 zplug load
 EOT
-  zsh -ic "zplug install"
+  zsh -c "source /root/.zshrc"
 }
 
 function update_shell_rc() {

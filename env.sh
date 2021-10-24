@@ -47,9 +47,19 @@ function adjust_zshrc() {
   cat <<EOT >> "$HOME/.zshrc"
 source "$HOME/.zplug/init.zsh"
 zplug "plugins/z", from:oh-my-zsh
-zplug "zsh-user/zsh-syntax-highlighting"
-zplug "zsh-user/zsh-autosuggestions"
+zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-autosuggestions"
+
+# zplug check returns true if all packages are installed
+# Therefore, when it returns false, run zplug install
+if ! zplug check; then
+    zplug install
+fi
+
+# source plugins and add commands to the PATH
+zplug load
 EOT
+  zsh -ic "zplug install"
 }
 
 function update_shell_rc() {

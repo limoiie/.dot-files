@@ -41,12 +41,10 @@ function update_area() {
 }
 
 function adjust_zshrc() {
-  # if starship is installed, disable zsh theme
-  [ -x "$(command -v starship)" ] && \
-    sed -i -e 's/^ZSH_THEME/^# ZSH_THEME/' "$HOME/.zshrc"
-
   # enable useful plugins by default
-  sed -i -e 's/plugins=(.*)/plugins=(z zsh-syntax-highlighting zsh-autosuggestions)/' "$HOME/.zshrc"
+  echo 'zplug "plugins/z", from:oh-my-zsh' > "$HOME/.zshrc"
+  echo 'zplug "zsh-user/zsh-syntax-highlighting", defer 2' > "$HOME/.zshrc"
+  echo 'zplug "zsh-user/zsh-autosuggestions"' > "$HOME/.zshrc"
 }
 
 function update_shell_rc() {

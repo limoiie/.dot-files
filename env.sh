@@ -68,9 +68,10 @@ function update_shell_rc() {
 
   TMP_RC=$(mktemp /tmp/tmp-rc.XXXX)
 
-  curl $COMMON_RC_URL -sSL > $TMP_RC && \
-    update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
-    update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
+  curl $COMMON_RC_URL -fsSL > $TMP_RC || exit -1
+  
+  update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
+  update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
   
   adjust_zshrc
 
@@ -79,13 +80,13 @@ function update_shell_rc() {
 
 function update_starship_config() {
   mkdir -p "$HOME/.config" &&
-    curl $STARSHIP_CONFIG_URL -sSL > "$HOME/.config/starship.toml"
+    curl $STARSHIP_CONFIG_URL -fsSL > "$HOME/.config/starship.toml" || exit -1
 }
 
 function update_vim_config() {
   mkdir -p "$HOME/.config/nvim" &&
-    curl $VIM_CONFIG_URL -sSL > "$HOME/.config/nvim/init.lua"
-  curl $VIM_RC_URL -sSL > "$HOME/.vimrc"
+    curl $VIM_CONFIG_URL -fsSL > "$HOME/.config/nvim/init.lua" || exit -1
+  curl $VIM_RC_URL -fsSL > "$HOME/.vimrc" || exit -1
 }
 
 function configure() {

@@ -1,4 +1,3 @@
-
 # >>> shared customization >>>
 # Inspect commands
 EMACS_EXISTS=$(command -v emacs)

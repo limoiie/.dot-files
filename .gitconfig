@@ -1,0 +1,9 @@
+[pager]
+  diff = bat -ldiff
+
+[user]
+  email = limo.iie4@gmail.com
+  name = limoiie
+
+[credential]
+  helper = cache

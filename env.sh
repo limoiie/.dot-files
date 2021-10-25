@@ -45,7 +45,7 @@ update_area() {
 adjust_zshrc() {
   # enable useful plugins by default
   cat <<EOT >> "$HOME/.zshrc"
->>> zplug configure >>>
+# >>> zplug configure >>>
 source "$HOME/.zplug/init.zsh"
 zplug "plugins/z", from:oh-my-zsh
 zplug "plugins/git", from:oh-my-zsh
@@ -60,7 +60,7 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
-<<< zplug configure <<<
+# <<< zplug configure <<<
 EOT
   zsh -c "source /root/.zshrc"
 }

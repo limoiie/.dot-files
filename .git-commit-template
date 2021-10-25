@@ -1,0 +1,38 @@
+# [<scope>] <tag>: (this commit will...) <subject> (Max 72 char)
+# |<----   Preferably using up to 50 chars   --->|<------------------->|
+# Example:
+# feat: Implement automated commit messages
+
+# (Optional) Explain why this change is being made
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# (Optional) Provide links or keys to any relevant resources
+# Example: Github issue #23
+
+# --- COMMIT END ---
+# Tag can be 
+#    feat     (new feature)
+#    fix      (bug fix)
+#    refactor (refactoring code)
+#    doc      (changes to documentation)
+#    chore    (tweaking in building scripts; no production code change)
+#    style    (formatting; no producetion code change)
+#    test     (adding or refactoring tests; no production code change)
+#    version  (version bump/new release; no production code change)
+#    debug    (debugging code/frameworks; no production code change)
+#    license  (edits regarding licensing; no production code change)
+#    hack     (temporary fix with dirty design; please avoid it)
+#    wip      (work in progress; should be squashed later)
+#    defaults (changes default options)
+#
+# Note: Multiple tags can be combined, e.g.:
+#   [fix][jsr292] Fix issue X with methodhandles
+# --------------------
+# Remember to:
+#   * Capitalize the subject line
+#   * Use the imperative mood in the subject line
+#   * Do not end the subject line with a period
+#   * Separate subject from body with a blank line
+#   * Use the body to explain what and why vs. how
+#   * Can use multiple lines with "-" or "*" for bullet points in body
+# --------------------

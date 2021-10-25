@@ -6,7 +6,7 @@ VIM_CONFIG_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.conf
 VIM_RC_URL=https://raw.githubusercontent.com/limoiie/.dot-files/master/.config/nvim/init.lua
 
 # Replace the text wrapped by OPEN_TAG and CLOSE_TAG in OUT_FILE with the
-# text wrapped by these tags in IN_FILE. 
+# text wrapped by these tags in IN_FILE.
 # If the tags are missing in OUT_FILE, append them at the end of OUT_FILE.
 # If the tags are missing in IN_FILE, wrap the whole file with the tags.
 update_area() {
@@ -45,8 +45,10 @@ update_area() {
 adjust_zshrc() {
   # enable useful plugins by default
   cat <<EOT >> "$HOME/.zshrc"
+>>> zplug configure >>>
 source "$HOME/.zplug/init.zsh"
 zplug "plugins/z", from:oh-my-zsh
+zplug "plugins/git", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-autosuggestions"
 
@@ -58,21 +60,22 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
+<<< zplug configure <<<
 EOT
   zsh -c "source /root/.zshrc"
 }
 
 update_shell_rc() {
-  OPEN_TAG="# >>> shared customization >>>" 
-  CLOSE_TAG="# <<< shared customization <<<" 
+  OPEN_TAG="# >>> shared customization >>>"
+  CLOSE_TAG="# <<< shared customization <<<"
 
   TMP_RC=$(mktemp /tmp/tmp-rc.XXXX)
 
   curl $COMMON_RC_URL -fsSL > $TMP_RC || exit -1
-  
+
   update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.bashrc" && \
   update_area "$OPEN_TAG" "$CLOSE_TAG" $TMP_RC "$HOME/.zshrc"
-  
+
   adjust_zshrc
 
   rm $TMP_RC

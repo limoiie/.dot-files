@@ -65,7 +65,7 @@ EOT
   zsh -c "source /root/.zshrc"
 }
 
-update_shell_rc() {
+update_xshrc() {
   OPEN_TAG="# >>> shared customization >>>"
   CLOSE_TAG="# <<< shared customization <<<"
 
@@ -93,7 +93,7 @@ update_vim_config() {
 }
 
 configure() {
-  update_shell_rc
+  update_xshrc
   update_starship_config
   update_vim_config
 }

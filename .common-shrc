@@ -34,7 +34,10 @@ alias j3=%3
 alias j4=%4
 alias j5=%5
 
+# init starship
 [ -x "${STARSHIP_EXISTS}" ] && eval "$(starship init zsh)"
+# activate cargo
+[ -f "~/.cargo/env" ] && . ~/.cargo/env
 
 # enable fzf completioin and key-bindings
 [ -f "/usr/share/doc/fzf/examples/completion.zsh" ] && \

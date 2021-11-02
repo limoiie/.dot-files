@@ -15,16 +15,16 @@ install-useful-dist-tools() {
     set -e
 
     echo "Install dist packages..."
-    apt-get update -q \
-        && apt-get install -y -q \
+    apt-get update -o Acquire::http::proxy=false -q \
+        && apt-get install -o Acquire::http::proxy=false -y -q \
                    build-essential \
                    curl \
                    gawk \
                    git \
                    zsh
 
-    apt-get install -y -q neovim
-    apt-get install -y -q emacs
+    apt-get install -o Acquire::http::proxy=false -y -q neovim
+    apt-get install -o Acquire::http::proxy=false -y -q emacs
 
     set +e
 }

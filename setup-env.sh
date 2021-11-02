@@ -146,8 +146,10 @@ config-shell-theme() {
 }
 
 backup-file() {
-    echo "  - Backup existing $1"
-    [ -f "$1" ] && mv "$1" "$1.bk"
+    if [ -f "${1}" ]; then
+        echo "  - Backup existing ${1}"
+        mv "${1}" "${1}.bk"
+    fi
 }
 
 append-line() {

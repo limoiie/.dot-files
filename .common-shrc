@@ -7,7 +7,6 @@ FZF_EXISTS=$(command -v fzf)
 BAT_EXISTS=$(command -v bat)
 GIT_EXISTS=$(command -v git)
 RGP_EXISTS=$(command -v rg)
-STARSHIP_EXISTS=$(command -v starship)
 
 # Environments
 # fzf options
@@ -34,16 +33,8 @@ alias j3=%3
 alias j4=%4
 alias j5=%5
 
-# init starship
-[ -x "${STARSHIP_EXISTS}" ] && eval "$(starship init zsh)"
 # activate cargo
 [ -f "~/.cargo/env" ] && . ~/.cargo/env
-
-# enable fzf completioin and key-bindings
-[ -f "/usr/share/doc/fzf/examples/completion.zsh" ] && \
-    source "/usr/share/doc/fzf/examples/completion.zsh"
-[ -f "/usr/share/doc/fzf/examples/key-bindings.zsh" ] && \
-    source "/usr/share/doc/fzf/examples/key-bindings.zsh"
 
 # disable proxy
 proxy_off() {

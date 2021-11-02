@@ -22,9 +22,13 @@ install-useful-dist-tools() {
                    gawk \
                    git \
                    zsh
-
-    apt-get install -o Acquire::http::proxy=false -y -q neovim
-    apt-get install -o Acquire::http::proxy=false -y -q emacs
+    apt-get install -o Acquire::http::proxy=false -y -q software-properties-common \
+        && add-apt-repository -y ppa:neovim-ppa/stable \
+        && add-apt-repository -y ppa:ubuntu-elisp/ppa \
+        && apt-get update -o Acquire::http::proxy=false \
+        && apt-get install -o Acquire::http::proxy=false -y -q \
+                   neovim \
+                   emacs-snapshot
 
     set +e
 }

@@ -15,4 +15,12 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
+
+# zsh history configuration
+export HISTFILE=~/.zsh_history
+export HISTSIZE=9999
+export HISTTIMEFORMAT="[%F %T] "
+
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
 # <<< shared customization <<<"

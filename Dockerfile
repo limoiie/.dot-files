@@ -1,6 +1,6 @@
 ARG UBUNTU_VERSION=18.04
 
-FROM ubuntu:${UBUNTU_VERSION} as tools
+FROM ubuntu:${UBUNTU_VERSION}
 ENV LC_ALL=C.UTF-8 LC_CTYPE=C.UTF-8
 RUN apt-get -o Acquire::http::proxy=false update \
     && apt-get install -o Acquire::http::proxy=false curl -y -q \

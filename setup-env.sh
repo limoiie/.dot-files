@@ -98,11 +98,13 @@ config-vim() {
     echo "  - Integrate .common-vimrc into .vimrc..."
     append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ~/.vimrc ".common-vimrc"
 
-    echo "  - Config nvim..."
-    mkdir -p ~/.config/nvim
-    backup-file ~/.config/nvim/init.lua
-    echo "  - Link init.lua"
-    ln -s ${DOT_FILES_ROOT}/.config/nvim/init.lua ~/.config/nvim/init.lua
+    echo "  - Config nvim customized configuration..."
+    mkdir -p ~/.config/nvim/lua/custom
+    backup-file ~/.config/nvim/lua/custom/init.lua
+    backup-file ~/.config/nvim/lua/custom/chadrc.lua
+    echo "  - Link customized init.lua and chadrc.lua"
+    ln -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/init.lua ~/.config/nvim/lua/custom/init.lua
+    ln -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/chadrc.lua ~/.config/nvim/lua/custom/chadrc.lua
 
     set +e
 }

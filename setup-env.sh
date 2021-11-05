@@ -17,18 +17,18 @@ install-useful-dist-tools() {
     set -e
 
     echo "Install dist packages..."
-    apt-get update -o Acquire::http::proxy=false -q \
-        && apt-get install -o Acquire::http::proxy=false -y -q \
+    apt-get update -o Acquire::http::proxy=false \
+        && apt-get install -o Acquire::http::proxy=false -y \
                    build-essential \
                    curl \
                    gawk \
                    git \
                    zsh
-    apt-get install -o Acquire::http::proxy=false -y -q software-properties-common \
+    apt-get install -o Acquire::http::proxy=false -y software-properties-common \
         && add-apt-repository -y ppa:neovim-ppa/stable \
         && add-apt-repository -y ppa:ubuntu-elisp/ppa \
         && apt-get update -o Acquire::http::proxy=false \
-        && apt-get install -o Acquire::http::proxy=false -y -q \
+        && apt-get install -o Acquire::http::proxy=false -y \
                    neovim \
                    emacs-snapshot
 
@@ -49,9 +49,6 @@ install-useful-other-tools() {
 
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && \
         ~/.fzf/install --all
-
-    curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
-    curl -fsSL ${RAW_GITHUB}/zplug/installer/master/installer.zsh | zsh -s
 
     set +e
 }
@@ -132,6 +129,8 @@ config-zsh() {
     set -e
 
     echo "Configure zsh..."
+    echo "  - Download zplug..."
+    curl -fsSL ${RAW_GITHUB}/zplug/installer/master/installer.zsh | zsh -s
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
@@ -143,7 +142,8 @@ config-shell-theme() {
     set -e
 
     echo "Config shell theme"
-    echo "  - Choose starship"
+    echo "  - Download starship"
+    curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
     echo "  - Integrate starship init .zshrc..."
     append-line 1 'eval "$(starship init zsh)"' ~/.zshrc "starship init zsh"
     backup-file ~/.config/starship.toml

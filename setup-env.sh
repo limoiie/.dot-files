@@ -3,6 +3,8 @@
 RAW_GITHUB=https://raw.githubusercontent.com
 DOT_FILES_ROOT=~/.dot-files
 
+ACTION=${1:-1111}
+
 download-dot-files() {
     set -e
 
@@ -33,7 +35,7 @@ install-useful-dist-tools() {
     set +e
 }
 
-install-useful-tools() {
+install-useful-other-tools() {
     set -e
 
     echo "Install useful command-line tools..."
@@ -191,7 +193,12 @@ append-line() {
     set +e
 }
 
-install-useful-dist-tools
-install-useful-tools
-download-dot-files
-configure-tools-and-shell
+if ! [[ ${ACTION} =~ [01]{4} ]]; then
+    echo "Error: Unknown action: $1, should be in `[01]{4}`."; exit -1
+fi
+
+if [[ ${ACTION} =~ 1... ]]; then install-useful-dist-tools; fi
+if [[ ${ACTION} =~ .1.. ]]; then install-useful-other-tools; fi
+if [[ ${ACTION} =~ ..1. ]]; then download-dot-files; fi
+if [[ ${ACTION} =~ ...1 ]]; then configure-tools-and-shell; fi
+

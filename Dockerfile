@@ -4,14 +4,13 @@ FROM ubuntu:${UBUNTU_VERSION}
 ENV LC_ALL=C.UTF-8 LC_CTYPE=C.UTF-8
 RUN apt-get -o Acquire::http::proxy=false update \
     && apt-get install -o Acquire::http::proxy=false curl -y -q \
-    && curl -fsSL https://raw.githubusercontent.com/limoiie/.dot-files/master/setup-env.sh | bash -s -- -y \
+    && curl -o /tmp/setup-env.sh \
+    -fsSL https://raw.githubusercontent.com/limoiie/.dot-files/master/setup-env.sh
+RUN bash /tmp/setup-env.sh 1000 \
+    && apt-get autoremove \
     && apt-get autoclean \
     && apt-get clean
-    ### disabled because: Cannot find Cargo.toml
-    # && cargo clean --quiet \
-    # && rm /root/.cargo/bin/cargo* \
-    # && rm /root/.cargo/bin/rust* \
-    # && rm /root/.cargo/bin/rls \
-    # && rm /root/.cargo/bin/clippy-driver
+RUN bash /tmp/setup-env.sh 0100
+RUN bash /tmp/setup-env.sh 0011
 WORKDIR /root
 ENTRYPOINT [ "/bin/zsh" ]

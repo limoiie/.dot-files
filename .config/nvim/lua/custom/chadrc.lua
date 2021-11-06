@@ -14,6 +14,10 @@ M.options, M.ui, M.mappings, M.plugins = {}, {}, {}, {}
 -- M.options = {
 --    relativenumber = true,
 -- }
+M.options = {
+   relativenumber = true,
+   tabstop = 4,
+}
 
 -- M.ui = {
 --   theme = "nord"
@@ -37,6 +41,13 @@ M.plugins = {
    --              use "(custom.configs).my_func()" to call a function
    --              use "custom.blankline" to call a file
    default_plugin_config_replace = {},
+}
+
+M.mappings.plugins = {
+   telescope = {
+      git_commits = "<leader>gc",
+      git_status = "<leader>gs",
+   }
 }
 
 return M

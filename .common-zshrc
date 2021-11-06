@@ -1,5 +1,14 @@
 #!/bin/zsh
 
+# zsh history configuration
+export HISTFILE=~/.zsh_history
+export HISTSIZE=9999
+export SAVEHIST=9999
+export HISTTIMEFORMAT="[%F %T] "
+
+setopt INC_APPEND_HISTORY_TIME
+setopt HIST_IGNORE_ALL_DUPS
+
 # >>> shared customization >>>"
 source "$HOME/.zplug/init.zsh"
 zplug "plugins/z", from:oh-my-zsh
@@ -16,12 +25,4 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
-
-# zsh history configuration
-export HISTFILE=~/.zsh_history
-export HISTSIZE=9999
-export HISTTIMEFORMAT="[%F %T] "
-
-setopt EXTENDED_HISTORY
-setopt HIST_IGNORE_ALL_DUPS
 # <<< shared customization <<<"

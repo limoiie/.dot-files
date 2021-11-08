@@ -1,6 +1,8 @@
 #!/bin/bash
 
-DOT_FILES_ROOT=${1:-~/.dot-files}
+DOT_FILES_ROOT=~/.dot-files
+
+ACTION=${1:-init}  # init, update, overwrite
 
 download-dot-files() {
     set -e
@@ -122,36 +124,95 @@ ln-safely() {
     local src tgt
     tgt=${@: -1}
     src=${@: -2}
-    backup-file $tgt
-    echo "  - Link $src -> $tgt"
-    ln $@
+    
+    case $ACTION in
+      init | update)
+        if [ -L $tgt ]; then
+            remove-file $tgt
+            echo "  - Link $src -> $tgt"
+            ln $@
+        else
+            backup-file $tgt
+            echo "  - Link $src -> $tgt"
+            ln $@
+        fi
+        ;;
+
+      overwrite)
+        remove-file $tgt
+        echo "  - Link $src -> $tgt"
+        ln $@
+        ;;
+    esac
 }
 
 cp-safely() {
     local src tgt
     tgt=${@: -1}
     src=${@: -2}
-    backup-file $tgt
-    echo "  - Copy $src -> $tgt"
-    cp $@
+
+    case $ACTION in
+      init | update)
+        if [ cmp --silent $tgt $src ]; then
+            echo "  - Skip copying identity file" 
+        else
+            backup-file $tgt
+            echo "  - Copy $src -> $tgt"
+            cp $@
+        fi
+        ;;
+
+      overwrite)
+        remove-file $tgt
+        echo "  - Copy $src -> $tgt"
+        cp $@
+        ;;
+    esac
 }
 
 git-clone-safely() {
-    local src tgt
+    local src tgt action
     tgt=${@: -1}
     src=${@: -2}
-    backup-file $tgt
-    echo "  - Clone $src -> $tgt..."
-    git clone $@
+
+    case $ACTION in
+      init | update)
+        if [ -d "$tgt" ] && [ -d "$tgt/.git" ]; then
+            echo "  - Update $tgt..."
+            (cd "$file" && git pull)
+        else
+            backup-file $tgt
+            echo "  - Clone $src -> $tgt..."
+            git clone $@
+        fi
+        ;;
+
+      overwrite)
+        remove-file $tgt
+        echo "  - Clone $src -> $tgt..."
+        git clone $@
+        ;;
+    esac
 }
 
 curl-safely() {
     local src tgt
     tgt=${@: -1}
     src=${@: -3}
-    backup-file $tgt
-    echo "  - Download -> $tgt..."
-    curl $@
+
+    case $ACTION in
+      init)
+        backup-file $tgt
+        echo "  - Download -> $tgt..."
+        curl $@
+        ;;
+
+      update | overwrite)
+        remove-file $tgt
+        echo "  - Download -> $tgt..."
+        curl $@
+        ;;
+    esac
 }
 
 backup-file() {
@@ -165,6 +226,13 @@ backup-file() {
         done
         mv "$file" "$bkfile"
     fi
+}
+
+remove-file() {
+    local file
+    file="$1"
+    echo "  - Remove existing $file"
+    rm -rf $file
 }
 
 append-line() {

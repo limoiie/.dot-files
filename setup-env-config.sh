@@ -55,6 +55,7 @@ config-vim() {
     mkdir -p ~/.config/nvim/lua/custom
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/init.lua ~/.config/nvim/lua/custom/init.lua
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/chadrc.lua ~/.config/nvim/lua/custom/chadrc.lua
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/plugins ~/.config/nvim/lua/custom/plugins
 
     set +e
 }

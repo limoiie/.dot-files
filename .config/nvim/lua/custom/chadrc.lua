@@ -22,6 +22,10 @@ M.options = {
 -- M.ui = {
 --   theme = "nord"
 -- }
+M.ui = {
+   italic_comments = true,
+   theme = "doom-chad"
+}
 
 -- NvChad included plugin options & overrides
 M.plugins = {

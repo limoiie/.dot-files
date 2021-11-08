@@ -23,14 +23,16 @@ install-useful-dist-tools() {
                    curl \
                    gawk \
                    git \
-                   zsh
+                   zsh \
+        || exit -1
     apt-get install -o Acquire::http::proxy=false -y software-properties-common \
         && add-apt-repository -y ppa:neovim-ppa/stable \
         && add-apt-repository -y ppa:ubuntu-elisp/ppa \
         && apt-get update -o Acquire::http::proxy=false \
         && apt-get install -o Acquire::http::proxy=false -y \
                    neovim \
-                   emacs-snapshot
+                   emacs-snapshot \
+        || exit -1
 
     set +e
 }
@@ -39,16 +41,20 @@ install-useful-other-tools() {
     set -e
 
     echo "Install useful command-line tools..."
-    curl -fsSL https://sh.rustup.rs | bash -s -- -y
+    run_remote_script https://sh.rustup.rs sh
     . ~/.cargo/env \
         && cargo install \
                  bat \
                  exa \
                  fd-find \
-                 ripgrep
+                 procs \
+                 ripgrep \
+                 sd \
+        || exit -1
 
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && \
-        ~/.fzf/install --all
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf \
+        && ~/.fzf/install --all \
+        || exit -1
 
     set +e
 }
@@ -91,7 +97,7 @@ config-vim() {
     echo "  - Download NvChad..."
     git clone https://github.com/NvChad/NvChad ~/.config/nvim
     echo "  - Download plug.vim..."
-    curl -fsSLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
+    curl -Lo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
          ${RAW_GITHUB}/junegunn/vim-plug/master/plug.vim
 
     echo "  - Integrate .common-vimrc into .vimrc..."
@@ -130,7 +136,7 @@ config-zsh() {
 
     echo "Configure zsh..."
     echo "  - Download zplug..."
-    curl -fsSL ${RAW_GITHUB}/zplug/installer/master/installer.zsh | zsh -s
+    run_remote_script ${RAW_GITHUB}/zplug/installer/master/installer.zsh zsh
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
@@ -143,7 +149,7 @@ config-shell-theme() {
 
     echo "Config shell theme"
     echo "  - Download starship"
-    curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
+    run_remote_script https://starship.rs/install.sh sh
     echo "  - Integrate starship init .zshrc..."
     append-line 1 'eval "$(starship init zsh)"' ~/.zshrc "starship init zsh"
     backup-file ~/.config/starship.toml
@@ -151,6 +157,22 @@ config-shell-theme() {
     ln -s ${DOT_FILES_ROOT}/.config/starship.toml ~/.config/starship.toml
 
     set +e
+}
+
+run_remote_script() {
+    set -eu
+    
+    local script_url, sh_cmd, tmp
+    script_url=$1
+    sh_cmd=$2
+
+    tmp=$(mktemp '/tmp/setup-env-run-remote-xxxx')
+    curl -L ${script_url} -o ${tmp} \
+        && ${sh_cmd} ${tmp} -y ${@:2} \
+        || (rm -rf ${tmp} && exit -1)
+    rm -f ${tmp}
+
+    set +eu
 }
 
 backup-file() {

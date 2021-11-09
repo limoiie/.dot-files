@@ -1,7 +1,5 @@
 #!/bin/bash
 
-local action rawcontent
-
 rawcontent=https://raw.githubusercontent.com
 action=${1:-update}
 

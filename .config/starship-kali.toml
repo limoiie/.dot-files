@@ -1,0 +1,17 @@
+add_newline = true
+
+format = """$all$time$jobs[kalimo](bold green)☠️ $character"""
+
+[conda]
+# symbol = "⭕"
+symbol = "🅒 "
+
+[jobs]
+symbol = "⚙️ "
+threshold = 1
+
+[time]
+disabled = true
+format = '[⏱️ #$time]($style) '
+time_format = "%T"
+utc_time_offset = "+8"

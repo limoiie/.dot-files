@@ -98,8 +98,9 @@ config-shell-theme() {
     echo "  - Download starship"
     run-remote-script https://starship.rs/install.sh sh
     echo "  - Integrate starship init .zshrc..."
+    append-line 1 "export STARSHIP_CONFIG=${DOT_FILES_ROOT}/.config/starship.toml" ~/.zshrc \
+      "export STARSHIP_CONFIG"
     append-line 1 'eval "$(starship init zsh)"' ~/.zshrc "starship init zsh"
-    ln-safely -s ${DOT_FILES_ROOT}/.config/starship.toml ~/.config/starship.toml
 
     set +e
 }

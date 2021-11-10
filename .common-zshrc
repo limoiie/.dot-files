@@ -1,13 +1,45 @@
 #!/bin/zsh
 
+# zsh common configurations
+setopt autocd              # change directory just by typing its name
+#setopt correct            # auto correct mistakes
+setopt interactivecomments # allow comments in interactive mode
+setopt magicequalsubst     # enable filename expansion for arguments of the form ‘anything=expression’
+setopt nonomatch           # hide error message if there is no match for the pattern
+setopt notify              # report the status of background jobs immediately
+setopt numericglobsort     # sort filenames numerically when it makes sense
+setopt promptsubst         # enable command substitution in prompt
+
+WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
+
+# zsh completion features
+autoload -Uz compinit
+compinit -d ~/.cache/zcompdump
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
 # zsh history configuration
 export HISTFILE=~/.zsh_history
 export HISTSIZE=9999
 export SAVEHIST=9999
 export HISTTIMEFORMAT="[%F %T] "
 
-setopt INC_APPEND_HISTORY_TIME
-setopt HIST_IGNORE_ALL_DUPS
+setopt hist_expire_dups_first   # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups         # ignore duplicated commands history list
+setopt hist_ignore_space        # ignore commands that start with space
+setopt hist_verify              # show command with history expansion to user before running it
+setopt inc_append_history_time  # append history incrementally
 
 # >>> shared customization >>>"
 source "$HOME/.zplug/init.zsh"

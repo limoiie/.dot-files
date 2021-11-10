@@ -15,3 +15,9 @@ disabled = false
 format = '[⏱️ #$time]($style) '
 time_format = "%T"
 utc_time_offset = "+8"
+
+[hostname]
+ssh_only = false
+format =  "[$hostname](bold blue) in "
+trim_at = "."
+disabled = false

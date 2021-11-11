@@ -1,69 +1,12 @@
 add_newline = true
 
-format = """
-$username\
-$hostname\
-$shlvl\
-$kubernetes\
-$directory\
-$vcsh\
-$git_branch\
-$git_commit\
-$git_state\
-$git_metrics\
-$git_status\
-$hg_branch\
-$docker_context\
-$package\
-$cmake\
-$dart\
-$deno\
-$dotnet\
-$elixir\
-$elm\
-$erlang\
-$golang\
-$helm\
-$java\
-$julia\
-$kotlin\
-$nim\
-$nodejs\
-$ocaml\
-$perl\
-$php\
-$purescript\
-$python\
-$red\
-$ruby\
-$rust\
-$scala\
-$swift\
-$terraform\
-$vlang\
-$vagrant\
-$zig\
-$nix_shell\
-$conda\
-$memory_usage\
-$aws\
-$gcloud\
-$openstack\
-$env_var\
-$crystal\
-$custom\
-$cmd_duration\
-$line_break\
-$time\
-$lua\
-$jobs\
-$battery\
-$status\
-$shell\
-$character"""
+format = """${custom.docker}$all$time\
+${custom.mac}\
+${custom.ubuntu}\
+${custom.kali}\
+$jobs$character"""
 
 [conda]
-# symbol = "⭕"
 symbol = "🅒 "
 
 [jobs]
@@ -75,3 +18,21 @@ disabled = false
 format = '[⏱️ #$time]($style) '
 time_format = "%T"
 utc_time_offset = "+8"
+
+[custom.docker]
+command = "echo 'bap-dev'"
+when = """grep -s docker /proc/1/cgroup"""
+format = "🐋 [$output>]($style) "
+style = "bold blue"
+
+[custom.mac]
+when = """ test "Darwin" = "$(uname -s)" """
+format = "[mac](bold white)🍏 "
+
+[custom.ubuntu]
+when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
+format = "[ubuntu](bold purple)\uF31B "
+
+[custom.kali]
+when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
+format = "[kali](bold red)☠️  "

@@ -9,6 +9,8 @@ GIT_EXISTS=$(command -v git)
 RGP_EXISTS=$(command -v rg)
 
 # Environments
+export XDG_CONFIG_HOME=~/.config
+
 # fzf options
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
 export FZF_COMPLETION_TRIGGER='..'

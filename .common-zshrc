@@ -30,7 +30,7 @@ zstyle ':completion:*' verbose true
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 # zsh history configuration
-export HISTFILE=~/.zsh_history
+export HISTFILE=${XDG_CONFIG_HOME}/.zsh_history
 export HISTSIZE=9999
 export SAVEHIST=9999
 export HISTTIMEFORMAT="[%F %T] "

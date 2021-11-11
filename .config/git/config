@@ -1,0 +1,12 @@
+[pager]
+  diff = bat -ldiff
+
+[user]
+  email = limo.iie4@gmail.com
+  name = limoiie
+
+[commit]
+  template = ~/.config/git/commit-template
+
+[credential]
+  helper = cache

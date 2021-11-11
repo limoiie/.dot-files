@@ -34,8 +34,7 @@ config-git() {
     set -e
 
     echo "Configure git..."
-    ln-safely -s ${DOT_FILES_ROOT}/.git-commit-template ~/.git-commit-template
-    ln-safely -s ${DOT_FILES_ROOT}/.gitconfig ~/.gitconfig
+    ln-safely -s ${DOT_FILES_ROOT}/.config/git ~/.config/git
 
     set +e
 }
@@ -51,7 +50,7 @@ config-vim() {
          -o ~/.local/share/nvim/site/autoload/plug.vim 
 
     echo "  - Integrate .common-vimrc into .vimrc..."
-    append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ~/.vimrc ".common-vimrc"
+    append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ~/.config/.vimrc ".common-vimrc"
 
     echo "  - Config nvim customized configuration..."
     mkdir -p ~/.config/nvim/lua/custom

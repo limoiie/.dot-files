@@ -5,7 +5,7 @@ M.setup_lsp = function(attach, capabilities)
 
   -- lspservers with default options
  
-  local servers = { "ocamllsp" }
+  local servers = { "ocamllsp", "pyright" }
 
   for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup {

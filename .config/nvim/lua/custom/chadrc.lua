@@ -24,7 +24,7 @@ M.options = {
 -- }
 M.ui = {
    italic_comments = true,
-   theme = "doom-chad"
+   theme = "tokyonight"
 }
 
 -- NvChad included plugin options & overrides

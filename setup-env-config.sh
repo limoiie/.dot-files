@@ -58,6 +58,9 @@ config-vim() {
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/chadrc.lua ~/.config/nvim/lua/custom/chadrc.lua
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/plugins ~/.config/nvim/lua/custom/plugins
 
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/filetype.vim ~/.config/nvim/filetype.vim
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/syntax ~/.config/nvim/syntax
+
     set +e
 }
 

@@ -35,4 +35,4 @@ format = "[ubuntu](bold purple)\uF31B "
 
 [custom.kali]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
-format = "[kali](bold red)☠️  "
+format = "[kali](bold red)☠️ "

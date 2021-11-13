@@ -12,6 +12,9 @@ setopt promptsubst         # enable command substitution in prompt
 
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
+# zsh suggestion highlight
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=7'
+
 # zsh completion features
 autoload -Uz compinit
 compinit -d ~/.cache/zcompdump

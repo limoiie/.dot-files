@@ -20,7 +20,7 @@ time_format = "%T"
 utc_time_offset = "+8"
 
 [custom.docker]
-command = "echo 'bap-dev'"
+command = "hostname | awk -F. {print $1}"
 when = """grep -s docker /proc/1/cgroup"""
 format = "🐋 [$output>]($style) "
 style = "bold blue"

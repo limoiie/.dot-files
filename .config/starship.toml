@@ -10,12 +10,12 @@ $jobs$character"""
 symbol = "🅒 "
 
 [jobs]
-symbol = "⚙️ "
+symbol = "\uF0AE "
 threshold = 1
 
 [time]
 disabled = false
-format = '[⏱️ #$time]($style) '
+format = "[\uF651 $time]($style) "
 time_format = "%T"
 utc_time_offset = "+8"
 
@@ -27,7 +27,7 @@ style = "bold blue"
 
 [custom.mac]
 when = """ test "Darwin" = "$(uname -s)" """
-format = "[mac](bold white)🍏 "
+format = "[mac](bold white)\uF302 "
 
 [custom.ubuntu]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
@@ -35,4 +35,4 @@ format = "[ubuntu](bold purple)\uF31B "
 
 [custom.kali]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
-format = "[kali](bold red)☠️  "
+format = "[kali](bold red)\uF316 "

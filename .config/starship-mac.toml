@@ -58,18 +58,19 @@ $lua\
 $battery\
 $status\
 $shell\
+[mac](bold white)\uF302 \
 $jobs\
-[mac](bold white)🍏 $character"""
+$character"""
 
 [conda]
 symbol = "🅒 "
 
 [jobs]
-symbol = "⚙️ "
+symbol = "\uF0AE "
 threshold = 1
 
 [time]
 disabled = false
-format = '[⏱️ #$time]($style) '
+format = "[\uF651 $time]($style) "
 time_format = "%T"
 utc_time_offset = "+8"

@@ -182,7 +182,7 @@ git-clone-safely() {
       init | update)
         if [ -d "$tgt" ] && [ -d "$tgt/.git" ]; then
             echo "  - Update $tgt..."
-            (cd "$file" && git pull)
+            (cd "$tgt" && git pull)
         else
             backup-file $tgt
             echo "  - Clone $src -> $tgt..."

@@ -101,4 +101,10 @@ clean_emacs_cache() {
                   --ansi --query "$INITIAL_QUERY" \
                   --height=50% --layout=reverse
     }
+
+# Goto the directory containing the selected file
+[ -x "${FZF_EXISTS}" ] && \
+     cdf() {
+         cd $(fzf | xargs dirname)
+     }
 # <<< shared customization <<<

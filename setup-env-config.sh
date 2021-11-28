@@ -3,6 +3,8 @@
 DOT_FILES_ROOT=~/.dot-files
 
 ACTION=${1:-init}  # init, update, overwrite
+PACKAGES=${@:2}
+PACKAGES=${PACKAGES:-all}
 
 download-dot-files() {
     set -e
@@ -15,15 +17,15 @@ download-dot-files() {
 configure-tools-and-shell() {
     set -e
 
-    echo "Configure tools and shell..."
+    echo "Configure tools and shell: ${PACKAGES}..."
     mkdir -p ~/.config
 
-    config-git
-    config-vim
-    config-emacs
+    is-enabled git && config-git
+    is-enabled vim && config-vim
+    is-enabled emacs && config-emacs
 
-    config-zsh
-    config-shell-theme
+    is-enabled zsh && config-zsh
+    is-enabled shell-theme && config-shell-theme
 
     echo "Congratulations! All done~"
 
@@ -269,6 +271,25 @@ append-line() {
         fi
     fi
     set +e
+}
+
+is-enabled() {
+    local package
+    package=$1
+    [ "${PACKAGES}" == all ] && return 0
+    contains $package ${PACKAGES} && return 0
+    return 1
+}
+
+contains() {
+    local target elem
+    target=$1
+    shift
+    for elem  # implicitly iterate remain args
+    do 
+        [ "$elem" == "$target" ] && return 0
+    done
+    return 1
 }
 
 download-dot-files

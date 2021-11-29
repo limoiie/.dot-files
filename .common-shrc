@@ -68,7 +68,7 @@ clean_emacs_cache() {
 # Boost z with fzf
 [ -x "${FZF_EXISTS}" ] && \
     zf() {
-        dir=$(z -l | tac | fzf | awk '{ $1="" }1' | sed 's/^ *//')
+        dir=$(z -l | fzf | awk '{ print $2 }')
         if [[ -d "$dir" ]]; then
             cd $dir
         fi
@@ -112,7 +112,18 @@ clean_emacs_cache() {
 
 # Goto the directory containing the selected file
 [ -x "${FZF_EXISTS}" ] && \
-     cdf() {
-         cd $(fzf | xargs dirname)
-     }
+    cdf() {
+        cd $(fzf | xargs dirname)
+    }
+
+# Boost ps with fzf
+[ -x "${FZF_EXISTS}" ] && \
+    psf() {
+        ps $@ | fzf
+    }
+
+[ -x "${FZF_EXISTS}" ] && \
+    kif() {
+        kill $@ $(ps -ef | fzf | awk '{print $2}')
+    }
 # <<< shared customization <<<

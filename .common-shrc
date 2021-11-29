@@ -12,7 +12,7 @@ RGP_EXISTS=$(command -v rg)
 export XDG_CONFIG_HOME=~/.config
 
 # Relocate .vimrc file
-export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
+# export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
 
 # fzf options
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
@@ -98,11 +98,14 @@ clean_emacs_cache() {
 # Boost rg with fzf
 [ -x "${FZF_EXISTS}" ] && [ -x "${RGP_EXISTS}" ] && \
     rgf() {
-				local initial_query rgp_prefix
-        initial_query=${@: -1} 
+        local initial_query rgp_prefix bat_prefix bat_context
+        initial_query=${@: -1}
         rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case ${@:1:-1}"
+				bat_prefix="bat --color=always --style=numbers"
+				bat_context="awk -v A=20 -v B=20 -f ~/.dot-files/scripts/awk/bat-range-arg-from-rg.awk"
 				FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" \
                   fzf --bind "change:reload:$rgp_prefix {q} || true" \
+									--preview="$bat_prefix \$(echo {} | $bat_context)" \
                   --ansi --disabled --query "$initial_query" \
                   --height=50% --layout=reverse
     }

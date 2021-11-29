@@ -10,3 +10,4 @@ set cindent
 packadd! dracula
 colorscheme dracula
 
+set viminfo+=n~/.config/vim/viminfo

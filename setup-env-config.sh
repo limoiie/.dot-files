@@ -1,10 +1,10 @@
 #!/bin/bash
 
 DOT_FILES_ROOT=~/.dot-files
+XDG_CONFIG_HOME=~/.config
 
 ACTION=${1:-init}  # init, update, overwrite
 PACKAGES=${@:2}
-PACKAGES=${PACKAGES:-all}
 
 download-dot-files() {
     set -e
@@ -18,7 +18,7 @@ configure-tools-and-shell() {
     set -e
 
     echo "Configure tools and shell: ${PACKAGES}..."
-    mkdir -p ~/.config
+    mkdir -p ${XDG_CONFIG_HOME}
 
     is-enabled git && config-git
     is-enabled vim && config-vim
@@ -36,7 +36,7 @@ config-git() {
     set -e
 
     echo "Configure git..."
-    ln-safely -s ${DOT_FILES_ROOT}/.config/git ~/.config/git
+    ln-safely -s ${DOT_FILES_ROOT}/.config/git ${XDG_CONFIG_HOME}/git
 
     set +e
 }
@@ -46,22 +46,22 @@ config-vim() {
 
     echo "Configure vim..."
     echo "  - Download NvChad..."
-    git-clone-safely https://github.com/NvChad/NvChad ~/.config/nvim
+    git-clone-safely https://github.com/NvChad/NvChad ${XDG_CONFIG_HOME}/nvim
     echo "  - Download plug.vim..."
     curl-safely -L --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
          -o ~/.local/share/nvim/site/autoload/plug.vim 
 
     echo "  - Integrate .common-vimrc into .vimrc..."
-    append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ~/.config/.vimrc ".common-vimrc"
+    mkdir -p ${XDG_CONFIG_HOME}/vim
+    mv-safely ~/.vimrc ${XDG_CONFIG_HOME}/vim/vimrc
+    mv-safely ~/.viminfo ${XDG_CONFIG_HOME}/vim/viminfo
+    append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ${XDG_CONFIG_HOME}/vim/vimrc ".common-vimrc"
 
     echo "  - Config nvim customized configuration..."
-    mkdir -p ~/.config/nvim/lua/custom
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/init.lua ~/.config/nvim/lua/custom/init.lua
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/chadrc.lua ~/.config/nvim/lua/custom/chadrc.lua
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/plugins ~/.config/nvim/lua/custom/plugins
-
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/filetype.vim ~/.config/nvim/filetype.vim
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/syntax ~/.config/nvim/syntax
+    mkdir -p ${XDG_CONFIG_HOME}/nvim/lua/custom
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/* ${XDG_CONFIG_HOME}/nvim/lua/custom/
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/filetype.vim ${XDG_CONFIG_HOME}/nvim/filetype.vim
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/syntax ${XDG_CONFIG_HOME}/nvim/syntax
 
     set +e
 }
@@ -87,7 +87,8 @@ config-zsh() {
 
     echo "Configure zsh..."
     echo "  - Download zplug..."
-    run-remote-script https://raw.githubusercontent.com/zplug/installer/master/installer.zsh zsh
+    [ -e ~/.zplug ] || \
+      run-remote-script https://raw.githubusercontent.com/zplug/installer/master/installer.zsh zsh
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
@@ -100,7 +101,8 @@ config-shell-theme() {
 
     echo "Config shell theme"
     echo "  - Download starship"
-    run-remote-script https://starship.rs/install.sh sh
+    [ -x "$(which starship)" ] || \
+      run-remote-script https://starship.rs/install.sh sh
     echo "  - Integrate starship init .zshrc..."
     append-line 1 "export STARSHIP_CONFIG=${DOT_FILES_ROOT}/.config/starship.toml" ~/.zshrc \
       "export STARSHIP_CONFIG"
@@ -156,23 +158,52 @@ cp-safely() {
     tgt=${@: -1}
     src=${@: -2}
 
+    if [ ! -e $src ]; then
+        echo "  - Skip copying non-existing file"
+        return 0
+    fi
+
     case $ACTION in
       init | update)
         if [ cmp --silent $tgt $src ]; then
             echo "  - Skip copying identity file" 
-        else
-            backup-file $tgt
-            echo "  - Copy $src -> $tgt"
-            cp $@
+            return 0
         fi
+        backup-file $tgt
         ;;
 
       overwrite)
         remove-file $tgt
-        echo "  - Copy $src -> $tgt"
-        cp $@
         ;;
     esac
+    echo "  - Copy $src -> $tgt"
+    cp $@
+}
+
+mv-safely() {
+    local src tgt
+    tgt="${@: -1}"
+    src="${@: -2}"
+
+    if [ ! -e $src ]; then
+        echo "  - Skip moving non-existing file"
+        return 0
+    fi
+
+    case $ACTION in
+      init | update)
+        if [ cmp --slient $tgt $src ]; then
+            echo "  - Skip moving identity file"
+            return 0
+        fi
+        backup-file $tgt
+        ;;
+      overwrite)
+        remove-file $tgt
+        ;;
+    esac
+    echo "  - Move $src -> $tgt"
+    mv $@
 }
 
 git-clone-safely() {

@@ -2,6 +2,7 @@
 
 DOT_FILES_ROOT=~/.dot-files
 XDG_CONFIG_HOME=~/.config
+ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 
 ACTION=${1:-init}  # init, update, overwrite
 PACKAGES=${@:2}
@@ -86,9 +87,12 @@ config-zsh() {
     set -e
 
     echo "Configure zsh..."
+    if [ -e ~/.zplug ]; then
+        echo "  - Migrate existing .zplug to ${ZPLUG_HOME}..."
+        mv-safely ~/.zplug ${ZPLUG_HOME}
+    fi
     echo "  - Download zplug..."
-    [ -e ~/.zplug ] || \
-      run-remote-script https://raw.githubusercontent.com/zplug/installer/master/installer.zsh zsh
+    git-clone-safely https://github.com/zplug/zplug.git ${ZPLUG_HOME} \
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"

@@ -91,8 +91,8 @@ config-zsh() {
         echo "  - Migrate existing .zplug to ${ZPLUG_HOME}..."
         mv-safely ~/.zplug ${ZPLUG_HOME}
     fi
-    echo "  - Download zplug..."
-    git-clone-safely https://github.com/zplug/zplug.git ${ZPLUG_HOME} \
+    echo "  - Download zplug to ${ZPLUG_HOME}..."
+    git-clone-safely https://github.com/zplug/zplug.git ${ZPLUG_HOME}
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
@@ -134,7 +134,7 @@ run-remote-script() {
 ln-safely() {
     local src tgt
     tgt=${@: -1}
-    src=${@: -2}
+    src=${@: -2:1}
     
     case $ACTION in
       init | update)
@@ -160,7 +160,7 @@ ln-safely() {
 cp-safely() {
     local src tgt
     tgt=${@: -1}
-    src=${@: -2}
+    src=${@: -2:1}
 
     if [ ! -e $src ]; then
         echo "  - Skip copying non-existing file"
@@ -187,7 +187,7 @@ cp-safely() {
 mv-safely() {
     local src tgt
     tgt="${@: -1}"
-    src="${@: -2}"
+    src="${@: -2:1}"
 
     if [ ! -e $src ]; then
         echo "  - Skip moving non-existing file"
@@ -213,12 +213,12 @@ mv-safely() {
 git-clone-safely() {
     local src tgt action
     tgt=${@: -1}
-    src=${@: -2}
+    src=${@: -2:1}
 
     case $ACTION in
       init | update)
         if [ -d "$tgt" ] && [ -d "$tgt/.git" ]; then
-            echo "  - Update $tgt..."
+            echo "  - Update $src -> $tgt..."
             (cd "$tgt" && git pull)
         else
             backup-file $tgt
@@ -238,7 +238,7 @@ git-clone-safely() {
 curl-safely() {
     local src tgt
     tgt=${@: -1}
-    src=${@: -3}
+    src=${@: -3:1}
 
     case $ACTION in
       init)

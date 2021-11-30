@@ -1,4 +1,9 @@
 # >>> shared customization >>>
+
+# activate cargo
+[ -f "~/.cargo/env" ] && . ~/.cargo/env
+export PATH=$PATH:~/.cargo/bin
+
 # Inspect commands
 EMX_EXISTS=$(command -v emacs)
 NVI_EXISTS=$(command -v nvim)
@@ -37,9 +42,6 @@ alias j2=%2
 alias j3=%3
 alias j4=%4
 alias j5=%5
-
-# activate cargo
-[ -f "~/.cargo/env" ] && . ~/.cargo/env
 
 # disable proxy
 proxy_off() {

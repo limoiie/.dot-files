@@ -61,4 +61,7 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
+
+# zsh plugin z cache file
+export _Z_DATA=~/.cache/z
 # <<< shared customization <<<"

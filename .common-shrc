@@ -100,9 +100,10 @@ clean_emacs_cache() {
 # Boost rg with fzf
 [ -x "${FZF_EXISTS}" ] && [ -x "${RGP_EXISTS}" ] && \
     rgf() {
-        local initial_query rgp_prefix bat_prefix bat_context
+        local initial_query rgp_options rgp_prefix bat_prefix bat_context
         initial_query=${@: -1}
-        rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case ${@:1:-1}"
+        rgp_options=${@: 1:$#-1}
+        rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
 				bat_prefix="bat --color=always --style=numbers"
 				bat_context="awk -v A=20 -v B=20 -f ~/.dot-files/scripts/awk/bat-range-arg-from-rg.awk"
 				FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" \

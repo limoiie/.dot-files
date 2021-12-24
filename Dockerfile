@@ -12,6 +12,6 @@ RUN bash /tmp/setup-env-install-dist-tools.sh \
 COPY setup-env-install-modern-tools.sh /tmp/
 RUN bash /tmp/setup-env-install-modern-tools.sh
 COPY setup-env-config.sh /tmp/
-RUN bash /tmp/setup-env-config.sh
+RUN bash /tmp/setup-env-config.sh init all
 WORKDIR /root
 ENTRYPOINT [ "/bin/zsh" ]

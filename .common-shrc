@@ -13,6 +13,8 @@ BAT_EXISTS=$(command -v bat)
 GIT_EXISTS=$(command -v git)
 RGP_EXISTS=$(command -v rg)
 
+GIST_EXISTS=$(command -v gist)
+
 # Environments
 export XDG_CONFIG_HOME=~/.config
 
@@ -129,5 +131,12 @@ clean_emacs_cache() {
 [ -x "${FZF_EXISTS}" ] && \
     kif() {
         kill $@ $(ps -ef | fzf | awk '{print $2}')
+    }
+
+# Preview to select gist id and run 
+[ -x "${GIST_EXISTS}" ] && \
+    gisf() {
+        local gist_id=$(gist -l | fzf | awk '{print $1}' | awk -F/ '{print $4}')
+        gist $@ ${gist_id}
     }
 # <<< shared customization <<<

@@ -34,8 +34,8 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 # zsh history configuration
 export HISTFILE=${XDG_CONFIG_HOME}/.zsh_history
-export HISTSIZE=9999
-export SAVEHIST=9999
+export HISTSIZE=99999
+export SAVEHIST=99999
 export HISTTIMEFORMAT="[%F %T] "
 
 setopt hist_expire_dups_first   # delete duplicates first when HISTFILE size exceeds HISTSIZE

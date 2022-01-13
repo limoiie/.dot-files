@@ -1,6 +1,6 @@
 add_newline = true
 
-format = """$username\
+format = """\uF302  $username\
 $hostname\
 $shlvl\
 $kubernetes\
@@ -58,7 +58,6 @@ $lua\
 $battery\
 $status\
 $shell\
-[mac](bold white)\uF302 \
 $jobs\
 $character"""
 

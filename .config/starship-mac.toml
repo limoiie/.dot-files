@@ -61,9 +61,6 @@ $shell\
 $jobs\
 $character"""
 
-[conda]
-symbol = "🅒 "
-
 [jobs]
 symbol = "\uF0AE "
 threshold = 1

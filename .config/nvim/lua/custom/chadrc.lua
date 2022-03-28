@@ -6,6 +6,8 @@ M.options, M.ui, M.mappings, M.plugins = {}, {}, {}, {}
 
 -- NOTE: To use this, make a copy with `cp example_chadrc.lua chadrc.lua`
 
+local user_plugins = require "custom.plugins"
+
 --------------------------------------------------------------------
 
 -- To use this file, copy the structure of `core/default_config.lua`,
@@ -35,7 +37,7 @@ M.plugins = {
       --    setup_lspconf = "",
       --   },
       lspconfig = {
-        setup_lspconf = 'custom.plugins.lspconfig'
+        setup_lspconf = "custom.plugins.lspconfig"
       }
    },
    -- To change the Packer `config` of a plugin that comes with NvChad,
@@ -45,6 +47,8 @@ M.plugins = {
    --              use "(custom.configs).my_func()" to call a function
    --              use "custom.blankline" to call a file
    default_plugin_config_replace = {},
+   -- Additional plugins to be installed
+   install = user_plugins,
 }
 
 M.mappings.plugins = {

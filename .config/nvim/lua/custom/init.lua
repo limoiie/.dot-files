@@ -1,13 +1,11 @@
-local Plug = vim.fn['plug#']
+-- Please check NvChad docs if you're totally new to nvchad + dont know lua!!
+-- This is an example init file in /lua/custom/
+-- this init.lua can load stuffs etc too so treat it like your ~/.config/nvim/
 
-vim.call('plug#begin', '~/.config/nvim/plugged')
+-- MAPPINGS
+local map = require("core.utils").map
 
-Plug('folke/which-key.nvim')
-Plug('haya14busa/vim-easymotion')
-Plug('neovim/nvim-lspconfig')
-Plug('Pocco81/TrueZen.nvim')
-Plug('tpope/vim-surround')
-Plug('projekt0n/github-nvim-theme')
+map("n", "<leader>cc", ":Telescope <CR>")
+map("n", "<leader>q", ":q <CR>")
 
-vim.call('plug#end')
-
+-- NOTE: the 4th argument in the map function is be a table i.e options but its most likely un-needed so dont worry about it

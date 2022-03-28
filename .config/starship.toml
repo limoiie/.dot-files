@@ -8,7 +8,7 @@ $all\
 $jobs$character"""
 
 [conda]
-symbol = "🅒 #"
+symbol = "🅒 ~"
 
 [jobs]
 symbol = "\uF0AE "

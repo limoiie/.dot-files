@@ -116,21 +116,10 @@ clean_emacs_cache() {
                   --height=50% --layout=reverse
     }
 
-# Goto the directory containing the selected file
-[ -x "${FZF_EXISTS}" ] && \
-    cdf() {
-        cd $(fzf | xargs dirname)
-    }
-
 # Boost ps with fzf
 [ -x "${FZF_EXISTS}" ] && \
     psf() {
         ps $@ | fzf
-    }
-
-[ -x "${FZF_EXISTS}" ] && \
-    kif() {
-        kill $@ $(ps -ef | fzf | awk '{print $2}')
     }
 
 # Preview to select gist id and run 

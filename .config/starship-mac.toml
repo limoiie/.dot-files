@@ -61,15 +61,17 @@ $shell\
 $jobs\
 $character"""
 
-[conda]
-symbol = "🅒 ~"
+[character]
+success_symbol = "[](bold green)"
+error_symbol = "[✗](bold red)"
 
 [jobs]
-symbol = "\uF0AE "
+symbol = "✨"
 threshold = 1
 
 [time]
 disabled = false
-format = "[\uF651 $time]($style) "
+# format = "[⏱️ $time]($style) "
+format = "[$time]($style) "
 time_format = "%T"
 utc_time_offset = "+8"

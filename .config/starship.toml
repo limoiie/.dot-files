@@ -10,6 +10,10 @@ ${custom.kali}\
 $all\
 $jobs$character"""
 
+[character]
+success_symbol = "[](bold green)"
+error_symbol = "[✗](bold red)"
+
 [username]
 format = "[$user]($style)@"
 
@@ -17,12 +21,12 @@ format = "[$user]($style)@"
 symbol = "🅒 ~"
 
 [jobs]
-symbol = "\uF0AE "
+symbol = "✨"
 threshold = 1
 
 [time]
 disabled = false
-format = "[\uF651 $time]($style) "
+format = "[$time]($style) "
 time_format = "%T"
 utc_time_offset = "+8"
 
@@ -38,7 +42,7 @@ format = "\uF302  "
 
 [custom.ubuntu]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
-format = "\uF31B  "
+# format = "\uF31B  "
 
 [custom.kali]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """

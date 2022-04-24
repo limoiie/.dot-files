@@ -52,12 +52,12 @@ $env_var\
 $crystal\
 $custom\
 $cmd_duration\
+$status\
  \uF302\
 $line_break\
 $time\
 $lua\
 $battery\
-$status\
 $shell\
 $jobs\
 $character"""

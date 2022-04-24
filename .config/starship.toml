@@ -21,6 +21,7 @@ format = "[$user]($style)@"
 symbol = "🅒 ~"
 
 [status]
+symbol = " "
 disabled = false
 
 [jobs]

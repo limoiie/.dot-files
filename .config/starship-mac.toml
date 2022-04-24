@@ -69,6 +69,7 @@ error_symbol = "[✗](bold red)"
 symbol = "🅒 ~"
 
 [status]
+symbol = " "
 disabled = false
 
 [jobs]

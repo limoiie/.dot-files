@@ -65,6 +65,12 @@ $character"""
 success_symbol = "[](bold green)"
 error_symbol = "[✗](bold red)"
 
+[conda]
+symbol = "🅒 ~"
+
+[status]
+disabled = false
+
 [jobs]
 symbol = "✨"
 threshold = 1

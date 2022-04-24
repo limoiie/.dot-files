@@ -20,6 +20,9 @@ format = "[$user]($style)@"
 [conda]
 symbol = "🅒 ~"
 
+[status]
+disabled = false
+
 [jobs]
 symbol = "✨"
 threshold = 1

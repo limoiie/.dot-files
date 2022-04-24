@@ -42,7 +42,7 @@ format = "\uF302  "
 
 [custom.ubuntu]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
-# format = "\uF31B  "
+format = "\uF31B  "
 
 [custom.kali]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """

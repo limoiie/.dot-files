@@ -1,13 +1,13 @@
 add_newline = true
 
 format = """
-$username\
-$hostname\
+$all\
 ${custom.docker}\
 ${custom.mac}\
 ${custom.ubuntu}\
 ${custom.kali}\
-$all\
+$line_break\
+$time\
 $jobs$character"""
 
 [character]
@@ -38,12 +38,12 @@ style = "bold blue"
 
 [custom.mac]
 when = """ test "Darwin" = "$(uname -s)" """
-format = "\uF302  "
+format = "\uF302"
 
 [custom.ubuntu]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
-format = "\uF31B  "
+format = "\uF31B"
 
 [custom.kali]
 when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
-format = "\uF316  "
+format = "\uF316"

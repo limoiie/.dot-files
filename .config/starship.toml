@@ -17,9 +17,6 @@ error_symbol = "[✗](bold red)"
 [username]
 format = "[$user]($style)@"
 
-[conda]
-symbol = "🅒 ~"
-
 [status]
 symbol = " "
 disabled = false

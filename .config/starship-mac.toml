@@ -1,6 +1,6 @@
 add_newline = true
 
-format = """\uF302  $username\
+format = """$username\
 $hostname\
 $shlvl\
 $kubernetes\
@@ -52,11 +52,12 @@ $env_var\
 $crystal\
 $custom\
 $cmd_duration\
+$status\
+ \uF302\
 $line_break\
 $time\
 $lua\
 $battery\
-$status\
 $shell\
 $jobs\
 $character"""

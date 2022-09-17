@@ -13,17 +13,28 @@ Set-PSReadLineKeyHandler -Chord 'F2' -Function SwitchPredictionView
 # #endregion
 
 # #region alias configuration
-# # - Alias for Emacs Client
+<# - Alias for Emacs Client #>
 # Function EMC([string]$File) { emacsclient -c "$File" }
 # Set-Alias -Name ec -Value EMC
 
 # Function EMT([string]$File) { emacsclient -t "$File"}
 # Set-Alias -Name en -Value EMT
+
+<# - Alias for Vim #>
+Set-Alias -Name vi -Value vim
+
+<# - Alias for LSD #>
+Function LLIT([string]$Folder) { lsd -l "$Folder" }
+Function LALIT([string]$Folder) { lsd -al "$Folder" }
+
+Set-Alias -Option AllScope -Name ls -Value lsd
+Set-Alias -Name ll -Value LLIT
+Set-Alias -Name lal -Value LALIT
 # #endregion
 
 #region theme configuration
 # - Starship
-Invoke-Expression (&starship init powershell)
+# Invoke-Expression (&starship init powershell)
 
 # - Dracula
 # Invoke-Expression -Command $PSScriptRoot\dracula-prompt-configuration.ps1
@@ -76,6 +87,22 @@ function proxy_off() {
   $Env:http_proxy = ""
   $Env:https_proxy = ""
   Write-Output "Proxy is turned off"
+}
+
+function prompt {
+  $namePrefix = $(if ($HOST.Name -eq 'ServerRemoteHost')
+    { $env:USERNAME + '@' + $env:COMPUTERNAME + ' '} else { '' })
+
+  $currentDir = (Convert-Path .)
+  if ($currentDir.Contains($HOME)) {
+      $currentDir = $currentDir.Replace($HOME, "~")
+  }
+
+  $(if (Test-Path variable:/PSDebugContext) { ' [DBG]: ' }
+    else { ' ' }) + $currentDir + ' ' +
+      $(if ($NestedPromptLevel -ge 1) { '>>' }) + '% '
+
+  Write-Host "$namePrefix" -BackgroundColor Cyan -ForegroundColor Black -NoNewline
 }
 
 Import-Module ZLocation

@@ -12,6 +12,11 @@ setopt promptsubst         # enable command substitution in prompt
 
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
+# zsh prompt initialization
+autoload -Uz promptinit
+promptinit
+prompt adam1
+
 # zsh suggestion highlight
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'
 
@@ -45,6 +50,8 @@ setopt hist_verify              # show command with history expansion to user be
 setopt inc_append_history_time  # append history incrementally
 
 # zsh keybindings configuration
+# Use emacs keybindings even if our EDITOR is set to vi
+bindkey -e
 ## for jetbrains embedded terminal
 bindkey 'ƒ' forward-word
 bindkey '∫' backward-word

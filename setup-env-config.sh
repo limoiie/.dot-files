@@ -60,7 +60,7 @@ config-vim() {
 
     echo "  - Config nvim customized configuration..."
     mkdir -p ${XDG_CONFIG_HOME}/nvim/lua/custom
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom/* ${XDG_CONFIG_HOME}/nvim/lua/custom/
+    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom ${XDG_CONFIG_HOME}/nvim/lua/custom
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/filetype.vim ${XDG_CONFIG_HOME}/nvim/filetype.vim
     ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/syntax ${XDG_CONFIG_HOME}/nvim/syntax
 

@@ -8,6 +8,8 @@ Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadlineKeyHandler -Chord "Ctrl+/" -Function Undo
 Set-PSReadLineKeyHandler -Chord 'F2' -Function SwitchPredictionView
 
+Import-Module ZLocation
+
 # #region start emacs daemon
 # Start-Job -ScriptBlock {emacs --daemon}
 # #endregion
@@ -21,7 +23,7 @@ Set-PSReadLineKeyHandler -Chord 'F2' -Function SwitchPredictionView
 # Set-Alias -Name en -Value EMT
 
 <# - Alias for Vim #>
-Set-Alias -Name vi -Value vim
+Set-Alias -Name vi -Value nvim
 
 <# - Alias for LSD #>
 Function LLIT([string]$Folder) { lsd -l "$Folder" }
@@ -105,4 +107,3 @@ function prompt {
   Write-Host "$namePrefix" -BackgroundColor Cyan -ForegroundColor Black -NoNewline
 }
 
-Import-Module ZLocation

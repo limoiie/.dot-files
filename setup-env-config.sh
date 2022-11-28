@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DOT_FILES_ROOT=~/.dot-files
+DOT_CONFIG_HOME=${DOT_FILES_ROOT}/.config
 XDG_CONFIG_HOME=~/.config
 ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 
@@ -37,7 +38,7 @@ config-git() {
     set -e
 
     echo "Configure git..."
-    ln-safely -s ${DOT_FILES_ROOT}/.config/git ${XDG_CONFIG_HOME}/git
+    ln-safely -s ${DOT_CONFIG_HOME}/git ${XDG_CONFIG_HOME}/git
 
     set +e
 }
@@ -60,9 +61,9 @@ config-vim() {
 
     echo "  - Config nvim customized configuration..."
     mkdir -p ${XDG_CONFIG_HOME}/nvim/lua/custom
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/lua/custom ${XDG_CONFIG_HOME}/nvim/lua/custom
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/filetype.vim ${XDG_CONFIG_HOME}/nvim/filetype.vim
-    ln-safely -s ${DOT_FILES_ROOT}/.config/nvim/syntax ${XDG_CONFIG_HOME}/nvim/syntax
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/lua/custom ${XDG_CONFIG_HOME}/nvim/lua/custom
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/filetype.vim ${XDG_CONFIG_HOME}/nvim/filetype.vim
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/syntax ${XDG_CONFIG_HOME}/nvim/syntax
 
     set +e
 }
@@ -108,7 +109,7 @@ config-shell-theme() {
     [ -x "$(which starship)" ] || \
       run-remote-script https://starship.rs/install.sh sh
     echo "  - Integrate starship init .zshrc..."
-    append-line 1 "export STARSHIP_CONFIG=${DOT_FILES_ROOT}/.config/starship.toml" ~/.zshrc \
+    append-line 1 "export STARSHIP_CONFIG=${DOT_CONFIG_HOME}/starship.toml" ~/.zshrc \
       "export STARSHIP_CONFIG"
     append-line 1 'eval "$(starship init zsh)"' ~/.zshrc "starship init zsh"
 

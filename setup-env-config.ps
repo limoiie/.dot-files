@@ -1,16 +1,16 @@
 Set-ExecutionPolicy unrestricted
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-$DOT_FILES_ROOT=$HOME\.dot-files
-$DOT_CONFIG_HOME=$DOT_FILES_ROOT\.config
-$XDG_CONFIG_HOME=$ENV:APPDATA
+$DOT_FILES_ROOT=${HOME}\.dot-files
+$DOT_CONFIG_HOME=${DOT_FILES_ROOT}\.config
+$XDG_CONFIG_HOME=${ENV:APPDATA}
 
 % configure powershell
-New-Item -ItemType SymbolicLink -Path $PROFILE -Target $DOT_FILES_ROOT\Microsoft.PowerShell_profile.ps1
+New-Item -ItemType SymbolicLink -Path ${PROFILE} -Target ${DOT_FILES_ROOT}\Microsoft.PowerShell_profile.ps1
 
 % configure neovim
 
 % configure git
 
 % configure lsd
-New-Item -ItemType SymbolicLink -Path $XDG_CONFIG_HOME\lsd -Target $DOT_CONFIG_HOME\lsd
+New-Item -ItemType SymbolicLink -Path ${XDG_CONFIG_HOME}\lsd -Target ${DOT_CONFIG_HOME}\lsd

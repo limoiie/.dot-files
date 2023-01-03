@@ -28,6 +28,11 @@ M.plugins = {
       require "custom.plugins.null-ls"
     end,
   },
+  ["nvim-orgmode/orgmode"] = {
+    config = function()
+      require "custom.plugins.orgmode"
+    end,
+  },
   ["Pocco81/TrueZen.nvim"] = { },
 }
 

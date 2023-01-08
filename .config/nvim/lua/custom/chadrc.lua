@@ -34,6 +34,12 @@ M.plugins = {
     end,
   },
   ["Pocco81/TrueZen.nvim"] = { },
+  ["TimUntersberger/neogit"] = {
+    requires = "nvim-lua/plenary.nvim",
+    config = function()
+      require "custom.plugins.neogit"
+    end,
+  },
 }
 
 M.mappings = {

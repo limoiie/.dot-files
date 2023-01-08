@@ -14,6 +14,7 @@ GIT_EXISTS=$(command -v git)
 RGP_EXISTS=$(command -v rg)
 
 GIST_EXISTS=$(command -v gist)
+STARSHIP_EXISTS=$(command -v starship)
 
 # Environments
 export XDG_CONFIG_HOME=~/.config
@@ -128,4 +129,6 @@ clean_emacs_cache() {
         local gist_id=$(gist -l | fzf | awk '{print $1}' | awk -F/ '{print $4}')
         gist $@ ${gist_id}
     }
+
+[ -x "${STARSHIP_EXISTS}" ] || unset USE_STARSHIP_THEME
 # <<< shared customization <<<

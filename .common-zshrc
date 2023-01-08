@@ -13,9 +13,13 @@ setopt promptsubst         # enable command substitution in prompt
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
 # zsh prompt initialization
-autoload -Uz promptinit
-promptinit
-prompt adam1
+if [[ -v USE_STARSHIP_THEME ]]; then
+  eval "$(starship init zsh)"
+else
+  autoload -Uz promptinit
+  promptinit
+  prompt adam1
+fi
 
 # zsh suggestion highlight
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'

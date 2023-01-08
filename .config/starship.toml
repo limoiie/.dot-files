@@ -2,34 +2,29 @@ add_newline = true
 
 format = """
 $all\
+$time\
 ${custom.docker}\
 ${custom.mac}\
 ${custom.ubuntu}\
 ${custom.kali}\
 $line_break\
-$time\
-$jobs$character"""
+$jobs\
+$status\
+$character"""
 
 [character]
 success_symbol = "[](bold green)"
-error_symbol = "[✗](bold red)"
-
-[username]
-format = "[$user]($style)@"
+error_symbol = "[](bold red)"
 
 [status]
 symbol = " "
 disabled = false
 
 [jobs]
-symbol = "✨"
 threshold = 1
 
 [time]
 disabled = false
-format = "[$time]($style) "
-time_format = "%T"
-utc_time_offset = "+8"
 
 [custom.docker]
 command = "hostname | awk -F. '{print $1}'"

@@ -18,6 +18,7 @@ STARSHIP_EXISTS=$(command -v starship)
 
 # Environments
 export XDG_CONFIG_HOME=~/.config
+export BAT_THEME=TwoDark
 
 # Relocate .vimrc file
 # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"

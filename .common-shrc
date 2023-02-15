@@ -4,6 +4,8 @@
 [ -f "~/.cargo/env" ] && . ~/.cargo/env
 export PATH=$PATH:~/.cargo/bin
 
+DOT_HOME="$HOME/.dot-files"
+
 # Inspect commands
 EMX_EXISTS=$(command -v emacs)
 NVI_EXISTS=$(command -v nvim)
@@ -107,10 +109,11 @@ clean_emacs_cache() {
     rgf() {
         local initial_query rgp_options rgp_prefix bat_prefix bat_context
         initial_query=${@: -1}
-        rgp_options=${@: 1:$#-1}
+        rgp_options_len=$(($# - 1))
+        rgp_options=${@: 1:${rgp_options_len}}
         rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
 				bat_prefix="bat --color=always --style=numbers"
-				bat_context="awk -v A=20 -v B=20 -f ~/.dot-files/scripts/awk/bat-range-arg-from-rg.awk"
+				bat_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
 				FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" \
                   fzf --bind "change:reload:$rgp_prefix {q} || true" \
 									--preview="$bat_prefix \$(echo {} | $bat_context)" \

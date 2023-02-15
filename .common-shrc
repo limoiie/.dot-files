@@ -70,9 +70,12 @@ proxy_on() {
 }
 
 # remove all the emacs swap files under current folder
-clean_emacs_cache() {
+_clean_emacs_cache() {
     rm .*~
 }
+
+[ -x "${FZF_EXISTS}" ] && [ -x "${BAT_EXISTS}" ] && \
+    source "${DOT_HOME}/scripts/git-fzf.sh"
 
 # Boost z with fzf
 [ -x "${FZF_EXISTS}" ] && \

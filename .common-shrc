@@ -1,5 +1,8 @@
 # >>> shared customization >>>
 
+# prevent ctrl-d from killing session
+set -o ignoreeof
+
 # activate cargo
 [ -f "~/.cargo/env" ] && . ~/.cargo/env
 export PATH=$PATH:~/.cargo/bin

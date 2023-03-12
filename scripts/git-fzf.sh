@@ -160,6 +160,15 @@ _fzf_git_branches() {
   sed 's/^..//' | cut -d' ' -f1
 }
 
+_fzf_git_diff() {
+  _fzf_git_check || return
+  git diff "$@" --name-only | \
+  _fzf_git_fzf --ansi \
+    --prompt '🌓 Diff> ' \
+    --color hl:underline,hl+:underline \
+    --preview 'git diff --color=always "$@" -- {-1}'
+}
+
 _fzf_git_tags() {
   _fzf_git_check || return
   git tag --sort -version:refname |
@@ -250,7 +259,7 @@ elif [[ -n "${ZSH_VERSION:-}" ]]; then
     done
   }
 fi
-__fzf_git_init files branches tags remotes hashes stashes each_ref
+__fzf_git_init files branches diff tags remotes hashes stashes each_ref
 
 # -----------------------------------------------------------------------------
 fi

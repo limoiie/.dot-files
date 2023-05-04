@@ -25,6 +25,7 @@ fi
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'
 
 # zsh completion features
+fpath+=${XDG_CONFIG_HOME}/.zfunc
 autoload -Uz compinit
 compinit -d ~/.cache/zcompdump
 zstyle ':completion:*:*:*:*:*' menu select
@@ -48,8 +49,11 @@ export SAVEHIST=99999
 export HISTTIMEFORMAT="[%F %T] "
 
 setopt hist_expire_dups_first   # delete duplicates first when HISTFILE size exceeds HISTSIZE
-setopt hist_ignore_dups         # ignore duplicated commands history list
+setopt hist_ignore_dups         # ignore continous duplicated commands history list
+setopt hist_ignore_all_dups     # ignore duplicated commands history list
 setopt hist_ignore_space        # ignore commands that start with space
+setopt hist_save_no_dups        # do not save duplicates
+setopt hist_find_no_dups        # do not find duplicates
 setopt hist_verify              # show command with history expansion to user before running it
 setopt inc_append_history_time  # append history incrementally
 

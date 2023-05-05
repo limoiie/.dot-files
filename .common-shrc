@@ -97,12 +97,12 @@ _clean_emacs_cache() {
     }
 
 # Beautified git-diff boosted with bat and fzf
-[ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && \
-    gdf() {
-        # {-1} stands for the selected file
-        preview="git diff --color=always $@ -- {-1}"
-        git diff $@ --name-only | fzf -m --height=100% --preview $preview
-    }
+# [ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && \
+#     gdf() {
+#         # {-1} stands for the selected file
+#         preview="git diff --color=always $@ -- {-1}"
+#         git diff $@ --name-only | fzf -m --height=100% --preview $preview
+#     }
 
 # Boost tail with bat
 [ -x "${BAT_EXISTS}" ] && \

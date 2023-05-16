@@ -256,6 +256,7 @@ elif [[ -n "${ZSH_VERSION:-}" ]]; then
       eval "zle -N fzf-git-$o-widget"
       eval "bindkey '^g^${o[1]}' fzf-git-$o-widget"
       eval "bindkey '^g${o[1]}' fzf-git-$o-widget"
+      eval "alias 'g${o[1]}f'='fzf-git-$o-widget'"
     done
   }
 fi

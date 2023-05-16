@@ -47,6 +47,7 @@ export FZF_COMPLETION_TRIGGER='..'
 alias la="ls -a"
 alias ll="ls -l"
 alias lal="ls -al"
+alias dtop="lazydocker"
 alias j1=%1
 alias j2=%2
 alias j3=%3
@@ -97,12 +98,12 @@ _clean_emacs_cache() {
     }
 
 # Beautified git-diff boosted with bat and fzf
-[ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && \
-    gdf() {
-        # {-1} stands for the selected file
-        preview="git diff --color=always $@ -- {-1}"
-        git diff $@ --name-only | fzf -m --height=100% --preview $preview
-    }
+# [ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && \
+#     gdf() {
+#         # {-1} stands for the selected file
+#         preview="git diff --color=always $@ -- {-1}"
+#         git diff $@ --name-only | fzf -m --height=100% --preview $preview
+#     }
 
 # Boost tail with bat
 [ -x "${BAT_EXISTS}" ] && \

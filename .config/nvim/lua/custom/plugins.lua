@@ -1,14 +1,6 @@
 local plugins = {
   -- override plugin config
   {
-    "folke/which-key.nvim",
-    enabled = true,
-  },
-  {
-    "goolord/alpha-nvim",
-    enabled = true,
-  },
-  {
     "neovim/nvim-lspconfig",
     dependencies = {
       "jose-elias-alvarez/null-ls.nvim",
@@ -23,6 +15,7 @@ local plugins = {
   },
   -- install new plugin
   { "easymotion/vim-easymotion" },
+  { "github/copilot.vim" },
   {
     "nvim-orgmode/orgmode",
     config = function()

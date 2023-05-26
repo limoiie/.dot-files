@@ -3,8 +3,8 @@
 local M = {}
 
 M.ui = {
-  theme_toggle = { "ayu_light", "onedark" },
-  theme = "ayu_light",
+  theme_toggle = { "onedark", "onedark" },
+  theme = "onedark",
   nvdash = {
     load_on_startup = true,
   }

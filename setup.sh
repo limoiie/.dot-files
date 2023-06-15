@@ -3,7 +3,6 @@
 DOT_FILES_ROOT=~/.dot-files
 DOT_CONFIG_HOME=${DOT_FILES_ROOT}/.config
 XDG_CONFIG_HOME=~/.config
-ZPLUG_HOME=${XDG_CONFIG_HOME}/zplug
 
 ACTION=${1:-init}  # init, update, overwrite
 PACKAGES=${@:2}
@@ -23,10 +22,13 @@ configure-tools-and-shell() {
     mkdir -p ${XDG_CONFIG_HOME}
 
     is-enabled git && config-git
+    is-enabled cargo && config-cargo
+
     is-enabled vim && config-vim
     is-enabled emacs && config-emacs
 
     is-enabled zsh && config-zsh
+    is-enabled fzf && config-fzf
     is-enabled shell-theme && config-shell-theme
 
     echo "Congratulations! All done~"
@@ -43,33 +45,58 @@ config-git() {
     set +e
 }
 
+config-cargo() {
+    set -e
+
+    echo "Install useful modern command-line tools..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    . $HOME/.cargo/env \
+        && cargo install \
+                 bat \
+                 exa \
+                 fd-find \
+                 procs \
+                 ripgrep \
+                 sd
+
+    set +e
+}
+
 config-vim() {
     set -e
 
-    echo "Configure vim..."
-    echo "  - Download NvChad..."
-    git-clone-safely https://github.com/NvChad/NvChad ${XDG_CONFIG_HOME}/nvim
-    echo "  - Download plug.vim..."
-    curl-safely -L --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-         -o ~/.local/share/nvim/site/autoload/plug.vim 
+    echo "Download bob-nvim..."
+    cargo install bob-nvim
 
+    echo "Download latest neovim ..."
+    bob use latest
+
+    echo "Configure vim..."
     echo "  - Integrate .common-vimrc into .vimrc..."
     mkdir -p ${XDG_CONFIG_HOME}/vim
     mv-safely ~/.vimrc ${XDG_CONFIG_HOME}/vim/vimrc
     mv-safely ~/.viminfo ${XDG_CONFIG_HOME}/vim/viminfo
     append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ${XDG_CONFIG_HOME}/vim/vimrc ".common-vimrc"
 
-    echo "  - Config nvim customized configuration..."
-    mkdir -p ${XDG_CONFIG_HOME}/nvim/lua/custom
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/lua/custom ${XDG_CONFIG_HOME}/nvim/lua/custom
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/filetype.vim ${XDG_CONFIG_HOME}/nvim/filetype.vim
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/syntax ${XDG_CONFIG_HOME}/nvim/syntax
+    echo "Configure NvChad..."
+    echo "  - Download NvChad..."
+    git-clone-safely https://github.com/NvChad/NvChad ${XDG_CONFIG_HOME}/NvChad
+
+    echo "  - Customize NvChad..."
+    mkdir -p ${XDG_CONFIG_HOME}/NvChad/lua/custom
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/lua/custom ${XDG_CONFIG_HOME}/NvChad/lua/custom
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/filetype.vim ${XDG_CONFIG_HOME}/NvChad/filetype.vim
+    ln-safely -s ${DOT_CONFIG_HOME}/nvim/syntax ${XDG_CONFIG_HOME}/NvChad/syntax
 
     set +e
 }
 
 config-emacs() {
     set -e
+
+    echo "Install emacs..."
+    [ -x "$(which emacs)" ] || \
+        sudo snap install emacs --classic
 
     echo "Configure emacs..."
     echo "  - Download spacemacs"
@@ -78,8 +105,7 @@ config-emacs() {
     git-clone-safely https://github.com/limoiie/limo-spacemacs-layers.git \
         ~/.emacs.d/private/layers
 
-    echo "  - Adopt .spacemacs..."
-    cp-safely ${DOT_FILES_ROOT}/.spacemacs ~/.spacemacs
+    echo "  - See also ${DOT_FILES_ROOT}/.spacemacs..."
 
     set +e
 }
@@ -89,14 +115,32 @@ config-zsh() {
 
     echo "Configure zsh..."
     if [ -e ~/.zplug ]; then
-        echo "  - Migrate existing .zplug to ${ZPLUG_HOME}..."
-        mv-safely ~/.zplug ${ZPLUG_HOME}
+        echo "  - Migrate existing .zplug to ${XDG_CONFIG_HOME}/zplug..."
+        mv-safely ~/.zplug ${XDG_CONFIG_HOME}/zplug
     fi
-    echo "  - Download zplug to ${ZPLUG_HOME}..."
-    git-clone-safely https://github.com/zplug/zplug.git ${ZPLUG_HOME}
+    echo "  - Download zplug to ${XDG_CONFIG_HOME}/zplug..."
+    git-clone-safely https://github.com/zplug/zplug.git ${XDG_CONFIG_HOME}/zplug
     echo "  - Integrate common-used shell config into .zshrc..."
     append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
     append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
+
+    set +e
+}
+
+config-fzf() {
+    set -e
+
+    echo "Configure fzf..."
+    git-clone-safely --depth 1 https://github.com/junegunn/fzf.git ${XDG_CONFIG_HOME}/fzf \
+        && ${XDG_CONFIG_HOME}/fzf/install --all \
+        || exit -1
+    
+    echo "  - Move fzf scripts to ${XDG_CONFIG_HOME}/"
+    mv-safely $HOME/.fzf.bash ${XDG_CONFIG_HOME}/fzf.bash
+    mv-safely $HOME/.fzf.zsh ${XDG_CONFIG_HOME}/fzf.zsh
+
+    sed -i -- 's/^.*\-f ~\/.fzf.bash.*$/[ -f ~\/.config\/fzf.bash ] \&\& source ~\/.config\/fzf.bash/' $HOME/.bashrc
+    sed -i -- 's/^.*\-f ~\/.fzf.zsh.*$/[ -f ~\/.config\/fzf.zsh ] \&\& source ~\/.config\/fzf.zsh/' $HOME/.zshrc
 
     set +e
 }

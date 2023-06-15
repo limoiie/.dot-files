@@ -81,12 +81,8 @@ config-vim() {
     echo "Configure NvChad..."
     echo "  - Download NvChad..."
     git-clone-safely https://github.com/NvChad/NvChad ${XDG_CONFIG_HOME}/NvChad
-
     echo "  - Customize NvChad..."
-    mkdir -p ${XDG_CONFIG_HOME}/NvChad/lua/custom
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/lua/custom ${XDG_CONFIG_HOME}/NvChad/lua/custom
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/filetype.vim ${XDG_CONFIG_HOME}/NvChad/filetype.vim
-    ln-safely -s ${DOT_CONFIG_HOME}/nvim/syntax ${XDG_CONFIG_HOME}/NvChad/syntax
+    ln-safely -s ${DOT_CONFIG_HOME}/NvChad/lua/custom ${XDG_CONFIG_HOME}/NvChad/lua/custom
 
     set +e
 }

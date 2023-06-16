@@ -1,13 +1,8 @@
-add_newline = true
+add_newline = false
 
-format = """
-$all\
+format = """$all\
 $time\
-${custom.docker}\
-${custom.mac}\
-${custom.ubuntu}\
-${custom.kali}\
-$line_break\
+$line_break \
 $jobs\
 $status\
 $character"""
@@ -26,20 +21,22 @@ threshold = 1
 [time]
 disabled = false
 
-[custom.docker]
-command = "hostname | awk -F. '{print $1}'"
-when = """grep -s docker /proc/1/cgroup"""
-format = "🐋 [$output>]($style) "
-style = "bold blue"
-
-[custom.mac]
-when = """ test "Darwin" = "$(uname -s)" """
-format = "\uF302"
-
-[custom.ubuntu]
-when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
-format = "\uF31B"
-
-[custom.kali]
-when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
-format = "\uF316"
+## deprecated
+#
+# [custom.docker]
+# command = "hostname | awk -F. '{print $1}'"
+# when = """grep -s docker /proc/1/cgroup"""
+# format = "🐋 [$output>]($style) "
+# style = "bold blue"
+#
+# [custom.mac]
+# when = """ test "Darwin" = "$(uname -s)" """
+# format = "\uF302"
+#
+# [custom.ubuntu]
+# when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "ubuntu" """
+# format = "\uF31B"
+#
+# [custom.kali]
+# when = """ test "$(grep -s '^ID=' /etc/os-release | awk -F= '{print $2}')" = "kali" """
+# format = "\uF316"

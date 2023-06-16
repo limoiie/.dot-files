@@ -1,15 +1,13 @@
 add_newline = false
 
 format = """$all\
-$time\
 $line_break \
 $jobs\
-$status\
 $character"""
 
 [character]
-success_symbol = "[](bold green)"
-error_symbol = "[](bold red)"
+success_symbol = "[%](bold green)"
+error_symbol = "[%](bold red)"
 
 [status]
 symbol = " "
@@ -22,7 +20,7 @@ threshold = 1
 disabled = false
 
 ## deprecated
-#
+
 # [custom.docker]
 # command = "hostname | awk -F. '{print $1}'"
 # when = """grep -s docker /proc/1/cgroup"""

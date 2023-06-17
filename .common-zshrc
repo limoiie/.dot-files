@@ -76,6 +76,9 @@ zplug "plugins/docker", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-autosuggestions"
 
+alias dtop="lazydocker"
+alias dptop="docker top"
+
 # zplug check returns true if all packages are installed
 # Therefore, when it returns false, run zplug install
 if ! zplug check; then

@@ -10,8 +10,6 @@ export PATH=$PATH:~/.cargo/bin
 DOT_HOME="$HOME/.dot-files"
 
 # Inspect commands
-EMX_EXISTS=$(command -v emacs)
-NVI_EXISTS=$(command -v nvim)
 EXA_EXISTS=$(command -v exa)
 FZF_EXISTS=$(command -v fzf)
 BAT_EXISTS=$(command -v bat)
@@ -36,18 +34,27 @@ export FZF_COMPLETION_TRIGGER='..'
 [ -x "${BAT_EXISTS}" ] && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 # Alias
-[ -x "${EXA_EXISTS}" ] && alias ls="exa"
-[ -x "${EMX_EXISTS}" ] && alias  e="emacs"
-[ -x "${EMX_EXISTS}" ] && alias et="emacs -nw"
-[ -x "${EMX_EXISTS}" ] && alias en="emacs -nw"
-[ -x "${EMX_EXISTS}" ] && alias ec="emacsclient -a '' -c"
-[ -x "${NVI_EXISTS}" ] && alias  v="nvim"
-[ -x "${NVI_EXISTS}" ] && alias vi="nvim"
+if [ -x "$(command -v emacs)" ]; then
+    alias ls="exa"
+    alias et="emacs -nw"
+    alias en="emacs -nw"
+    alias ec="emacsclient -a '' -c"
+fi
+
+if [ -x "$(command -v nvim)" ]; then
+    alias vi="nvim"
+    alias nv="NVIM_APPNAME=NvChad nvim"
+    alias nvchad="NVIM_APPNAME=NvChad nvim"
+    alias lv="NVIM_APPNAME=LazyVim nvim"
+    alias lazyvim="NVIM_APPNAME=LazyVim nvim"
+fi
 
 alias la="ls -a"
 alias ll="ls -l"
 alias lal="ls -al"
 alias dtop="lazydocker"
+alias gtop="lazygit"
+
 alias j1=%1
 alias j2=%2
 alias j3=%3

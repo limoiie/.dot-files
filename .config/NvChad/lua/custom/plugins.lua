@@ -14,8 +14,13 @@ local plugins = {
     end,
   },
   -- install new plugin
-  { "easymotion/vim-easymotion" },
-  { "github/copilot.vim" },
+  { "easymotion/vim-easymotion", lazy = false, },
+  {
+    "github/copilot.vim",
+    config = function ()
+      require "custom.configs.copilot"
+    end,
+  },
   {
     "nvim-orgmode/orgmode",
     config = function()

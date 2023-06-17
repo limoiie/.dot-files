@@ -3,8 +3,8 @@
 local M = {}
 
 M.ui = {
-  theme_toggle = { "one_light", "one_light" },
-  theme = "one_light",
+  theme_toggle = { "nightowl", "nightowl" },
+  theme = "nightowl",
   nvdash = {
     load_on_startup = true,
   }
@@ -12,18 +12,6 @@ M.ui = {
 
 M.plugins = "custom.plugins"
 
-M.mappings = {
-  ["Pocco81/TrueZen.nvim"] = {
-    n = {
-      ['<leader>za'] = {":TZAtaraxis<CR>", "zen ataraxis"},
-      ['<leader>zf'] = {":TZFocus<CR>", "zen focus current window"},
-      ['<leader>zm'] = {":TZMinimalist<CR>", "zen minimalize"},
-      ['<leader>zn'] = {":TZNarrow<CR>", "zen narrow"},
-    },
-    v = {
-      ['<leader>zn'] = {":'<,'>TZNarrow<CR>", "zen narrow"},
-    }
-  }
-}
+M.mappings = require "custom.mappings"
 
 return M

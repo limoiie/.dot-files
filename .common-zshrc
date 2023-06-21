@@ -68,6 +68,7 @@ bindkey '∂' kill-word
 # >>> shared customization >>>"
 export ZPLUG_HOME="${XDG_CONFIG_HOME}/zplug"
 source "${ZPLUG_HOME}/init.zsh"
+zplug "marlonrichert/zsh-autocomplete", as:plugin
 zplug "paulirish/git-open", as:plugin
 zplug "plugins/z", from:oh-my-zsh
 zplug "plugins/wd", from:oh-my-zsh

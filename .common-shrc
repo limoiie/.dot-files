@@ -116,7 +116,7 @@ _clean_emacs_cache() {
     rgf() {
         local initial_query rgp_options rgp_prefix bat_prefix bat_context
         initial_query=${@: -1}
-        rgp_options_len=$(($# - 1))
+        rgp_options_len=$(($# > 0 ? $# - 1 : 0))
         rgp_options=${@: 1:${rgp_options_len}}
         rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
 				bat_prefix="bat --color=always --style=numbers"

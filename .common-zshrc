@@ -89,6 +89,11 @@ fi
 # source plugins and add commands to the PATH
 zplug load
 
+## configuration for autocomplete
+# Make Tab go straight to the menu and cycle there
+bindkey '\t' menu-select "$terminfo[kcbt]" menu-select
+bindkey -M menuselect '\t' menu-complete "$terminfo[kcbt]" reverse-menu-complete
+
 # zsh plugin z cache file
 export _Z_DATA=~/.cache/z
 # <<< shared customization <<<"

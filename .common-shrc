@@ -62,7 +62,7 @@ alias j4=%4
 alias j5=%5
 
 # disable proxy
-proxy_off() {
+proxy-off() {
     unset http_proxy
     unset https_proxy
     unset ftp_proxy
@@ -71,13 +71,30 @@ proxy_off() {
 }
 
 # enable proxy
-proxy_on() {
+proxy-on() {
     export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
     export http_proxy="http://127.0.0.1:7890"
     export https_proxy=$http_proxy
     export ftp_proxy=$http_proxy
     export rsync_proxy=$http_proxy
     echo -e "Proxy is enabled on $http_proxy!"
+}
+
+alias proxy_off=proxy_off
+alias proxy_on=proxy_on
+
+# Fix fire complete script for zsh.
+#
+# Example:
+# =======
+#
+# $ python -m <fire-widget> -- --completion | fix-fire <module> > .complete
+fire-zsh-complete() {
+    MODULE=$1
+    sed 's/:/: /g' | \
+    sed "s/__main__.py$/python -m ${MODULE}/g" | \
+    sed "s/__main__.py/${MODULE}/g" | \
+    sed "s/__main__py/${MODULE}/g"
 }
 
 # remove all the emacs swap files under current folder

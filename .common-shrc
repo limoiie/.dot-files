@@ -35,7 +35,6 @@ export FZF_COMPLETION_TRIGGER='..'
 
 # Alias
 if [ -x "$(command -v emacs)" ]; then
-    alias ls="exa"
     alias et="emacs -nw"
     alias en="emacs -nw"
     alias ec="emacsclient -a '' -c"
@@ -49,6 +48,7 @@ if [ -x "$(command -v nvim)" ]; then
     alias lazyvim="NVIM_APPNAME=LazyVim nvim"
 fi
 
+alias ls="exa"
 alias la="ls -a"
 alias ll="ls -l"
 alias lal="ls -al"

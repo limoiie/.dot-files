@@ -5,6 +5,7 @@ let mapleader=" "
 
 set surround
 set easymotion
+set ideajoin
 
 sethandler <C-2> a:ide
 sethandler <C-S-2> a:ide

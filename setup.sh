@@ -7,9 +7,19 @@ XDG_CONFIG_HOME=~/.config
 ACTION=${1:-init}  # init, update, overwrite
 PACKAGES=${@:2}
 
+install-basic-tools() {
+    set -e
+
+    echo "Install basic tools..."
+    apt instal -y git curl
+
+    set +e
+}
+
 download-dot-files() {
     set -e
 
+    echo "Download/Update dot-files..."
     git-clone-safely https://github.com/limoiie/.dot-files.git ${DOT_FILES_ROOT}
 
     set +e
@@ -23,6 +33,7 @@ configure-tools-and-shell() {
 
     is-enabled git && config-git
     is-enabled cargo && config-cargo
+    is-enabled go && config-go
 
     is-enabled vim && config-vim
     is-enabled emacs && config-emacs
@@ -49,7 +60,8 @@ config-cargo() {
     set -e
 
     echo "Install useful modern command-line tools..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    [ -x "$(which cargo)" ] || \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     . $HOME/.cargo/env \
         && cargo install \
                  bat \
@@ -58,6 +70,19 @@ config-cargo() {
                  procs \
                  ripgrep \
                  sd
+
+    set +e
+}
+
+config-go() {
+    set -e
+
+    echo "Install useful modern command-line tools written in go..."
+    [ -x "$(which go)" ] || \
+        echo "Please install go at first!"; exit -1
+    go install \
+        github.com/jesseduffield/lazydocker@latest \
+        github.com/jesseduffield/lazygit@latest
 
     set +e
 }
@@ -368,6 +393,7 @@ contains() {
     return 1
 }
 
+install-basic-tools
 download-dot-files
 configure-tools-and-shell
 

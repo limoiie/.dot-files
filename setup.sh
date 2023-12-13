@@ -35,6 +35,8 @@ configure-tools-and-shell() {
     is-enabled cargo && config-cargo
     is-enabled go && config-go
 
+    is-enabled py && config-py
+
     is-enabled vim && config-vim
     is-enabled emacs && config-emacs
 
@@ -83,6 +85,14 @@ config-go() {
     go install \
         github.com/jesseduffield/lazydocker@latest \
         github.com/jesseduffield/lazygit@latest
+
+    set +e
+}
+
+config-py() {
+    set -e
+
+    pip install poetry
 
     set +e
 }

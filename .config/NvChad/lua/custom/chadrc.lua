@@ -3,8 +3,8 @@
 local M = {}
 
 M.ui = {
-  theme_toggle = { "nightowl", "nightowl" },
-  theme = "nightowl",
+  theme_toggle = { "aquarium", "aquarium" },
+  theme = "aquarium",
   nvdash = {
     load_on_startup = true,
   }

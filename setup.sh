@@ -11,7 +11,7 @@ install-basic-tools() {
     set -e
 
     echo "Install basic tools..."
-    apt instal -y git curl
+    apt install -y git curl
 
     set +e
 }
@@ -81,7 +81,7 @@ config-go() {
 
     echo "Install useful modern command-line tools written in go..."
     [ -x "$(which go)" ] || \
-        echo "Please install go at first!"; exit -1
+        (echo "Please install go at first!"; exit -1)
     go install \
         github.com/jesseduffield/lazydocker@latest \
         github.com/jesseduffield/lazygit@latest

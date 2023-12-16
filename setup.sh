@@ -11,7 +11,8 @@ install-basic-tools() {
     set -e
 
     echo "Install basic tools..."
-    apt install -y git curl
+    [ -x "$(which git)" ] || sudo apt install -y git
+    [ -x "$(which curl)" ] || sudo apt install -y curl
 
     set +e
 }
@@ -135,6 +136,22 @@ config-emacs() {
     echo "  - Download limo spacemacs layers..."
     git-clone-safely https://github.com/limoiie/limo-spacemacs-layers.git \
         ~/.emacs.d/private/layers
+    echo "  - Download elpa mirror..."
+    git-clone-safely --depth=1 https://github.com/d12frosted/elpa-mirror.git ~/.emacs.d/private/elpa-mirror
+    echo '    Remember setting in the function `dotspacemacs/user-init` as following:\
+    (let ((local (concat user-home-directory ".emacs.d/private/elpa-mirror/"))
+        (remote "https://raw.githubusercontent.com/d12frosted/elpa-mirror/master/"))
+    ;; local - remember updating this local mirror by git pull frequently
+    (setq configuration-layer-elpa-archives
+          `(("melpa" . ,(concat local "melpa/"))
+            ("org"   . ,(concat local "org"))
+            ("gnu"   . ,(concat local "gnu"))))
+    ;; remote
+    ;; (setq configuration-layer-elpa-archives
+    ;;       `(("melpa" . ,(concat remote "melpa/"))
+    ;;         ("org"   . ,(concat remote "org/"))
+    ;;         ("gnu"   . ,(concat remote "gnu/"))))
+    )'
 
     echo "  - See also ${DOT_FILES_ROOT}/.spacemacs..."
 

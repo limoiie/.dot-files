@@ -22,6 +22,14 @@ local plugins = {
     end,
   },
   {
+    "kylechui/nvim-surround",
+    version = "*", -- Use for stability; omit to use `main` branch
+    event = "VeryLazy",
+    config = function()
+      require "custom.configs.nvim-surround"
+    end,
+  },
+  {
     "nvim-orgmode/orgmode",
     config = function()
       require "custom.configs.orgmode"

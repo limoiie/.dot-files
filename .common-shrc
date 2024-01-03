@@ -1,59 +1,18 @@
-# >>> shared customization >>>
+# ============================================================================
+# System Settings
+# ============================================================================
+
+# Environments
+export XDG_CONFIG_HOME="$HOME/.config"
+export DOT_HOME="$HOME/.dot-files"
 
 # prevent ctrl-d from killing session
 set -o ignoreeof
 
-# activate cargo
-[ -f "~/.cargo/env" ] && . ~/.cargo/env
-export PATH=$PATH:~/.cargo/bin
-
-DOT_HOME="$HOME/.dot-files"
-
-# Inspect commands
-EXA_EXISTS=$(command -v exa)
-FZF_EXISTS=$(command -v fzf)
-BAT_EXISTS=$(command -v bat)
-GIT_EXISTS=$(command -v git)
-RGP_EXISTS=$(command -v rg)
-
-GIST_EXISTS=$(command -v gist)
-STARSHIP_EXISTS=$(command -v starship)
-
-# Environments
-export XDG_CONFIG_HOME=~/.config
-export BAT_THEME=TwoDark
-
-# Relocate .vimrc file
-# export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
-
-# fzf options
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
-export FZF_COMPLETION_TRIGGER='..'
-
-# using bat for man
-[ -x "${BAT_EXISTS}" ] && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
 # Alias
-if [ -x "$(command -v emacs)" ]; then
-    alias et="emacs -nw"
-    alias en="emacs -nw"
-    alias ec="emacsclient -a '' -c"
-fi
-
-if [ -x "$(command -v nvim)" ]; then
-    alias vi="nvim"
-    alias nv="NVIM_APPNAME=NvChad nvim"
-    alias nvchad="NVIM_APPNAME=NvChad nvim"
-    alias lv="NVIM_APPNAME=LazyVim nvim"
-    alias lazyvim="NVIM_APPNAME=LazyVim nvim"
-fi
-
-alias ls="exa"
 alias la="ls -a"
 alias ll="ls -l"
 alias lal="ls -al"
-alias dtop="lazydocker"
-alias gtop="lazygit"
 
 alias j1=%1
 alias j2=%2
@@ -61,7 +20,11 @@ alias j3=%3
 alias j4=%4
 alias j5=%5
 
-# disable proxy
+# ============================================================================
+# Proxy Settings
+# ============================================================================
+
+# Disable proxy
 proxy-off() {
     unset http_proxy
     unset https_proxy
@@ -70,7 +33,7 @@ proxy-off() {
     echo -e "Proxy is disabled"
 }
 
-# enable proxy
+# Enable proxy
 proxy-on() {
     export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
     export http_proxy="http://127.0.0.1:7890"
@@ -80,8 +43,192 @@ proxy-on() {
     echo -e "Proxy is enabled on $http_proxy!"
 }
 
-alias proxy_off=proxy_off
-alias proxy_on=proxy_on
+# ============================================================================
+# Cli Apps Settings
+# ============================================================================
+
+# Return true only if all commands exist
+__requires() {
+    for command in "$@"; do
+        if ! command -v "$command" >/dev/null 2>&1; then
+            return 1
+        fi
+    done
+    return 0
+}
+
+# Configure cargo
+__config_cargo() {
+    # activate cargo
+    [ -f "~/.cargo/env" ] && source ~/.cargo/env
+    if ! __requires cargo; then
+        return
+    fi
+
+    export PATH=$PATH:~/.cargo/bin
+}
+
+# Configure go
+__config_go() {
+    if ! __requires go; then
+        return
+    fi
+
+    __requires lazydocker && alias dtop="lazydocker"
+    __requires lazygit && alias gtop="lazygit"
+}
+
+# Configure fzf
+__config_fzf() {
+    # activate env
+    [ -f "~/.fzf.zsh" ] && source ~/.fzf.zsh
+    if ! __requires fzf; then
+        return
+    fi
+
+    # view layout
+    export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
+    export FZF_COMPLETION_TRIGGER='..'
+
+    # enable fzf completioin and key-bindings
+    #source /usr/share/doc/fzf/examples/completion.zsh
+    #source /usr/share/doc/fzf/examples/key-bindings.zsh
+}
+
+# Configure fzf plugins
+__config_fzf_plugins() {
+    if ! __requires fzf; then
+        return
+    fi
+
+    # Boost ps with fzf
+    psf() {
+        ps $@ | fzf
+    }
+
+    # Boost z with fzf
+    zf() {
+        dir=$(z -l | fzf | awk '{ print $2 }')
+        if [[ -d "$dir" ]]; then
+            cd $dir
+        fi
+    }
+
+    # Load git helper tui tools
+    __requires bat && \
+        source "${DOT_HOME}/scripts/git-fzf.sh"
+
+    # Call fzf with bat as preview
+    __requires bat && \
+        fp() {
+            preview="bat --color=always --style=numbers --line-range=:500 {}"
+            fzf $@ --preview $preview
+        }
+
+    # Boost tail with bat
+    __requires bat && \
+        bail() {
+            tail $@ | bat --paging=never -l log
+        }
+
+    # Boost rg with fzf
+    __requires rg && \
+        rgf() {
+            local initial_query rgp_options rgp_prefix bat_prefix bat_context
+            initial_query=${@: -1}
+            rgp_options_len=$(($# > 0 ? $# - 1 : 0))
+            rgp_options=${@: 1:${rgp_options_len}}
+            rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
+            bat_prefix="bat --color=always --style=numbers"
+            bat_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
+
+            FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" fzf \
+                --bind "change:reload:$rgp_prefix {q} || true" \
+                --preview="$bat_prefix \$(echo {} | $bat_context)" \
+                --ansi --disabled --query "$initial_query" \
+                --height=50% --layout=reverse
+        }
+
+    # Preview to select gist id and run 
+    __requires gist && \
+        gisf() {
+            local gist_id=$(gist -l | fzf | awk '{print $1}' | awk -F/ '{print $4}')
+            gist $@ ${gist_id}
+        }
+}
+
+# Configure bat
+__config_bat() {
+    if ! __requires bat; then
+        return
+    fi
+
+    # theme
+    export BAT_THEME=TwoDark
+    # using bat for man
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+}
+
+# Configure emacs
+__config_emacs() {
+    if ! __requires emacs; then
+        return
+    fi
+
+    alias et="emacs -nw"
+    alias en="emacs -nw"
+    alias ec="emacsclient -a '' -c"
+}
+
+# Configure neovim
+__config_vim() {
+    if ! __requires nvim; then
+        return
+    fi
+
+    alias vi="nvim"
+    alias nv="NVIM_APPNAME=NvChad nvim"
+    alias nvchad="NVIM_APPNAME=NvChad nvim"
+    alias lv="NVIM_APPNAME=LazyVim nvim"
+    alias lazyvim="NVIM_APPNAME=LazyVim nvim"
+
+    # Relocate .vimrc file
+    # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
+}
+
+# Configure exa
+__config_exa() {
+    if ! __requires exa; then
+        return
+    fi
+
+    alias ls="exa"
+}
+
+# Configure starship
+__config_starship() {
+    if ! __requires starship; then
+        return
+    fi
+
+    unset USE_STARSHIP_THEME
+}
+
+__config_cargo
+__config_go
+
+__config_fzf
+__config_fzf_plugins
+__config_bat
+__config_emacs
+__config_vim
+__config_exa
+
+__config_starship
+
+# ============================================================================
+# Customized Cli Commands
+# ============================================================================
 
 # Fix fire complete script for zsh.
 #
@@ -102,68 +249,3 @@ _clean_emacs_cache() {
     rm .*~
 }
 
-[ -x "${FZF_EXISTS}" ] && [ -x "${BAT_EXISTS}" ] && \
-    source "${DOT_HOME}/scripts/git-fzf.sh"
-
-# Boost z with fzf
-[ -x "${FZF_EXISTS}" ] && \
-    zf() {
-        dir=$(z -l | fzf | awk '{ print $2 }')
-        if [[ -d "$dir" ]]; then
-            cd $dir
-        fi
-    }
-
-# Call fzf with bat as preview
-[ -x "${FZF_EXISTS}" ] && [ -x "${BAT_EXISTS}" ] && \
-    fp() {
-        preview="bat --color=always --style=numbers --line-range=:500 {}"
-        fzf $@ --preview $preview
-    }
-
-# Beautified git-diff boosted with bat and fzf
-# [ -x "${FZF_EXISTS}" ] && [ -x "${GIT_EXISTS}" ] && \
-#     gdf() {
-#         # {-1} stands for the selected file
-#         preview="git diff --color=always $@ -- {-1}"
-#         git diff $@ --name-only | fzf -m --height=100% --preview $preview
-#     }
-
-# Boost tail with bat
-[ -x "${BAT_EXISTS}" ] && \
-    bail() {
-        tail $@ | bat --paging=never -l log
-    }
-
-# Boost rg with fzf
-[ -x "${FZF_EXISTS}" ] && [ -x "${RGP_EXISTS}" ] && \
-    rgf() {
-        local initial_query rgp_options rgp_prefix bat_prefix bat_context
-        initial_query=${@: -1}
-        rgp_options_len=$(($# > 0 ? $# - 1 : 0))
-        rgp_options=${@: 1:${rgp_options_len}}
-        rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
-				bat_prefix="bat --color=always --style=numbers"
-				bat_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
-				FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" \
-                  fzf --bind "change:reload:$rgp_prefix {q} || true" \
-									--preview="$bat_prefix \$(echo {} | $bat_context)" \
-                  --ansi --disabled --query "$initial_query" \
-                  --height=50% --layout=reverse
-    }
-
-# Boost ps with fzf
-[ -x "${FZF_EXISTS}" ] && \
-    psf() {
-        ps $@ | fzf
-    }
-
-# Preview to select gist id and run 
-[ -x "${GIST_EXISTS}" ] && \
-    gisf() {
-        local gist_id=$(gist -l | fzf | awk '{print $1}' | awk -F/ '{print $4}')
-        gist $@ ${gist_id}
-    }
-
-[ -x "${STARSHIP_EXISTS}" ] || unset USE_STARSHIP_THEME
-# <<< shared customization <<<

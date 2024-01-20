@@ -44,6 +44,7 @@ configure-tools-and-shell() {
     is-enabled zsh && config-zsh
     is-enabled fzf && config-fzf
     is-enabled shell-theme && config-shell-theme
+    is-enabled tmux && config-tmux
 
     echo "Congratulations! All done~"
 
@@ -204,6 +205,26 @@ config-shell-theme() {
     append-line 1 "export STARSHIP_CONFIG=${DOT_CONFIG_HOME}/starship.toml" ~/.zshrc \
       "export STARSHIP_CONFIG"
     append-line 1 'eval "$(starship init zsh)"' ~/.zshrc "starship init zsh"
+
+    set +e
+}
+
+config-tmux() {
+    set -e
+    
+    [ -x "$(which tmux)" ] || \
+      (echo "Install tmux..." && sudo apt install tmux)
+
+    echo "Config tmux"
+    echo "  - Download oh-my-tmux..."
+    git-clone-safely https://github.com/gpakosz/.tmux.git ${XDG_CONFIG_HOME}/oh-my-tmux
+
+    echo "  - Create tmux config folder if not exists"
+    mkdir -p ${XDG_CONFIG_HOME}/tmux
+
+    echo "  - Apply oh-my-tmux config"
+    ln-safely -s ${XDG_CONFIG_HOME}/oh-my-tmux/.tmux.conf ${XDG_CONFIG_HOME}/tmux/tmux.conf
+    ln-safely -s ${DOT_CONFIG_HOME}/tmux/tmux.conf.local ${XDG_CONFIG_HOME}/tmux/tmux.conf.local
 
     set +e
 }

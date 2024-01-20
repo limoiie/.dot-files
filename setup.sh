@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DOT_FILES_ROOT=~/.dot-files
-DOT_CONFIG_HOME=${DOT_FILES_ROOT}/.config
+DOT_CONFIG_HOME=${DOT_FILES_ROOT}/xdg-config
 XDG_CONFIG_HOME=~/.config
 
 ACTION=${1:-init}  # init, update, overwrite
@@ -113,7 +113,7 @@ config-vim() {
     mkdir -p ${XDG_CONFIG_HOME}/vim
     mv-safely ~/.vimrc ${XDG_CONFIG_HOME}/vim/vimrc
     mv-safely ~/.viminfo ${XDG_CONFIG_HOME}/vim/viminfo
-    append-line 1 "source ${DOT_FILES_ROOT}/.common-vimrc" ${XDG_CONFIG_HOME}/vim/vimrc ".common-vimrc"
+    append-line 1 "source ${DOT_FILES_ROOT}/common-vimrc" ${XDG_CONFIG_HOME}/vim/vimrc "common-vimrc"
 
     echo "Configure NvChad..."
     echo "  - Download NvChad..."
@@ -170,8 +170,8 @@ config-zsh() {
     echo "  - Download zplug to ${XDG_CONFIG_HOME}/zplug..."
     git-clone-safely https://github.com/zplug/zplug.git ${XDG_CONFIG_HOME}/zplug
     echo "  - Integrate common-used shell config into .zshrc..."
-    append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc ".common-shrc"
-    append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc ".common-zshrc"
+    append-line 1 ". ${DOT_FILES_ROOT}/.common-shrc"  ~/.zshrc "common-shrc"
+    append-line 1 ". ${DOT_FILES_ROOT}/.common-zshrc" ~/.zshrc "common-zshrc"
 
     set +e
 }

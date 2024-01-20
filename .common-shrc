@@ -191,6 +191,8 @@ __config_vim() {
     alias nvchad="NVIM_APPNAME=NvChad nvim"
     alias lv="NVIM_APPNAME=LazyVim nvim"
     alias lazyvim="NVIM_APPNAME=LazyVim nvim"
+    alias av="NVIM_APPNAME=AstroNvim nvim"
+    alias astronvim="NVIM_APPNAME=AstroNvim nvim"
 
     # Relocate .vimrc file
     # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"

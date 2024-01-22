@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "dofu"
+version = "0.1.0"
+description = "DOt Files Utility for managing limo's dot files."
+authors = ["limo"]
+license = "LICENSE"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+rich = "^13.7.0"
+fire = "^0.5.0"
+autoserde = {git = "https://github.com/limoiie/autoserde.git", rev = "v0.0.8"}
+
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.347"
+pylint = "^3.0.3"
+black = "^23.12.1"
+pytest = "^7.4.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

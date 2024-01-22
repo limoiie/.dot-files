@@ -173,7 +173,7 @@ class ModuleEquipmentMetaInfo:
 
     transactions: t.List[ModuleEquipmentTransaction]
     """
-    List of transactions.
+    List of transactions of config patches.
     """
 
     status: ModuleEquipmentStatus = ModuleEquipmentStatus.PRISTINE
@@ -205,20 +205,12 @@ class ModuleEquipmentMetaInfo:
     @contextlib.contextmanager
     def transaction(self):
         """
-        Create a new transaction.
+        Create a new transaction for applying config patches.
         """
         meta = ModuleRegistrationManager.module_meta_by_name(self.module_name)
         with ModuleEquipmentTransaction(meta.clazz.last_commit_id()) as transaction:
             self.transactions.append(transaction)
             yield transaction
-
-    def rollback(self):
-        """
-        Rollback all the transactions.
-        """
-        while self.transactions:
-            self.transactions[-1].rollback()
-            self.transactions.pop()
 
 
 @dataclasses.dataclass
@@ -243,7 +235,7 @@ class ModuleEquipmentManager:
 
         options = autoserde.Options(recursively=True, strict=True)
         return autoserde.AutoSerde.deserialize(
-            config_path, cls=ModuleEquipmentManager, options=options
+            config_path, cls=ModuleEquipmentManager, options=options, fmt="yaml"
         )
 
     def save(self):
@@ -252,8 +244,10 @@ class ModuleEquipmentManager:
         """
         config_path = env.equipment_persistence_file()
         with utils.file_update_guarder(config_path):
-            options = autoserde.Options(recursively=True, strict=True, with_cls=True)
-            autoserde.AutoSerde.serialize(self, config_path, options=options)
+            options = autoserde.Options(recursively=True, strict=True, with_cls=False)
+            autoserde.AutoSerde.serialize(
+                self, config_path, options=options, fmt="yaml", sort_keys=False
+            )
 
     def _equipment_meta(self, module_name: str) -> ModuleEquipmentMetaInfo:
         """
@@ -269,16 +263,16 @@ class ModuleEquipmentManager:
             transactions=[],
         )
 
-    def equip(self, module_names: t.List[str]):
+    def sync(self, module_names: t.List[str]):
         """
-        Equip specified modules.
+        Sync the modules.
 
-        This method will firstly collect all the modules and the ones they depend on.
-        And then, it will equip the modules in the order of the dependency graph.
+        This method will equip the given modules and the modules they depend on.
+        What's more, the modules that are not required any more will be removed.
 
         The order of the modules is not important
-        because the order will be resolved automatically
-        to make sure all dependencies are equipped before each module.
+        as the order will be resolved automatically
+        to make sure that each module is equipped after its dependencies are equipped.
 
         :param module_names: list of module names.
         """
@@ -322,10 +316,10 @@ class ModuleEquipmentManager:
         and remove all the installed packages if they are not required any more.
         """
         # remove packages that are not required any more
-        for installed_package in list(meta.installed_packages):
-            if installed_package.requirement not in module.package_requirements():
-                installed_package.requirement.uninstall(installed_package.manager)
-                meta.installed_packages.remove(installed_package)
+        for installed_meta in list(meta.installed_packages):
+            if installed_meta.requirement not in module.package_requirements():
+                installed_meta.requirement.uninstall(installed_meta.manager)
+                meta.installed_packages.remove(installed_meta)
 
         # install packages that are required but not installed
         for requirement in module.package_requirements():
@@ -419,10 +413,19 @@ class ModuleEquipmentManager:
 
         :param meta: equipment meta info of the module.
         """
-        meta.rollback()
+        # undo config patches
+        while meta.transactions:
+            meta.transactions[-1].rollback()
+            meta.transactions.pop()
+
         # remove git repos
-        for git_repo_meta in meta.installed_git_repos:
-            git_repo_meta.requirement.uninstall()
+        while meta.installed_git_repos:
+            meta.installed_git_repos[-1].requirement.uninstall()
+            meta.installed_git_repos.pop()
+
         # uninstall packages
-        for package_meta in meta.installed_packages:
-            package_meta.requirement.uninstall(package_meta.manager)
+        while meta.installed_packages:
+            meta.installed_packages[-1].requirement.uninstall(
+                meta.installed_packages[-1].manager
+            )
+            meta.installed_packages.pop()

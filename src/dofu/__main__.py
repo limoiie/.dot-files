@@ -6,7 +6,7 @@ from dofu.equipment import ModuleEquipmentManager
 def main():
     modules = input('modules:')
     manager = ModuleEquipmentManager.load()
-    manager.equip(modules.split(' '))
+    manager.sync(modules.split(' '))
 
 
 if __name__ == '__main__':

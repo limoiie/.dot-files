@@ -142,9 +142,20 @@ class ModuleRegistrationManager:
     @staticmethod
     def resolve_remove_blueprint(module_names: t.List[str]) -> t.List[t.Type["Module"]]:
         """
+        Resolve the blueprint of the modules to be removed.
 
-        :param module_names:
-        :return:
+        This method creates a blueprint to indicating the remove order of the modules,
+        where each module is removed only if no other module depends on it.
+        It will achieve this by following steps:
+        1. validate the module names;
+        2. collect all the modules to remove;
+        3. sort the modules topologically.
+
+        :param module_names: list of module names.
+            The order of the list is not important
+            because the order will be resolved automatically
+            to make sure each module is removed only if no other module depends on it.
+        :return: blueprint of the modules to remove.
         """
 
         modules_to_remove = set()

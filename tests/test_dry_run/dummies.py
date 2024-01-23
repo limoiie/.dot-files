@@ -15,10 +15,10 @@ from .conftest import under_temp_workspace
 @dataclasses.dataclass
 class DummyWindowsPackageManager(pm.PackageManager):
     def install(self, package):
-        return shutils.call(f'echo "pm-dummy install {package}"', shell=True) == 0
+        return shutils.call(f'echo "pm-dummy install {package}"') == 0
 
     def uninstall(self, package):
-        return shutils.call(f'echo "pm-dummy uninstall {package}"', shell=True) == 0
+        return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -27,10 +27,10 @@ class DummyWindowsPackageManager(pm.PackageManager):
 @dataclasses.dataclass
 class DummyUnixPackageManager(pm.PackageManager):
     def install(self, package):
-        return shutils.call(f'echo "pm-dummy install {package}"', shell=True) == 0
+        return shutils.call(f'echo "pm-dummy install {package}"') == 0
 
     def uninstall(self, package):
-        return shutils.call(f'echo "pm-dummy uninstall {package}"', shell=True) == 0
+        return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -58,12 +58,12 @@ class UCDummy(uc.UndoableCommand):
         return f'echo "uc-dummy exec {self.content}"'
 
     def _exec(self) -> uc.ExecutionResult:
-        shutils.call(self.cmdline(), shell=True)
+        shutils.call(self.cmdline())
         self.ret = self._success_result()
         return self.ret
 
     def _undo(self):
-        shutils.call('echo "dummy undo"', shell=True)
+        shutils.call('echo "dummy undo"')
         self.ret = None
 
     def spec_tuple(self):

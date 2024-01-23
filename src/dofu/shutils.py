@@ -78,7 +78,7 @@ def call(sh: str, *args, **kwargs):
         print(f"{sh} {args}")
         return 0
 
-    return subprocess.call(sh, *args, **kwargs)
+    return subprocess.call(sh, *args, shell=True, **kwargs)
 
 
 def run(sh: str, *args, **kwargs):
@@ -86,7 +86,7 @@ def run(sh: str, *args, **kwargs):
         print(f"{sh} {args}")
         return CompletedProcess([sh, *args] if args else sh, 0, None, None)
 
-    return subprocess.run(sh, *args, **kwargs)
+    return subprocess.run(sh, *args, shell=True, **kwargs)
 
 
 def check_output(sh: str, *args, **kwargs):
@@ -96,7 +96,7 @@ def check_output(sh: str, *args, **kwargs):
             return ""
         return b""
 
-    return subprocess.check_output(sh, *args, **kwargs)
+    return subprocess.check_output(sh, *args, shell=True, **kwargs)
 
 
 def check_call(sh: str, *args, **kwargs):
@@ -104,7 +104,7 @@ def check_call(sh: str, *args, **kwargs):
         print(f"{sh} {args}")
         return 0
 
-    return subprocess.check_call(sh, *args, **kwargs)
+    return subprocess.check_call(sh, *args, shell=True, **kwargs)
 
 
 def input_file(

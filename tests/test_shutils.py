@@ -8,64 +8,44 @@ from dofu import shutils
 
 class TestSubprocess:
     def test_call(self, capfd):
-        ret = shutils.call("echo hello", shell=True)
+        ret = shutils.call("echo hello")
         assert ret == 0
         assert capfd.readouterr().out == "hello\n"
 
-    def test_call_wrong_command(self):
-        # wrong command
-        with pytest.raises(FileNotFoundError):
-            shutils.call("echo hello")
-
     def test_call_but_return_nonzero(self, capfd):
         # correct command but return non-zero
-        ret = shutils.call("echo hello; exit 1", shell=True)
+        ret = shutils.call("echo hello; exit 1")
         assert ret == 1
         assert capfd.readouterr().out == "hello\n"
 
     def test_run(self):
-        ret = shutils.run("echo hello", shell=True, capture_output=True)
+        ret = shutils.run("echo hello", capture_output=True)
         assert isinstance(ret, shutils.CompletedProcess)
         assert ret.returncode == 0
         assert ret.stdout == b"hello\n"
         assert ret.stderr == b""
 
-    def test_run_wrong_command(self):
-        # wrong command
-        with pytest.raises(FileNotFoundError):
-            shutils.run("echo hello")
-
     def test_run_but_return_nonzero(self):
         # correct command but return non-zero
-        ret = shutils.run("echo hello; exit 1", shell=True, capture_output=True)
+        ret = shutils.run("echo hello; exit 1", capture_output=True)
         assert isinstance(ret, shutils.CompletedProcess)
         assert ret.returncode == 1
         assert ret.stdout == b"hello\n"
         assert ret.stderr == b""
 
     def test_check_output(self):
-        ret = shutils.check_output("echo hello", shell=True)
+        ret = shutils.check_output("echo hello")
         assert ret == b"hello\n"
 
-    def test_check_output_wrong_command(self):
-        # wrong command
-        with pytest.raises(FileNotFoundError):
-            shutils.check_output("echo hello")
-
     def test_check_call(self, capfd):
-        ret = shutils.check_call("echo hello", shell=True)
+        ret = shutils.check_call("echo hello")
         assert ret == 0
         assert capfd.readouterr().out == "hello\n"
-
-    def test_check_call_wrong_command(self):
-        # wrong command
-        with pytest.raises(FileNotFoundError):
-            shutils.check_call("echo hello")
 
     def test_check_call_but_return_nonzero(self, capfd):
         # correct command but return non-zero
         with pytest.raises(subprocess.CalledProcessError):
-            shutils.check_call("echo hello; exit 1", shell=True)
+            shutils.check_call("echo hello; exit 1")
         assert capfd.readouterr().out == "hello\n"
 
 

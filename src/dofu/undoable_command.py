@@ -261,7 +261,7 @@ class UCGitClone(UndoableCommand):
     def _exec(self):
         _assert_not_exists(self.path, "Failed to git clone", "path")
 
-        res = shutils.run(self.cmdline(), shell=True)
+        res = shutils.run(self.cmdline())
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 
@@ -287,7 +287,7 @@ class UCGitPull(UndoableCommand):
     def _exec(self):
         _assert_not_exists(self.path, "Failed to git pull", "repo")
 
-        res = shutils.run(self.cmdline(), shell=True, cwd=self.path)
+        res = shutils.run(self.cmdline(), cwd=self.path)
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 

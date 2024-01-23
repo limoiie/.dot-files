@@ -22,21 +22,21 @@ def log(
     """
     return shutils.check_output(
         f"git log {shc(opts)} {revision} -- {path}",
-        shell=True,
         encoding=encoding,
         cwd=repo_path,
     )
 
 
-def clone(*opts: str, repo: str, repo_path: str):
+def clone(*opts: str, repo: str, repo_path: str = '', cwd: str = None) -> None:
     """
     Clone a repo to a path.
 
     :param opts: options to pass to git clone
     :param repo: url to the repo
     :param repo_path: where the repo should be cloned to
+    :param cwd: current working directory
     """
-    shutils.check_call(f"git clone {shc(opts)} {repo} {repo_path}", shell=True)
+    shutils.check_call(f"git clone {shc(opts)} {repo} {repo_path}", cwd=cwd)
 
 
 def pull(*opts: str, repo_path: str) -> None:
@@ -46,7 +46,7 @@ def pull(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git clone
     :param repo_path: where the repo having been cloned to
     """
-    shutils.check_call(f"git pull {shc(opts)}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git pull {shc(opts)}", cwd=repo_path)
 
 
 def fetch(*opts: str, repo_path: str) -> None:
@@ -56,7 +56,7 @@ def fetch(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git clone
     :param repo_path: where the repo having been cloned to
     """
-    shutils.check_call(f"git fetch {shc(opts)}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git fetch {shc(opts)}", cwd=repo_path)
 
 
 def checkout(*opts: str, repo_path: str, revision: str) -> None:
@@ -67,9 +67,7 @@ def checkout(*opts: str, repo_path: str, revision: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param revision: the revision to check.
     """
-    shutils.check_call(
-        f"git checkout {shc(opts)} {revision}", shell=True, cwd=repo_path
-    )
+    shutils.check_call(f"git checkout {shc(opts)} {revision}", cwd=repo_path)
 
 
 def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
@@ -82,7 +80,6 @@ def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     """
     shutils.check_call(
         f"git checkout {shc(opts)} -- {shc(paths)}",
-        shell=True,
         cwd=repo_path,
     )
 
@@ -103,7 +100,7 @@ def add_one(*opts: str, repo_path: str, path: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param path: the path to add.
     """
-    shutils.check_call(f"git add {shc(opts)} {path}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git add {shc(opts)} {path}", cwd=repo_path)
 
 
 def add(*opts: str, repo_path: str, paths: t.List[str]) -> None:
@@ -114,7 +111,7 @@ def add(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to add.
     """
-    shutils.check_call(f"git add {shc(opts)} {shc(paths)}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git add {shc(opts)} {shc(paths)}", cwd=repo_path)
 
 
 def current_commit_id(repo_path) -> str:
@@ -138,7 +135,7 @@ def last_commit_id_of(*, repo_path, revision: str = "", path: str = "") -> str:
     """
     return log(
         "-1",  # only one commit
-        "--pretty=format=%H",  # only the commit id
+        "--pretty=%H",  # only the commit id
         repo_path=repo_path,
         path=path,
         revision=revision,

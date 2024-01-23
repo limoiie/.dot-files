@@ -4,6 +4,9 @@ import tempfile
 
 import pytest
 
+# noinspection PyUnresolvedReferences
+from tests.conftest import *
+
 
 def under_temp_workspace(*sub_dirs):
     return os.path.join(_temp_workspace, *sub_dirs)

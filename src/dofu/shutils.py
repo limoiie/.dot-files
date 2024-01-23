@@ -155,13 +155,16 @@ def file_update_guarder(path: os.PathLike):
 
     except Exception:
         if os.path.exists(temp_path):
-            remove(temp_path)
+            os.remove(temp_path)
 
         raise
 
-    finally:
-        if Options.instance().dry_run:
+    if Options.instance().dry_run:
+        if os.path.exists(temp_path):
             os.remove(temp_path)
+
+        print(f'move {temp_path} to {path}')
+        return
 
     if os.path.exists(path):
         remove(path)

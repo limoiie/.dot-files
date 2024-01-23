@@ -1,17 +1,10 @@
 import abc
 import dataclasses
 import os.path
-import shutil
 import typing as t
 
 import dofu.version_control as vc
-from dofu import platform as pf, utils
-from dofu.package_manager import (
-    BobNvimPackageManager,
-    CargoPackageManager,
-    CurlShPackageManager,
-    PackageManager,
-)
+from dofu import package_manager as pm, platform as pf, shutils
 
 
 class Requirement(abc.ABC):
@@ -84,11 +77,11 @@ class GitRepoRequirement:
             vc.checkout(repo_path=self.path, revision=self.commit_id)
 
     def uninstall(self):
-        shutil.rmtree(self.path)
+        shutils.rmtree(self.path)
 
     def update(self):
         branch = self.branch or vc.default_branch(self.path)
-        vc.fetch('origin', branch, repo_path=self.path)
+        vc.fetch("origin", branch, repo_path=self.path)
         vc.checkout(repo_path=self.path, revision=branch)
         if self.commit_id is not None:
             vc.checkout(repo_path=self.path, revision=self.commit_id)
@@ -103,7 +96,7 @@ class PackageRequirement(Requirement):
     A requirement of a package.
     """
 
-    _pkg_manager_candidates: t.ClassVar[t.Dict[pf.Platform, PackageManager]]
+    _pkg_manager_candidates: t.ClassVar[t.Dict[pf.Platform, pm.PackageManager]]
     """
     A dictionary indicating which package managers should be used on what platform.
     
@@ -130,7 +123,7 @@ class PackageRequirement(Requirement):
         # TODO: need implementation
         raise NotImplementedError
 
-    def uninstall(self, pkg_manager: PackageManager = None):
+    def uninstall(self, pkg_manager: pm.PackageManager = None):
         """
         Uninstall the tool using the given package manager if provided.
         Otherwise, the first available package manager is used.
@@ -150,13 +143,13 @@ class PackageRequirement(Requirement):
         return None
 
     def is_installed(self):
-        return utils.do_commands_exist(self.command)
+        return shutils.do_commands_exist(self.command)
 
 
 @dataclasses.dataclass
 class PRRustup(PackageRequirement):
     _pkg_manager_candidates = {
-        pf.LINUX: CurlShPackageManager(
+        pf.LINUX: pm.CurlShPackageManager(
             "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
             "rustup self uninstall",
         ),
@@ -170,7 +163,7 @@ class PRRustup(PackageRequirement):
 @dataclasses.dataclass
 class PRBob(PackageRequirement):
     _pkg_manager_candidates = {
-        pf.ANY: CargoPackageManager(),
+        pf.ANY: pm.CargoPackageManager(),
     }
 
     package: str = "bob-nvim"
@@ -181,7 +174,7 @@ class PRBob(PackageRequirement):
 @dataclasses.dataclass
 class PRNeovim(PackageRequirement):
     _pkg_manager_candidates = {
-        pf.ANY: BobNvimPackageManager(),
+        pf.ANY: pm.BobNvimPackageManager(),
     }
 
     package: str = "neovim"
@@ -200,7 +193,7 @@ class PackageInstallationMetaInfo:
     The requirement of the package that is installed.
     """
 
-    manager: PackageManager
+    manager: pm.PackageManager
     """
     The manager has been used to install the package.
     """

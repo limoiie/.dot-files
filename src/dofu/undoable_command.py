@@ -4,11 +4,11 @@ import fileinput
 import os
 import pathlib
 import re
-import shutil
-import subprocess
 import sys
 import typing as t
 
+from dofu import shutils
+from dofu.options import Options
 from .utils import deprecated, supress
 
 
@@ -23,7 +23,7 @@ class ExecutionResult:
         return self.retcode == 0
 
     @staticmethod
-    def of_result(result: subprocess.CompletedProcess):
+    def of_result(result: shutils.CompletedProcess):
         cmdline = result.args
         if not isinstance(result.args, str):
             cmdline = " ".join(result.args)
@@ -38,7 +38,7 @@ class ExecutionResult:
 
 @dataclasses.dataclass
 class UndoableCommand:
-    ret: t.Optional[ExecutionResult]
+    # ret: t.Optional[ExecutionResult]
 
     @abc.abstractmethod
     def exec(self) -> ExecutionResult:
@@ -64,7 +64,7 @@ class UCLink(UndoableCommand):
         _assert_exists(self.src, "Failed to ln", "src")
         _assert_not_exists(self.dst, "Failed to ln", "dst")
 
-        os.link(self.src, self.dst)
+        shutils.link(self.src, self.dst)
         self.ret = ExecutionResult(
             cmdline=f"ln -s {self.src} {self.dst}",
             retcode=0,
@@ -78,7 +78,7 @@ class UCLink(UndoableCommand):
         _assert_exists(self.real_dst, "Failed to unlink", "dst")
         _assert_not_exists(self.src, "Failed to unlink", "src")
 
-        os.unlink(self.real_dst)
+        shutils.unlink(self.real_dst)
         self.real_dst = None
         self.ret = None
 
@@ -99,7 +99,7 @@ class UCBackupMv(UndoableCommand):
         while os.path.exists(backup_path):
             backup_path += ".bak"
 
-        shutil.move(self.path, backup_path)
+        shutils.move(self.path, backup_path)
         self.ret = ExecutionResult(
             cmdline=f"mv {self.path} {self.backup_path}",
             retcode=0,
@@ -113,7 +113,7 @@ class UCBackupMv(UndoableCommand):
         _assert_exists(self.backup_path, "Failed to undo backup mv", "dst")
         _assert_not_exists(self.path, "Failed to undo backup mv", "src")
 
-        shutil.move(self.backup_path, self.path)
+        shutils.move(self.backup_path, self.path)
         self.backup_path = None
         self.ret = None
 
@@ -135,7 +135,7 @@ class UCMkdir(UndoableCommand):
             while not path.exists():
                 path = path.parent
 
-            os.makedirs(path)
+            shutils.mkdirs(path)
             self.created_path = path
 
         self.ret = ExecutionResult(
@@ -149,7 +149,7 @@ class UCMkdir(UndoableCommand):
     def undo(self):
         if os.path.exists(self.created_path):
             with supress(FileNotFoundError, OSError):
-                os.rmdir(self.created_path)
+                shutils.rmdir(self.created_path)
         self.created_path = None
         self.ret = None
 
@@ -168,7 +168,7 @@ class UCMove(UndoableCommand):
         _assert_exists(self.src, "Failed to mv", "src")
         _assert_not_exists(self.dst, "Failed to mv", "dst")
 
-        shutil.move(self.src, self.dst)
+        shutils.move(self.src, self.dst)
         self.ret = ExecutionResult(
             cmdline=f"mv {self.src} {self.dst}",
             retcode=0,
@@ -182,7 +182,7 @@ class UCMove(UndoableCommand):
         _assert_exists(self.real_dst, "Failed to undo mv", "dst")
         _assert_not_exists(self.src, "Failed to undo mv", "src")
 
-        shutil.move(self.real_dst, self.src)
+        shutils.move(self.real_dst, self.src)
         self.real_dst = None
         self.ret = None
 
@@ -203,14 +203,14 @@ class UCGitClone(UndoableCommand):
 
         cmd = "git clone"
         cmd = cmd + f" --depth={self.depth}" if self.depth else cmd
-        res = subprocess.run(f"{cmd} {self.url} {self.path}", shell=True)
+        res = shutils.run(f"{cmd} {self.url} {self.path}", shell=True)
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 
     def undo(self):
         _assert_exists(self.path, "Failed to undo git clone", "path")
 
-        shutil.rmtree(self.path)
+        shutils.rmtree(self.path)
         self.ret = None
 
     def spec_tuple(self):
@@ -227,7 +227,7 @@ class UCGitPull(UndoableCommand):
         _assert_not_exists(self.path, "Failed to git pull", "repo")
 
         cmd = "git pull"
-        res = subprocess.run(f"{cmd}", shell=True, cwd=self.path)
+        res = shutils.run(f"{cmd}", shell=True, cwd=self.path)
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 
@@ -278,10 +278,16 @@ class UCReplaceLine(UndoableCommand):
 
 
 def _assert_exists(path, msg, name="path"):
+    if Options.instance().dry_run:
+        return
+
     if not os.path.exists(path):
         raise RuntimeError(f"{msg}: {name} {path} not exists")
 
 
 def _assert_not_exists(path, msg, name="path"):
+    if Options.instance().dry_run:
+        return
+
     if os.path.exists(path):
         raise RuntimeError(f"{msg}: {name} {path} already exists")

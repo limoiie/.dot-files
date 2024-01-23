@@ -1,8 +1,7 @@
 import abc
 import dataclasses
-import subprocess
 
-from dofu import utils
+from dofu import shutils
 
 
 @dataclasses.dataclass
@@ -33,46 +32,46 @@ class CurlShPackageManager(PackageManager):
     """
 
     def install(self, package):
-        return subprocess.call(self.install_cmd, shell=True) == 0
+        return shutils.call(self.install_cmd, shell=True) == 0
 
     def uninstall(self, package):
-        return subprocess.call(self.uninstall_cmd, shell=True) == 0
+        return shutils.call(self.uninstall_cmd, shell=True) == 0
 
     def is_available(self) -> bool:
-        return utils.do_commands_exist("curl", "sh")
+        return shutils.do_commands_exist("curl", "sh")
 
 
 @dataclasses.dataclass
 class AptPackageManager(PackageManager):
     def install(self, package):
-        return subprocess.call(f"sudo apt install -y {package}", shell=True) == 0
+        return shutils.call(f"sudo apt install -y {package}", shell=True) == 0
 
     def uninstall(self, package):
-        return subprocess.call(f"sudo apt uninstall -y {package}", shell=True) == 0
+        return shutils.call(f"sudo apt uninstall -y {package}", shell=True) == 0
 
     def is_available(self) -> bool:
-        return utils.do_commands_exist("apt")
+        return shutils.do_commands_exist("apt")
 
 
 @dataclasses.dataclass
 class CargoPackageManager(PackageManager):
     def install(self, package):
-        return subprocess.call(f"cargo install {package}", shell=True) == 0
+        return shutils.call(f"cargo install {package}", shell=True) == 0
 
     def uninstall(self, package):
-        return subprocess.call(f"cargo uninstall {package}", shell=True) == 0
+        return shutils.call(f"cargo uninstall {package}", shell=True) == 0
 
     def is_available(self) -> bool:
-        return utils.do_commands_exist("cargo")
+        return shutils.do_commands_exist("cargo")
 
 
 @dataclasses.dataclass
 class BobNvimPackageManager(PackageManager):
     def install(self, package):
-        return subprocess.call(f"bob use latest", shell=True) == 0
+        return shutils.call(f"bob use latest", shell=True) == 0
 
     def uninstall(self, package):
-        return subprocess.call(f"bob uninstall latest", shell=True) == 0
+        return shutils.call(f"bob uninstall latest", shell=True) == 0
 
     def is_available(self) -> bool:
-        return utils.do_commands_exist("bob")
+        return shutils.do_commands_exist("bob")

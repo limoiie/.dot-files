@@ -20,7 +20,7 @@ class NeovimModule(Module):
     _config_steps = [
         uc.UCBackupMv(path=env.xdg_config_path("NvChad")),
         uc.UCLink(
-            src=env.dot_config_path("NvChad", 'lua', 'custom'),
-            dst=env.xdg_config_path("NvChad", 'lua', 'custom'),
+            src=env.dot_config_path("NvChad", "lua", "custom"),
+            dst=env.xdg_config_path("NvChad", "lua", "custom"),
         ),
     ]

@@ -1,6 +1,7 @@
 import shlex
-import subprocess
 import typing as t
+
+from dofu import shutils
 
 
 def log(
@@ -19,7 +20,7 @@ def log(
     :param revision: the revision to check.
     :return: the log of the path.
     """
-    return subprocess.check_output(
+    return shutils.check_output(
         f"git log {shc(opts)} {revision} -- {path}",
         shell=True,
         encoding=encoding,
@@ -35,7 +36,7 @@ def clone(*opts: str, repo: str, repo_path: str):
     :param repo: url to the repo
     :param repo_path: where the repo should be cloned to
     """
-    subprocess.check_call(f"git clone {shc(opts)} {repo} {repo_path}", shell=True)
+    shutils.check_call(f"git clone {shc(opts)} {repo} {repo_path}", shell=True)
 
 
 def pull(*opts: str, repo_path: str) -> None:
@@ -45,7 +46,7 @@ def pull(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git clone
     :param repo_path: where the repo having been cloned to
     """
-    subprocess.check_call(f"git pull {shc(opts)}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git pull {shc(opts)}", shell=True, cwd=repo_path)
 
 
 def fetch(*opts: str, repo_path: str) -> None:
@@ -55,7 +56,7 @@ def fetch(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git clone
     :param repo_path: where the repo having been cloned to
     """
-    subprocess.check_call(f"git fetch {shc(opts)}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git fetch {shc(opts)}", shell=True, cwd=repo_path)
 
 
 def checkout(*opts: str, repo_path: str, revision: str) -> None:
@@ -66,7 +67,7 @@ def checkout(*opts: str, repo_path: str, revision: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param revision: the revision to check.
     """
-    subprocess.check_call(
+    shutils.check_call(
         f"git checkout {shc(opts)} {revision}", shell=True, cwd=repo_path
     )
 
@@ -79,7 +80,7 @@ def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to check out.
     """
-    subprocess.check_call(
+    shutils.check_call(
         f"git checkout {shc(opts)} -- {shc(paths)}",
         shell=True,
         cwd=repo_path,
@@ -87,7 +88,7 @@ def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
 
 
 def default_branch(repo_path: str) -> str:
-    return subprocess.check_output(
+    return shutils.check_output(
         "git symbolic-ref refs/remotes/origin/HEAD --short",
         encoding="utf-8",
         cwd=repo_path,
@@ -102,7 +103,7 @@ def add_one(*opts: str, repo_path: str, path: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param path: the path to add.
     """
-    subprocess.check_call(f"git add {shc(opts)} {path}", shell=True, cwd=repo_path)
+    shutils.check_call(f"git add {shc(opts)} {path}", shell=True, cwd=repo_path)
 
 
 def add(*opts: str, repo_path: str, paths: t.List[str]) -> None:
@@ -113,9 +114,7 @@ def add(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to add.
     """
-    subprocess.check_call(
-        f"git add {shc(opts)} {shc(paths)}", shell=True, cwd=repo_path
-    )
+    shutils.check_call(f"git add {shc(opts)} {shc(paths)}", shell=True, cwd=repo_path)
 
 
 def current_commit_id(repo_path) -> str:

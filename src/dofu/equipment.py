@@ -3,12 +3,11 @@ import dataclasses
 import enum
 import functools
 import os
-import shutil
 import typing as t
 
 import autoserde
 
-from dofu import env, requirements, undoable_command as uc, utils
+from dofu import env, requirements, shutils, undoable_command as uc
 from dofu.module import Module, ModuleRegistrationManager
 
 
@@ -243,10 +242,10 @@ class ModuleEquipmentManager:
         Save the meta information to the configuration file.
         """
         config_path = env.equipment_persistence_file()
-        with utils.file_update_guarder(config_path):
+        with shutils.file_update_guarder(config_path) as tmp_path:
             options = autoserde.Options(recursively=True, strict=True, with_cls=False)
             autoserde.AutoSerde.serialize(
-                self, config_path, options=options, fmt="yaml", sort_keys=False
+                self, tmp_path, options=options, fmt="yaml", sort_keys=False
             )
 
     def _equipment_meta(self, module_name: str) -> ModuleEquipmentMetaInfo:
@@ -360,7 +359,7 @@ class ModuleEquipmentManager:
             required = git_repo_requirements[installed.repo]
             # move installed requirements whose paths have changed
             if required.path != installed.path:
-                shutil.move(installed.path, required.path)
+                shutils.move(installed.path, required.path)
 
         # install requirements that are required but not installed
         for requirement in module.git_repo_requirements():

@@ -1,6 +1,5 @@
 import abc
 import dataclasses
-import fileinput
 import os
 import pathlib
 import re
@@ -9,7 +8,7 @@ import typing as t
 
 from dofu import shutils
 from dofu.options import Options
-from .utils import deprecated, supress
+from .utils import deprecated
 
 
 @dataclasses.dataclass
@@ -54,6 +53,39 @@ class UndoableCommand:
 
 
 @dataclasses.dataclass
+class UCSymlink(UndoableCommand):
+    src: str
+    dst: str
+    real_dst: str = None
+    ret: t.Optional[ExecutionResult] = None
+
+    def exec(self):
+        _assert_exists(self.src, "Failed to ln -s", "src")
+        _assert_not_exists(self.dst, "Failed to ln -s", "dst")
+
+        shutils.symlink(self.src, self.dst)
+        self.ret = ExecutionResult(
+            cmdline=f"ln -s {self.src} {self.dst}",
+            retcode=0,
+            stdout=None,
+            stderr=None,
+        )
+        self.real_dst = self.dst
+        return self.ret
+
+    def undo(self):
+        _assert_exists(self.real_dst, "Failed to unlink", "dst")
+        _assert_exists(self.src, "Failed to unlink", "src")
+
+        shutils.unlink(self.real_dst)
+        self.real_dst = None
+        self.ret = None
+
+    def spec_tuple(self):
+        return self.src, self.dst
+
+
+@dataclasses.dataclass
 class UCLink(UndoableCommand):
     src: str
     dst: str
@@ -66,7 +98,7 @@ class UCLink(UndoableCommand):
 
         shutils.link(self.src, self.dst)
         self.ret = ExecutionResult(
-            cmdline=f"ln -s {self.src} {self.dst}",
+            cmdline=f"ln {self.src} {self.dst}",
             retcode=0,
             stdout=None,
             stderr=None,
@@ -76,7 +108,7 @@ class UCLink(UndoableCommand):
 
     def undo(self):
         _assert_exists(self.real_dst, "Failed to unlink", "dst")
-        _assert_not_exists(self.src, "Failed to unlink", "src")
+        _assert_exists(self.src, "Failed to unlink", "src")
 
         shutils.unlink(self.real_dst)
         self.real_dst = None
@@ -124,19 +156,20 @@ class UCBackupMv(UndoableCommand):
 @dataclasses.dataclass
 class UCMkdir(UndoableCommand):
     path: str
-    created_path: t.Optional[str] = None
+    last_exist_path: t.Optional[str] = None
     ret: t.Optional[ExecutionResult] = None
 
     def exec(self):
         path = pathlib.Path(self.path)
         if path.exists():
-            self.created_path = None
+            self.last_exist_path = None
         else:
-            while not path.exists():
-                path = path.parent
+            last_exist_path = path
+            while not last_exist_path.exists():
+                last_exist_path = last_exist_path.parent
 
             shutils.mkdirs(path)
-            self.created_path = path
+            self.last_exist_path = last_exist_path
 
         self.ret = ExecutionResult(
             cmdline=f"mkdir -p {self.path}",
@@ -147,10 +180,14 @@ class UCMkdir(UndoableCommand):
         return self.ret
 
     def undo(self):
-        if os.path.exists(self.created_path):
-            with supress(FileNotFoundError, OSError):
-                shutils.rmdir(self.created_path)
-        self.created_path = None
+        if self.last_exist_path and os.path.exists(self.last_exist_path):
+            path = pathlib.Path(self.path)
+            while not path.samefile(self.last_exist_path):
+                if path.exists():
+                    shutils.rmdir(path)
+                path = path.parent
+
+        self.last_exist_path = None
         self.ret = None
 
     def spec_tuple(self):
@@ -241,7 +278,7 @@ class UCGitPull(UndoableCommand):
 @dataclasses.dataclass
 class UCReplaceLine(UndoableCommand):
     path: str
-    line_pat: str
+    pattern: str
     new_line: str
     replaced_line: t.Optional[str] = None
     ret: t.Optional[ExecutionResult] = None
@@ -250,31 +287,33 @@ class UCReplaceLine(UndoableCommand):
         _assert_exists(self.path, "Failed to replace line", "path")
 
         replaced_line = None
-        pat = re.compile(self.line_pat)
-        for line in fileinput.input(self.path, inplace=True):
-            if replaced_line is None and re.search(pat, line):
+        pattern = re.compile(self.pattern)
+        for line in shutils.input_file(self.path, inplace=True):
+            if replaced_line is None and re.search(pattern, line):
                 replaced_line = line
-                line = self.new_line.rsplit("\n") + "\n"
+                new_line = self.new_line.rstrip("\n")
+                line = (new_line + "\n") if line.endswith("\n") else new_line
             sys.stdout.write(line)
 
         self.replaced_line = replaced_line
         self.ret = ExecutionResult(
-            cmdline=f"replace line {self.line_pat} in {self.path} with {self.new_line}",
+            cmdline=f"replace line {self.pattern} in {self.path} with {self.new_line}",
             retcode=0,
             stdout=None,
             stderr=None,
         )
+        return self.ret
 
     def undo(self):
         _assert_exists(self.path, "Failed to replace line", "path")
 
-        for line in fileinput.input(self.path, inplace=True):
+        for line in shutils.input_file(self.path, inplace=True):
             if line.startswith(self.new_line):
                 line = self.replaced_line
             sys.stdout.write(line)
 
     def spec_tuple(self):
-        return self.path, self.line_pat, self.new_line
+        return self.path, self.pattern, self.new_line
 
 
 def _assert_exists(path, msg, name="path"):

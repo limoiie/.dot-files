@@ -1,4 +1,5 @@
 import contextlib
+import fileinput
 import os
 import shutil
 import subprocess
@@ -18,10 +19,18 @@ def mkdirs(path, mode=0o777, exist_ok=False):
 
 def link(src, dst, *, follow_symlinks=True):
     if Options.instance().dry_run:
-        print(f"link {src} to {dst}")
+        print(f"ln {src} to {dst}")
         return
 
     return os.link(src, dst, follow_symlinks=follow_symlinks)
+
+
+def symlink(src, dst, target_is_directory=False, *, dir_fd=None):
+    if Options.instance().dry_run:
+        print(f"ln -s {src} to {dst}")
+        return
+
+    return os.symlink(src, dst, target_is_directory=target_is_directory, dir_fd=dir_fd)
 
 
 def unlink(path, *, dir_fd=None):
@@ -96,6 +105,32 @@ def check_call(sh: str, *args, **kwargs):
         return 0
 
     return subprocess.check_call(sh, *args, **kwargs)
+
+
+def input_file(
+    files,
+    inplace=False,
+    backup="",
+    *,
+    mode="r",
+    openhook=None,
+    encoding=None,
+    errors=None,
+):
+    if Options.instance().dry_run:
+        if inplace:
+            print(f"The file {files} will be updated inplace as:")
+        inplace = False
+
+    return fileinput.input(
+        files,
+        inplace=inplace,
+        backup=backup,
+        mode=mode,
+        openhook=openhook,
+        encoding=encoding,
+        errors=errors,
+    )
 
 
 @contextlib.contextmanager

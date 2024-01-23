@@ -26,5 +26,10 @@ coverage.xml
 profile_default/
 ipython_config.py
 
-# Environments
+# Virtual environement
 .venv
+
+# Environments
+.env
+.env.tests
+.env.dev

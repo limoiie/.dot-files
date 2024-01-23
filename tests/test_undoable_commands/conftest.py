@@ -5,7 +5,7 @@ from tests.conftest import *
 
 
 @pytest.fixture(scope="function")
-def temp_workspace_with_a_dummy_file(tmp_path):
+def tmp_dir_with_a_dummy_file(tmp_path):
     dummy_file = tmp_path / "dummy_file"
     with open(dummy_file, "w") as f:
         f.write("dummy")

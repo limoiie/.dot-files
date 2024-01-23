@@ -54,15 +54,15 @@ class UCDummy(uc.UndoableCommand):
     content: str
     ret: t.Optional[uc.ExecutionResult] = None
 
-    def exec(self) -> uc.ExecutionResult:
-        cmdline = f'echo "uc-dummy exec {self.content}"'
-        shutils.call(cmdline, shell=True)
-        self.ret = uc.ExecutionResult(
-            cmdline=cmdline, retcode=0, stdout=None, stderr=None
-        )
+    def cmdline(self) -> str:
+        return f'echo "uc-dummy exec {self.content}"'
+
+    def _exec(self) -> uc.ExecutionResult:
+        shutils.call(self.cmdline(), shell=True)
+        self.ret = self._success_result()
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         shutils.call('echo "dummy undo"', shell=True)
         self.ret = None
 

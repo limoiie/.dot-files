@@ -54,7 +54,7 @@ class TestFileUpdateGuarder:
         dummy_file = tmp_path / "dummy.txt"
         dummy_file.write_text("hello\n")
 
-        tmp_dummy_file = tmp_path / 'dummy.txt.dofu.tmp'
+        tmp_dummy_file = tmp_path / "dummy.txt.dofu.tmp"
 
         with shutils.file_update_guarder(dummy_file) as tmp_file:
             tmp_dummy_file.write_text("world\n")
@@ -66,7 +66,7 @@ class TestFileUpdateGuarder:
         dummy_file = tmp_path / "dummy.txt"
         dummy_file.write_text("hello\n")
 
-        tmp_dummy_file = tmp_path / 'dummy.txt.dofu.tmp'
+        tmp_dummy_file = tmp_path / "dummy.txt.dofu.tmp"
 
         with pytest.raises(ValueError):
             with shutils.file_update_guarder(dummy_file):
@@ -82,7 +82,7 @@ class TestFileUpdateGuarder:
         dummy_file = tmp_path / "dummy.txt"
         dummy_file.write_text("hello\n")
 
-        tmp_dummy_file = tmp_path / 'dummy.txt.dofu.tmp'
+        tmp_dummy_file = tmp_path / "dummy.txt.dofu.tmp"
 
         with pytest.raises(ValueError):
             with shutils.file_update_guarder(dummy_file) as tmp_file:

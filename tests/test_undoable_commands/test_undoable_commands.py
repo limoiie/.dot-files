@@ -388,7 +388,9 @@ class TestReplaceLine:
         non_existing_file = f"{dummy_file}.non-existing"
 
         # exec
-        cmd = uc.UCReplaceLine(path=non_existing_file, pattern="dummy", new_line="DUMMY")
+        cmd = uc.UCReplaceLine(
+            path=non_existing_file, pattern="dummy", new_line="DUMMY"
+        )
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))

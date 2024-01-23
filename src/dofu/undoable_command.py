@@ -149,7 +149,7 @@ class UCBackupMv(UndoableCommand):
     ret: t.Optional[ExecutionResult] = None
 
     def cmdline(self) -> str:
-        return f"backup-mv {self.path} {self.backup_path}"
+        return f"mv {self.path} {self.backup_path}"
 
     def _exec(self):
         _assert_exists(self.path, "Failed to backup mv", "path")
@@ -302,12 +302,12 @@ class UCGitPull(UndoableCommand):
 class UCReplaceLine(UndoableCommand):
     path: str
     pattern: str
-    new_line: str
+    repl: str
     replaced_line: t.Optional[str] = None
     ret: t.Optional[ExecutionResult] = None
 
     def cmdline(self) -> str:
-        return f"replace-line {self.pattern} in {self.path} with {self.new_line}"
+        return f"sed -i.dofu.bak 's/{self.pattern}/{self.repl}/g' {self.path}"
 
     def _exec(self):
         _assert_exists(self.path, "Failed to replace line", "path")
@@ -317,7 +317,7 @@ class UCReplaceLine(UndoableCommand):
         for line in shutils.input_file(self.path, inplace=True):
             if replaced_line is None and re.search(pattern, line):
                 replaced_line = line
-                new_line = self.new_line.rstrip("\n")
+                new_line = self.repl.rstrip("\n")
                 line = (new_line + "\n") if line.endswith("\n") else new_line
             sys.stdout.write(line)
 
@@ -329,12 +329,12 @@ class UCReplaceLine(UndoableCommand):
         _assert_exists(self.path, "Failed to replace line", "path")
 
         for line in shutils.input_file(self.path, inplace=True):
-            if line.startswith(self.new_line):
+            if line.startswith(self.repl):
                 line = self.replaced_line
             sys.stdout.write(line)
 
     def spec_tuple(self):
-        return self.path, self.pattern, self.new_line
+        return self.path, self.pattern, self.repl
 
 
 def _assert_exists(path, msg, name="path"):

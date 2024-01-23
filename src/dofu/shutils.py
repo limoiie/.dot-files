@@ -11,7 +11,7 @@ CompletedProcess = subprocess.CompletedProcess
 
 def mkdirs(path, mode=0o777, exist_ok=False):
     if Options.instance().dry_run:
-        print(f"mkdirs {path}")
+        print(f"mkdir -p {path}")
         return
 
     return os.makedirs(path, mode=mode, exist_ok=exist_ok)
@@ -43,7 +43,7 @@ def unlink(path, *, dir_fd=None):
 
 def remove(path, *, dir_fd=None):
     if Options.instance().dry_run:
-        print(f"remove {path}")
+        print(f"rm {path}")
         return
 
     return os.remove(path, dir_fd=dir_fd)
@@ -51,7 +51,7 @@ def remove(path, *, dir_fd=None):
 
 def rmdir(path, *, dir_fd=None):
     if Options.instance().dry_run:
-        print(f"rmdir {path}")
+        print(f"rm -r {path}")
         return
 
     return os.rmdir(path, dir_fd=dir_fd)
@@ -59,7 +59,7 @@ def rmdir(path, *, dir_fd=None):
 
 def move(src, dst):
     if Options.instance().dry_run:
-        print(f"move {src} to {dst}")
+        print(f"mv {src} {dst}")
         return
 
     return shutil.move(src, dst)
@@ -67,7 +67,7 @@ def move(src, dst):
 
 def rmtree(path, ignore_errors=False, onerror=None):
     if Options.instance().dry_run:
-        print(f"remove {path}")
+        print(f"rm -rf {path}")
         return
 
     return shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
@@ -110,7 +110,7 @@ def check_call(sh: str, *args, **kwargs):
 def input_file(
     files,
     inplace=False,
-    backup="",
+    backup=".dofu.bak",
     *,
     mode="r",
     openhook=None,

@@ -358,7 +358,7 @@ class TestMove:
 
 class TestReplaceLine:
     def test_spec_tuple(self):
-        cmd = uc.UCReplaceLine(path="a", pattern="b", new_line="c")
+        cmd = uc.UCReplaceLine(path="a", pattern="b", repl="c")
         assert cmd.spec_tuple() == ("a", "b", "c")
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
@@ -368,7 +368,7 @@ class TestReplaceLine:
             origin_content = f.read()
 
         # exec
-        cmd = uc.UCReplaceLine(path=dummy_file, pattern="dummy", new_line="DUMMY")
+        cmd = uc.UCReplaceLine(path=dummy_file, pattern="dummy", repl="DUMMY")
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -389,7 +389,7 @@ class TestReplaceLine:
 
         # exec
         cmd = uc.UCReplaceLine(
-            path=non_existing_file, pattern="dummy", new_line="DUMMY"
+            path=non_existing_file, pattern="dummy", repl="DUMMY"
         )
         ret = cmd.exec()
         assert ret.retcode == 1

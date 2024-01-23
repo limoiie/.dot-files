@@ -206,8 +206,8 @@ class ModuleEquipmentMetaInfo:
         """
         Create a new transaction for applying config patches.
         """
-        meta = ModuleRegistrationManager.module_meta_by_name(self.module_name)
-        with ModuleEquipmentTransaction(meta.clazz.last_commit_id()) as transaction:
+        clazz = ModuleRegistrationManager.module_class_by_name(self.module_name)
+        with ModuleEquipmentTransaction(clazz.last_commit_id()) as transaction:
             self.transactions.append(transaction)
             yield transaction
 
@@ -277,7 +277,7 @@ class ModuleEquipmentManager:
         """
         blueprint = ModuleRegistrationManager.resolve_equip_blueprint(module_names)
         remove_blueprint = ModuleRegistrationManager.resolve_remove_blueprint(
-            set(self.meta) - set(map(ModuleRegistrationManager.module_meta, blueprint))
+            set(self.meta) - set(module.name() for module in blueprint)
         )
         for module in remove_blueprint:
             meta = self._equipment_meta(module.name())

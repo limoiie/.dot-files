@@ -13,6 +13,7 @@ fire = "^0.5.0"
 autoserde = {git = "https://github.com/limoiie/autoserde.git", rev = "v0.0.8"}
 pyyaml = "^6.0.1"
 python-dotenv = "^1.0.0"
+networkx = "^3.2.1"
 
 [tool.poetry.group.dev.dependencies]
 pyright = "^1.1.347"

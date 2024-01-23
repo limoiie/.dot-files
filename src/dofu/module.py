@@ -1,6 +1,9 @@
 import dataclasses
+import functools
 import inspect
 import typing as t
+
+import networkx as nx
 
 from dofu import env, requirements, undoable_command as uc, version_control as vc
 
@@ -16,16 +19,14 @@ class ModuleRegistrationMetaInfo:
     # name of the module
     name: str
 
-    # class of the module
-    clazz: t.Type["Module"]
-
-    # list of modules that this module depends on
-    requires: t.List[t.Type["Module"]]
-
     def __hash__(self):
-        return hash(self.clazz)
+        """
+        Make the meta info hashable.
+        """
+        return hash(self.name)
 
 
+@t.final
 class ModuleRegistrationManager:
     """
     Manager of module registration.
@@ -35,13 +36,21 @@ class ModuleRegistrationManager:
     resolve the blueprint of the modules to equip.
     """
 
-    __registry: t.Dict[t.Type["Module"], ModuleRegistrationMetaInfo] = {}
+    # __registry: t.Dict[t.Type["Module"], ModuleRegistrationMetaInfo] = {}
+    # """
+    # Registry center of all modules.
+    # """
+
+    __graph: nx.DiGraph = nx.DiGraph()
     """
-    Registry center of all modules.
+    Dependency graph of the modules.
+    
+    Each node in the graph is a module.
+    Each edge in the graph indicates that the source depends on the target.
     """
 
-    @staticmethod
-    def module(name: str, *, requires: t.List[t.Type["Module"]] = None):
+    @classmethod
+    def module(cls, name: str, *, requires: t.List[t.Type["Module"]] = None):
         """
         Register a module to the registry.
 
@@ -57,15 +66,15 @@ class ModuleRegistrationManager:
 
         def decorator(clazz: t.Type["Module"]):
             clazz._name = name
-            ModuleRegistrationManager.__registry[clazz] = ModuleRegistrationMetaInfo(
-                name=name, clazz=clazz, requires=requires or []
-            )
+            cls.__graph.add_node(clazz, meta=ModuleRegistrationMetaInfo(name=name))
+            for required in requires or []:
+                cls.__graph.add_edge(clazz, required)
             return clazz
 
         return decorator
 
-    @staticmethod
-    def validate():
+    @classmethod
+    def validate(cls):
         """
         Validate the registration.
 
@@ -78,17 +87,20 @@ class ModuleRegistrationManager:
 
         :raises ValueError: if there is a problem in the registry
         """
-        for meta in ModuleRegistrationManager.__registry.values():
-            for required in meta.requires:
-                if required not in ModuleRegistrationManager.__registry:
-                    raise ValueError(
-                        f"module {meta.name} requires {required} but it is not registered"
-                    )
+        # check whether all modules required by a module are registered
+        for module in cls.__graph.nodes:
+            if cls.__graph[module].get("meta", None) is None:
+                raise ValueError(f"module {module} is not registered")
 
-        # todo: check if there is a cycle in the dependency graph
+        # check whether there is a cycle in the dependency graph
+        dependency_cycle = nx.find_cycle(cls.__graph)
+        if dependency_cycle:
+            raise ValueError(f"dependency cycle detected: {dependency_cycle}")
 
-    @staticmethod
-    def resolve_equip_blueprint(module_names: t.List[str]) -> t.List[t.Type["Module"]]:
+    @classmethod
+    def resolve_equip_blueprint(
+        cls, module_names: t.List[str]
+    ) -> t.List[t.Type["Module"]]:
         """
         Resolve the blueprint of the modules to equip.
 
@@ -105,45 +117,25 @@ class ModuleRegistrationManager:
             to make sure all dependencies are equipped before each module.
         :return: blueprint of the modules to equip.
         """
+        modules = set(map(cls.module_class_by_name, module_names))
+        completed_modules = functools.reduce(
+            set.union,
+            # since the edge indicates dependency, all descendants are required by it
+            map(lambda module: nx.descendants(cls.__graph, module), modules),
+            modules,
+        )
 
-        modules_to_equip = set()
-        # collect all modules to equip and all modules required by them
-        while module_names:
-            name = module_names.pop()
-            meta = ModuleRegistrationManager.module_meta_by_name(name)
-            modules_to_equip.add(meta.clazz)
-            for required in meta.requires:
-                if required not in modules_to_equip:
-                    modules_to_equip.add(required)
-                    module_names.append(required.name())
+        sorted_modules = reversed(list(nx.topological_sort(cls.__graph)))
+        sorted_completed_modules = [
+            module for module in sorted_modules if module in completed_modules
+        ]
 
-        be_required_graph = {}  # map module to a set of modules requiring it
-        requiring_count = {}  # map module to the number of modules it requires
-        # build dependency graph and dependency count
-        for clazz in modules_to_equip:
-            requiring_count.setdefault(clazz, 0)
-            for required in ModuleRegistrationManager.__registry[clazz].requires:
-                be_required_graph.setdefault(required, set()).add(clazz)
-                requiring_count[clazz] += 1
+        return sorted_completed_modules
 
-        modules_to_equip_sorted = []
-        # topological sort modules to schedule the order to equip them
-        while modules_to_equip:
-            for clazz in modules_to_equip:
-                if requiring_count[clazz] == 0:  # 0 means all its dependencies are met
-                    modules_to_equip.remove(clazz)
-                    modules_to_equip_sorted.append(clazz)
-                    for requiring in be_required_graph.get(clazz, []):
-                        requiring_count[requiring] -= 1
-                    break
-
-            else:
-                raise RuntimeError("dependency cycle detected")
-
-        return modules_to_equip_sorted
-
-    @staticmethod
-    def resolve_remove_blueprint(module_names: t.List[str]) -> t.List[t.Type["Module"]]:
+    @classmethod
+    def resolve_remove_blueprint(
+        cls, module_names: t.List[str]
+    ) -> t.List[t.Type["Module"]]:
         """
         Resolve the blueprint of the modules to be removed.
 
@@ -161,70 +153,60 @@ class ModuleRegistrationManager:
         :return: blueprint of the modules to remove.
         """
 
-        modules_to_remove = set()
-        while module_names:
-            name = module_names.pop()
-            meta = ModuleRegistrationManager.module_meta_by_name(name)
-            modules_to_remove.add(meta.clazz)
+        modules = set(map(cls.module_class_by_name, module_names))
+        completed_modules = functools.reduce(
+            set.union,
+            # since the edge indicates dependency, all ancestors requires it
+            map(lambda module: nx.ancestors(cls.__graph, module), modules),
+            modules,
+        )
 
-        requiring_graph = {}  # map module to a set of modules it depends on
-        be_required_count = {}  # map module to the number of modules depend on it
-        for clazz in modules_to_remove:
-            requiring_graph.setdefault(clazz, set()).update(
-                ModuleRegistrationManager.__registry[clazz].requires
-            )
-            for required in ModuleRegistrationManager.__registry[clazz].requires:
-                be_required_count.setdefault(required, 0)
-                be_required_count[required] += 1
+        sorted_modules = nx.topological_sort(cls.__graph)
+        sorted_completed_modules = [
+            module for module in sorted_modules if module in completed_modules
+        ]
 
-        modules_to_remove_sorted = []
-        while modules_to_remove:
-            for clazz in modules_to_remove:
-                if be_required_count[clazz] == 0:  # 0 means no one depends on it
-                    modules_to_remove.remove(clazz)
-                    modules_to_remove_sorted.append(clazz)
-                    for requiring in requiring_graph.get(clazz, []):
-                        be_required_count[requiring] -= 1
-                    break
+        return sorted_completed_modules
 
-            else:
-                raise RuntimeError("dependency cycle detected")
-
-        return modules_to_remove_sorted
-
-    @staticmethod
-    def module_class_by_name(name: str) -> t.Type["Module"]:
+    @classmethod
+    def module_class_by_name(cls, name: str) -> t.Type["Module"]:
         """
         Get the module class by its name.
 
         :param name: name of the module.
         :return: class of the module.
         """
-        return ModuleRegistrationManager.module_meta_by_name(name).clazz
+        for module, attrs in cls.__graph.nodes.items():
+            if attrs["meta"].name == name:
+                return module
 
-    @staticmethod
-    def module_meta_by_name(name: str) -> t.Type[ModuleRegistrationMetaInfo]:
+        raise ValueError(f"module {name} is not registered")
+
+    @classmethod
+    def module_meta_by_name(cls, name: str) -> t.Type[ModuleRegistrationMetaInfo]:
         """
         Get the module meta by its name.
 
         :param name: name of the module.
         :return: class of the module.
         """
-        for meta in ModuleRegistrationManager.__registry.values():
-            if meta.name == name:
-                return meta
+        for _, attrs in cls.__graph.nodes.items():
+            if attrs["meta"].name == name:
+                return attrs["meta"]
 
         raise ValueError(f"module {name} is not registered")
 
-    @staticmethod
-    def module_meta(module: t.Type["Module"]) -> t.Type[ModuleRegistrationMetaInfo]:
+    @classmethod
+    def module_meta(
+        cls, module: t.Type["Module"]
+    ) -> t.Type[ModuleRegistrationMetaInfo]:
         """
         Get the module meta by its class.
 
         :param module: class of the module.
         :return: class of the module.
         """
-        return ModuleRegistrationManager.__registry[module]
+        return cls.__graph.nodes[module]["meta"]
 
 
 class Module:

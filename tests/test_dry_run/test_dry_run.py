@@ -9,7 +9,8 @@ class TestDryRun:
         Test that dry run does not execute the command.
         """
 
-        manager = ModuleEquipmentManager.load()
+        # create temp manager for isolating the test
+        manager = ModuleEquipmentManager()
         manager.sync(["dummy"])
 
         stdout = capsys.readouterr()
@@ -41,7 +42,8 @@ class TestNoDryRun:
         Test that no dry dun does execute the command.
         """
 
-        manager = ModuleEquipmentManager.load()
+        # create temp manager for isolating the test
+        manager = ModuleEquipmentManager()
         manager.sync(["dummy"])
 
         stdout = capfd.readouterr()

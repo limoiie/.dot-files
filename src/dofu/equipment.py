@@ -284,11 +284,13 @@ class ModuleEquipmentManager:
             meta = self._equipment_meta(module.name())
             # TODO: persistent current state if throw errors?
             self._remove_one_step(meta)
+            del self.meta[meta.module_name]
 
         for module in blueprint:
             meta = self._equipment_meta(module.name())
             # TODO: persistent current state if throw errors?
             self._equip_one_step(module, meta)
+            self.meta[meta.module_name] = meta
 
         self.save()
 

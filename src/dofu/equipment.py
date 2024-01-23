@@ -281,12 +281,12 @@ class ModuleEquipmentManager:
             set(self.meta) - set(map(ModuleRegistrationManager.module_meta, blueprint))
         )
         for module in remove_blueprint:
-            meta = self._equipment_meta(module.name)
+            meta = self._equipment_meta(module.name())
             # TODO: persistent current state if throw errors?
             self._remove_one_step(meta)
 
         for module in blueprint:
-            meta = self._equipment_meta(module.name)
+            meta = self._equipment_meta(module.name())
             # TODO: persistent current state if throw errors?
             self._equip_one_step(module, meta)
 

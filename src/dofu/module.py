@@ -22,6 +22,9 @@ class ModuleRegistrationMetaInfo:
     # list of modules that this module depends on
     requires: t.List[t.Type["Module"]]
 
+    def __hash__(self):
+        return hash(self.clazz)
+
 
 class ModuleRegistrationManager:
     """
@@ -53,9 +56,9 @@ class ModuleRegistrationManager:
         """
 
         def decorator(clazz: t.Type["Module"]):
-            clazz.__name = name
+            clazz._name = name
             ModuleRegistrationManager.__registry[clazz] = ModuleRegistrationMetaInfo(
-                name, clazz, requires or []
+                name=name, clazz=clazz, requires=requires or []
             )
             return clazz
 
@@ -112,7 +115,7 @@ class ModuleRegistrationManager:
             for required in meta.requires:
                 if required not in modules_to_equip:
                     modules_to_equip.add(required)
-                    module_names.append(required.name)
+                    module_names.append(required.name())
 
         be_required_graph = {}  # map module to a set of modules requiring it
         requiring_count = {}  # map module to the number of modules it requires
@@ -232,7 +235,7 @@ class Module:
     Each module is responsible for installing and removing its tools and configurations.
     """
 
-    __name: str
+    _name: str
     """
     Name of the module. it will be set by the registration decorator.
     """
@@ -252,9 +255,9 @@ class Module:
     List of steps to install or update the configurations.
     """
 
-    @property
-    def name(self):
-        return self.__name
+    @classmethod
+    def name(cls):
+        return cls._name
 
     @classmethod
     def package_requirements(cls):

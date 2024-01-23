@@ -30,8 +30,18 @@ def project_root() -> os.PathLike:
 
 
 def cache_root() -> os.PathLike:
-    return os.path.join(project_root(), ".cache")
+    root = os.path.join(project_root(), ".cache")
+    if not os.path.exists(root):
+        os.makedirs(root)
+    return root
+
+
+def persistence_root() -> os.PathLike:
+    root = os.path.join(cache_root(), ".persistence")
+    if not os.path.exists(root):
+        os.makedirs(root)
+    return root
 
 
 def equipment_persistence_file() -> os.PathLike:
-    return os.path.join(cache_root(), ".persistence", "equipment.yaml")
+    return os.path.join(persistence_root(), "equipment.yaml")

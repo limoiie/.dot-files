@@ -39,17 +39,45 @@ class ExecutionResult:
 class UndoableCommand:
     # ret: t.Optional[ExecutionResult]
 
-    @abc.abstractmethod
     def exec(self) -> ExecutionResult:
+        try:
+            return self._exec()
+
+        except Exception as e:
+            return self._failure_result(e)
+
+    def undo(self) -> t.Optional[ExecutionResult]:
+        try:
+            return self._undo()
+
+        except Exception as e:
+            return self._failure_result(e)
+
+    @abc.abstractmethod
+    def cmdline(self) -> str:
         pass
 
     @abc.abstractmethod
-    def undo(self):
+    def _exec(self) -> ExecutionResult:
+        pass
+
+    @abc.abstractmethod
+    def _undo(self) -> None:
         pass
 
     @abc.abstractmethod
     def spec_tuple(self):
         pass
+
+    def _failure_result(self, exc):
+        return ExecutionResult(
+            cmdline=self.cmdline(), retcode=1, stderr=str(exc).encode("utf-8")
+        )
+
+    def _success_result(self, stdout=None, stderr=None):
+        return ExecutionResult(
+            cmdline=self.cmdline(), retcode=0, stdout=stdout, stderr=stderr
+        )
 
 
 @dataclasses.dataclass
@@ -59,21 +87,19 @@ class UCSymlink(UndoableCommand):
     real_dst: str = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"ln -s {self.src} {self.dst}"
+
+    def _exec(self):
         _assert_exists(self.src, "Failed to ln -s", "src")
         _assert_not_exists(self.dst, "Failed to ln -s", "dst")
 
         shutils.symlink(self.src, self.dst)
-        self.ret = ExecutionResult(
-            cmdline=f"ln -s {self.src} {self.dst}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         self.real_dst = self.dst
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.real_dst, "Failed to unlink", "dst")
         _assert_exists(self.src, "Failed to unlink", "src")
 
@@ -92,21 +118,19 @@ class UCLink(UndoableCommand):
     real_dst: str = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"ln {self.src} {self.dst}"
+
+    def _exec(self):
         _assert_exists(self.src, "Failed to ln", "src")
         _assert_not_exists(self.dst, "Failed to ln", "dst")
 
         shutils.link(self.src, self.dst)
-        self.ret = ExecutionResult(
-            cmdline=f"ln {self.src} {self.dst}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         self.real_dst = self.dst
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.real_dst, "Failed to unlink", "dst")
         _assert_exists(self.src, "Failed to unlink", "src")
 
@@ -124,7 +148,10 @@ class UCBackupMv(UndoableCommand):
     backup_path: str = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"backup-mv {self.path} {self.backup_path}"
+
+    def _exec(self):
         _assert_exists(self.path, "Failed to backup mv", "path")
 
         backup_path = f"{self.path}.dofu.bak"
@@ -132,16 +159,11 @@ class UCBackupMv(UndoableCommand):
             backup_path += ".bak"
 
         shutils.move(self.path, backup_path)
-        self.ret = ExecutionResult(
-            cmdline=f"mv {self.path} {self.backup_path}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         self.backup_path = backup_path
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.backup_path, "Failed to undo backup mv", "dst")
         _assert_not_exists(self.path, "Failed to undo backup mv", "src")
 
@@ -159,7 +181,10 @@ class UCMkdir(UndoableCommand):
     last_exist_path: t.Optional[str] = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"mkdir -p {self.path}"
+
+    def _exec(self):
         path = pathlib.Path(self.path)
         if path.exists():
             self.last_exist_path = None
@@ -171,15 +196,10 @@ class UCMkdir(UndoableCommand):
             shutils.mkdirs(path)
             self.last_exist_path = last_exist_path
 
-        self.ret = ExecutionResult(
-            cmdline=f"mkdir -p {self.path}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         if self.last_exist_path and os.path.exists(self.last_exist_path):
             path = pathlib.Path(self.path)
             while not path.samefile(self.last_exist_path):
@@ -201,21 +221,19 @@ class UCMove(UndoableCommand):
     real_dst: str = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"mv {self.src} {self.dst}"
+
+    def _exec(self):
         _assert_exists(self.src, "Failed to mv", "src")
         _assert_not_exists(self.dst, "Failed to mv", "dst")
 
         shutils.move(self.src, self.dst)
-        self.ret = ExecutionResult(
-            cmdline=f"mv {self.src} {self.dst}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         self.real_dst = self.dst
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.real_dst, "Failed to undo mv", "dst")
         _assert_not_exists(self.src, "Failed to undo mv", "src")
 
@@ -235,16 +253,19 @@ class UCGitClone(UndoableCommand):
     depth: t.Optional[int] = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
-        _assert_not_exists(self.path, "Failed to git clone", "path")
-
+    def cmdline(self) -> str:
         cmd = "git clone"
         cmd = cmd + f" --depth={self.depth}" if self.depth else cmd
-        res = shutils.run(f"{cmd} {self.url} {self.path}", shell=True)
+        return f"{cmd} {self.url} {self.path}"
+
+    def _exec(self):
+        _assert_not_exists(self.path, "Failed to git clone", "path")
+
+        res = shutils.run(self.cmdline(), shell=True)
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.path, "Failed to undo git clone", "path")
 
         shutils.rmtree(self.path)
@@ -260,15 +281,17 @@ class UCGitPull(UndoableCommand):
     path: str
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"git pull"
+
+    def _exec(self):
         _assert_not_exists(self.path, "Failed to git pull", "repo")
 
-        cmd = "git pull"
-        res = shutils.run(f"{cmd}", shell=True, cwd=self.path)
+        res = shutils.run(self.cmdline(), shell=True, cwd=self.path)
         self.ret = ExecutionResult.of_result(res)
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         self.ret = None
 
     def spec_tuple(self):
@@ -283,7 +306,10 @@ class UCReplaceLine(UndoableCommand):
     replaced_line: t.Optional[str] = None
     ret: t.Optional[ExecutionResult] = None
 
-    def exec(self):
+    def cmdline(self) -> str:
+        return f"replace-line {self.pattern} in {self.path} with {self.new_line}"
+
+    def _exec(self):
         _assert_exists(self.path, "Failed to replace line", "path")
 
         replaced_line = None
@@ -296,15 +322,10 @@ class UCReplaceLine(UndoableCommand):
             sys.stdout.write(line)
 
         self.replaced_line = replaced_line
-        self.ret = ExecutionResult(
-            cmdline=f"replace line {self.pattern} in {self.path} with {self.new_line}",
-            retcode=0,
-            stdout=None,
-            stderr=None,
-        )
+        self.ret = self._success_result()
         return self.ret
 
-    def undo(self):
+    def _undo(self):
         _assert_exists(self.path, "Failed to replace line", "path")
 
         for line in shutils.input_file(self.path, inplace=True):

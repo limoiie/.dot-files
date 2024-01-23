@@ -1,10 +1,16 @@
 import re
 
+import pytest
+
 from dofu.equipment import ModuleEquipmentManager
 
 
-class TestDryRun:
-    def test_cli_sync(self, capsys, enable_dry_run):
+class TestDryRunEquipment:
+    @pytest.fixture(autouse=True)
+    def _enable_dry_run(self, enable_dry_run):
+        pass
+
+    def test_cli_sync(self, capsys):
         """
         Test that dry run does not execute the command.
         """
@@ -26,8 +32,8 @@ class TestDryRun:
             r"move .*/equipment.yaml.dofu.tmp .*/equipment.yaml",
         ]
 
-        print("Captured stdout:")
-        print(stdout.out)
+        # print("Captured stdout:")
+        # print(stdout.out)
 
         pos = 0
         for message in messages:
@@ -36,8 +42,12 @@ class TestDryRun:
             pos = pattern.search(stdout.out, pos).end()
 
 
-class TestNoDryRun:
-    def test_cli_sync(self, capfd, disable_dry_run):
+class TestNoDryRunEquipment:
+    @pytest.fixture(autouse=True)
+    def _disable_dry_run(self, disable_dry_run):
+        pass
+
+    def test_cli_sync(self, capfd):
         """
         Test that no dry dun does execute the command.
         """
@@ -55,8 +65,8 @@ class TestNoDryRun:
             r"^uc-dummy exec dummy-content",
         ]
 
-        print("Captured stdout:")
-        print(stdout.out)
+        # print("Captured stdout:")
+        # print(stdout.out)
 
         pos = 0
         for message in messages:

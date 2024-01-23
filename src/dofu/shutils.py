@@ -163,7 +163,7 @@ def file_update_guarder(path: os.PathLike):
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-        print(f'move {temp_path} to {path}')
+        print(f"move {temp_path} to {path}")
         return
 
     if os.path.exists(path):

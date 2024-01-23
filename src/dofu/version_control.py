@@ -27,7 +27,7 @@ def log(
     )
 
 
-def clone(*opts: str, repo: str, repo_path: str = '', cwd: str = None) -> None:
+def clone(*opts: str, repo: str, repo_path: str = "", cwd: str = None) -> None:
     """
     Clone a repo to a path.
 

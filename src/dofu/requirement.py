@@ -8,6 +8,7 @@ from dofu import (
     package_manager as pm,
     platform as pf,
     shutils,
+    specification as sp,
     utils,
     version_control as vc,
 )
@@ -126,8 +127,7 @@ class PackageRequirement(Requirement):
     NOTE: this field will be ignored by dataclass init
     """
 
-    package: str
-    version: str
+    spec: sp.PackageSpecification
     command: str
 
     def install(self):
@@ -138,7 +138,7 @@ class PackageRequirement(Requirement):
         """
         for platform, pkg_manager in self._pkg_manager_candidates.items():
             if platform():
-                if pkg_manager.install(self.package):
+                if pkg_manager.install(self.spec):
                     return pkg_manager
         return None
 
@@ -149,7 +149,7 @@ class PackageRequirement(Requirement):
         :param pkg_manager:
         :return: The package manager used to update the tool.
         """
-        if pkg_manager.update(self.package):
+        if pkg_manager.update(self.spec):
             return pkg_manager
         return None
 
@@ -160,51 +160,12 @@ class PackageRequirement(Requirement):
         :param pkg_manager: The package manager to use to uninstall the tool.
         :return: The package manager used to uninstall the tool.
         """
-        if pkg_manager.uninstall(self.package):
+        if pkg_manager.uninstall(self.spec):
             return pkg_manager
         return None
 
     def is_satisfied(self):
         return shutils.do_commands_exist(self.command)
-
-
-@dataclasses.dataclass
-class PackageInstallationMetaInfo:
-    """
-    Meta information about the installation of a package.
-    """
-
-    requirement: PackageRequirement
-    """
-    The requirement of the package that is installed.
-    """
-
-    manager: t.Optional[pm.PackageManager]
-    """
-    The manager has been used to install the package.
-    """
-
-    used_existing: bool
-    """
-    Whether the package has been installed before.
-    """
-
-
-@dataclasses.dataclass
-class GitRepoInstallationMetaInfo:
-    """
-    Meta information about the installation of a git repository.
-    """
-
-    requirement: GitRepoRequirement
-    """
-    The requirement of the git repository that is installed.
-    """
-
-    used_existing: bool
-    """
-    Whether the repo has been cloned before.
-    """
 
 
 def opt(obj, *, empty=None):

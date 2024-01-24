@@ -1,6 +1,6 @@
 import dataclasses
 
-from dofu import package_managers as pms, platform as pf
+from dofu import package_managers as pms, platform as pf, specification as sp
 from dofu.requirement import PackageRequirement
 
 
@@ -13,6 +13,8 @@ class PRRustup(PackageRequirement):
         ),
     }
 
-    package: str = "rustup"
-    version: str = "latest"
+    spec: sp.PackageSpecification = sp.PackageSpecification(
+        package="rustup",
+        version="latest",
+    )
     command: str = "rustup"

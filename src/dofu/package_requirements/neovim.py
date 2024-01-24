@@ -1,6 +1,6 @@
 import dataclasses
 
-from dofu import package_managers as pms, platform as pf
+from dofu import package_managers as pms, platform as pf, specification as sp
 from dofu.requirement import PackageRequirement
 
 
@@ -10,6 +10,8 @@ class PRNeovim(PackageRequirement):
         pf.ANY: pms.BobNvimPackageManager(),
     }
 
-    package: str = "neovim"
-    version: str = "latest"
+    spec: sp.PackageSpecification = sp.PackageSpecification(
+        package="neovim",
+        version="latest",
+    )
     command: str = "nvim"

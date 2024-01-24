@@ -25,13 +25,13 @@ class CurlShPackageManager(PackageManager):
         if self.update_cmd is None:
             self.update_cmd = self.install_cmd
 
-    def install(self, package):
+    def install(self, spec):
         return shutils.call(self.install_cmd) == 0
 
-    def uninstall(self, package):
+    def uninstall(self, spec):
         return shutils.call(self.uninstall_cmd) == 0
 
-    def update(self, package):
+    def update(self, spec):
         return shutils.call(self.update_cmd) == 0
 
     def is_available(self) -> bool:

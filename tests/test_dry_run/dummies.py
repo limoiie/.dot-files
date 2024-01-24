@@ -7,6 +7,7 @@ from dofu import (
     platform as pf,
     requirement as req,
     shutils,
+    specification as sp,
     undoable_command as uc,
 )
 from .conftest import under_temp_workspace
@@ -14,14 +15,14 @@ from .conftest import under_temp_workspace
 
 @dataclasses.dataclass
 class DummyWindowsPackageManager(pm.PackageManager):
-    def install(self, package):
-        return shutils.call(f'echo "pm-dummy install {package}"') == 0
+    def install(self, spec):
+        return shutils.call(f'echo "pm-dummy install {spec.package}"') == 0
 
-    def uninstall(self, package):
-        return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
+    def uninstall(self, spec):
+        return shutils.call(f'echo "pm-dummy uninstall {spec.package}"') == 0
 
-    def update(self, package):
-        return shutils.call(f'echo "pm-dummy update {package}"') == 0
+    def update(self, spec):
+        return shutils.call(f'echo "pm-dummy update {spec.package}"') == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -29,14 +30,14 @@ class DummyWindowsPackageManager(pm.PackageManager):
 
 @dataclasses.dataclass
 class DummyUnixPackageManager(pm.PackageManager):
-    def install(self, package):
-        return shutils.call(f'echo "pm-dummy install {package}"') == 0
+    def install(self, spec):
+        return shutils.call(f'echo "pm-dummy install {spec.package}"') == 0
 
-    def uninstall(self, package):
-        return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
+    def uninstall(self, spec):
+        return shutils.call(f'echo "pm-dummy uninstall {spec.package}"') == 0
 
-    def update(self, package):
-        return shutils.call(f'echo "pm-dummy update {package}"') == 0
+    def update(self, spec):
+        return shutils.call(f'echo "pm-dummy update {spec.package}"') == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -50,8 +51,10 @@ class DummyPackageRequirement(req.PackageRequirement):
         pf.MACOS: DummyUnixPackageManager(),
     }
 
-    package: str = "dummy-pkg"
-    version: str = "latest"
+    spec: sp.PackageSpecification = sp.PackageSpecification(
+        package="dummy-pkg",
+        version="latest",
+    )
     command: str = "dummy-cmd"
 
 

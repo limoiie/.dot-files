@@ -9,12 +9,52 @@ import autoserde
 
 from dofu import (
     env,
+    package_manager as pm,
     requirement as req,
     shutils,
     undoable_command as uc,
     utils,
     module as m,
 )
+
+
+@dataclasses.dataclass
+class PackageInstallationMetaInfo:
+    """
+    Meta information about the installation of a package.
+    """
+
+    requirement: req.PackageRequirement
+    """
+    The requirement of the package that is installed.
+    """
+
+    manager: t.Optional[pm.PackageManager]
+    """
+    The manager has been used to install the package.
+    """
+
+    used_existing: bool
+    """
+    Whether the package has been installed before.
+    """
+
+
+@dataclasses.dataclass
+class GitRepoInstallationMetaInfo:
+    """
+    Meta information about the installation of a git repository.
+    """
+
+    requirement: req.GitRepoRequirement
+    """
+    The requirement of the git repository that is installed.
+    """
+
+    used_existing: bool
+    """
+    Whether the repo has been cloned before.
+    """
 
 
 @autoserde.serdeable
@@ -166,12 +206,12 @@ class ModuleEquipmentMetaInfo:
     Name of the installed module.
     """
 
-    package_installations: t.List[req.PackageInstallationMetaInfo]
+    package_installations: t.List[PackageInstallationMetaInfo]
     """
     List of installed packages, most of them are tools.
     """
 
-    gitrepo_installations: t.List[req.GitRepoInstallationMetaInfo]
+    gitrepo_installations: t.List[GitRepoInstallationMetaInfo]
     """
     List of installed git repos, most of them are configurations.
     """
@@ -371,7 +411,7 @@ class ModuleEquipmentManager:
                     used_existing = True
 
                 meta.package_installations.append(
-                    req.PackageInstallationMetaInfo(
+                    PackageInstallationMetaInfo(
                         requirement=requirement,
                         manager=manager,
                         used_existing=used_existing,
@@ -433,7 +473,7 @@ class ModuleEquipmentManager:
                     used_existing = True
 
                 meta.gitrepo_installations.append(
-                    req.GitRepoInstallationMetaInfo(
+                    GitRepoInstallationMetaInfo(
                         requirement=requirement,
                         used_existing=used_existing,
                     )

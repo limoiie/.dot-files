@@ -65,6 +65,10 @@ class ModuleRegistrationManager:
         """
 
         def decorator(clazz: t.Type["Module"]):
+            for module, attrs in cls.__graph.nodes.items():
+                if attrs and attrs["meta"].name == name:
+                    raise ValueError(f"module {name} is already registered")
+
             clazz._name = name
             cls.__graph.add_node(clazz, meta=ModuleRegistrationMetaInfo(name=name))
             for required in requires or []:
@@ -88,18 +92,21 @@ class ModuleRegistrationManager:
         :raises ValueError: if there is a problem in the registry
         """
         # check whether all modules required by a module are registered
-        for module in cls.__graph.nodes:
-            if cls.__graph[module].get("meta", None) is None:
+        for module, attrs in cls.__graph.nodes.items():
+            if not attrs:
                 raise ValueError(f"module {module} is not registered")
 
         # check whether there is a cycle in the dependency graph
-        dependency_cycle = nx.find_cycle(cls.__graph)
-        if dependency_cycle:
+        try:
+            dependency_cycle = nx.find_cycle(cls.__graph)
             raise ValueError(f"dependency cycle detected: {dependency_cycle}")
+
+        except nx.NetworkXNoCycle:
+            pass
 
     @classmethod
     def resolve_equip_blueprint(
-        cls, module_names: t.List[str]
+        cls, module_names: t.Iterable[str]
     ) -> t.List[t.Type["Module"]]:
         """
         Resolve the blueprint of the modules to equip.
@@ -198,15 +205,19 @@ class ModuleRegistrationManager:
 
     @classmethod
     def module_meta(
-        cls, module: t.Type["Module"]
+        cls, target: t.Type["Module"]
     ) -> t.Type[ModuleRegistrationMetaInfo]:
         """
         Get the module meta by its class.
 
-        :param module: class of the module.
+        :param target: class of the module.
         :return: class of the module.
         """
-        return cls.__graph.nodes[module]["meta"]
+        for module, attrs in cls.__graph.nodes.items():
+            if module == target:
+                return attrs["meta"]
+
+        raise ValueError(f"module {target} is not registered")
 
 
 class Module:

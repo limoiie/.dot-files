@@ -10,14 +10,14 @@ class NeovimModule(Module):
         req.PRNeovim(),
     ]
 
-    _git_repo_requirements = [
+    _gitrepo_requirements = [
         req.GitRepoRequirement(
             repo="https://github.com/NvChad/NvChad.git",
             path=env.xdg_config_path("NvChad"),
         ),
     ]
 
-    _config_steps = [
+    _command_requirements = [
         uc.UCBackupMv(path=env.xdg_config_path("NvChad")),
         uc.UCSymlink(
             src=env.dot_config_path("NvChad", "lua", "custom"),

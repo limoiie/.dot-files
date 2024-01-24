@@ -8,4 +8,4 @@ class RustModule(Module):
         PRRustup(),
     ]
 
-    _git_repo_requirements = []
+    _gitrepo_requirements = []

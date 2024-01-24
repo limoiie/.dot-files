@@ -227,12 +227,12 @@ class Module:
     List of required packages, most of them are tools.
     """
 
-    _git_repo_requirements: t.List[requirements.GitRepoRequirement]
+    _gitrepo_requirements: t.List[requirements.GitRepoRequirement]
     """
     List of required git repos, most of them are configurations.
     """
 
-    _config_steps: t.List[uc.UndoableCommand]
+    _command_requirements: t.List[uc.UndoableCommand]
     """
     List of steps to install or update the configurations.
     """
@@ -243,15 +243,15 @@ class Module:
 
     @classmethod
     def package_requirements(cls):
-        return cls._package_requirements
+        return list(cls._package_requirements)
 
     @classmethod
-    def git_repo_requirements(cls):
-        return cls._git_repo_requirements
+    def gitrepo_requirements(cls):
+        return list(cls._gitrepo_requirements)
 
     @classmethod
-    def config_steps(cls):
-        return cls._config_steps
+    def command_requirements(cls):
+        return list(cls._command_requirements)
 
     @classmethod
     def last_commit_id(cls):

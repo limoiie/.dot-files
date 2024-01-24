@@ -20,6 +20,9 @@ class DummyWindowsPackageManager(pm.PackageManager):
     def uninstall(self, package):
         return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
 
+    def update(self, package):
+        return shutils.call(f'echo "pm-dummy update {package}"') == 0
+
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
 
@@ -31,6 +34,9 @@ class DummyUnixPackageManager(pm.PackageManager):
 
     def uninstall(self, package):
         return shutils.call(f'echo "pm-dummy uninstall {package}"') == 0
+
+    def update(self, package):
+        return shutils.call(f'echo "pm-dummy update {package}"') == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -76,13 +82,13 @@ class DummyModule(module.Module):
         DummyPackageRequirement(),
     ]
 
-    _git_repo_requirements = [
+    _gitrepo_requirements = [
         req.GitRepoRequirement(
             repo="https://github.com/sarcasticadmin/empty-repo",
             path=under_temp_workspace("dummy-repo"),
         ),
     ]
 
-    _config_steps = [
+    _command_requirements = [
         UCDummy(content="dummy-content"),
     ]

@@ -1,10 +1,16 @@
 import abc
 import dataclasses
 import os.path
+import subprocess
 import typing as t
 
-import dofu.version_control as vc
-from dofu import package_manager as pm, platform as pf, shutils
+from dofu import (
+    package_manager as pm,
+    platform as pf,
+    shutils,
+    utils,
+    version_control as vc,
+)
 
 
 class Requirement(abc.ABC):
@@ -13,25 +19,26 @@ class Requirement(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def uninstall(self):
+    def uninstall(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def update(self):
+    def update(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def is_installed(self):
+    def is_satisfied(self):
         """
-        Check if the tool is installed.
+        Check if the requirement is satisfied.
+        The requirement can be satisfied even if the requirement is not installed.
 
-        :return: True if the tool is installed, False otherwise.
+        :return: True if the requirement is satisfied, False otherwise.
         """
         pass
 
 
 @dataclasses.dataclass
-class GitRepoRequirement:
+class GitRepoRequirement(Requirement):
     """
     A requirement of a git repository.
     """
@@ -67,17 +74,21 @@ class GitRepoRequirement:
     """
 
     def install(self):
-        opts = [
+        vc.clone(
             *[f"--branch={branch}" for branch in opt(self.branch)],
             *[f"--depth={depth}" for depth in opt(self.depth)],
             *[f"--submodules={submodules}" for submodules in opt(self.submodule)],
-        ]
-        vc.clone(*opts, repo=self.repo, repo_path=self.path)
+            repo=self.repo,
+            repo_path=self.path,
+        )
         if self.commit_id is not None:
             vc.checkout(repo_path=self.path, revision=self.commit_id)
 
     def uninstall(self):
-        shutils.rmtree(self.path)
+        if os.path.isdir(self.path):
+            shutils.rmtree(self.path)
+            return True
+        return False
 
     def update(self):
         branch = self.branch or vc.default_branch(self.path)
@@ -86,8 +97,20 @@ class GitRepoRequirement:
         if self.commit_id is not None:
             vc.checkout(repo_path=self.path, revision=self.commit_id)
 
-    def is_installed(self):
-        return os.path.isdir(self.path)
+    def is_satisfied(self):
+        with utils.supress(subprocess.CalledProcessError):
+            return os.path.isdir(self.path) and (
+                vc.remote_get_url(repo_path=self.path, name="origin") == self.repo_url
+            )
+        # noinspection PyUnreachableCode
+        return False
+
+    @property
+    def repo_url(self):
+        url = self.repo.rstrip("/")
+        if not url.endswith(".git"):
+            url += ".git"
+        return url
 
 
 @dataclasses.dataclass
@@ -119,30 +142,29 @@ class PackageRequirement(Requirement):
                     return pkg_manager
         return None
 
-    def update(self):
-        # TODO: need implementation
-        raise NotImplementedError
-
-    def uninstall(self, pkg_manager: pm.PackageManager = None):
+    def update(self, pkg_manager: pm.PackageManager):
         """
-        Uninstall the tool using the given package manager if provided.
-        Otherwise, the first available package manager is used.
+        Update the tool using the given package manager.
+
+        :param pkg_manager:
+        :return: The package manager used to update the tool.
+        """
+        if pkg_manager.update(self.package):
+            return pkg_manager
+        return None
+
+    def uninstall(self, pkg_manager: pm.PackageManager):
+        """
+        Uninstall the tool using the given package manager.
 
         :param pkg_manager: The package manager to use to uninstall the tool.
         :return: The package manager used to uninstall the tool.
         """
-        if pkg_manager:
-            if pkg_manager.uninstall(self.package):
-                return pkg_manager
-            return None
-
-        for platform, pkg_manager in self._pkg_manager_candidates.items():
-            if platform():
-                if pkg_manager.uninstall(self.package):
-                    return pkg_manager
+        if pkg_manager.uninstall(self.package):
+            return pkg_manager
         return None
 
-    def is_installed(self):
+    def is_satisfied(self):
         return shutils.do_commands_exist(self.command)
 
 
@@ -193,9 +215,14 @@ class PackageInstallationMetaInfo:
     The requirement of the package that is installed.
     """
 
-    manager: pm.PackageManager
+    manager: t.Optional[pm.PackageManager]
     """
     The manager has been used to install the package.
+    """
+
+    used_existing: bool
+    """
+    Whether the package has been installed before.
     """
 
 
@@ -208,6 +235,11 @@ class GitRepoInstallationMetaInfo:
     requirement: GitRepoRequirement
     """
     The requirement of the git repository that is installed.
+    """
+
+    used_existing: bool
+    """
+    Whether the repo has been cloned before.
     """
 
 

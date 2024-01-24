@@ -7,7 +7,7 @@ import typing as t
 
 import autoserde
 
-from dofu import env, requirements, shutils, undoable_command as uc
+from dofu import env, requirements, shutils, undoable_command as uc, utils
 from dofu.module import Module, ModuleRegistrationManager
 
 
@@ -160,19 +160,20 @@ class ModuleEquipmentMetaInfo:
     Name of the installed module.
     """
 
-    installed_packages: t.List[requirements.PackageInstallationMetaInfo]
+    package_installations: t.List[requirements.PackageInstallationMetaInfo]
     """
     List of installed packages, most of them are tools.
     """
 
-    installed_git_repos: t.List[requirements.GitRepoInstallationMetaInfo]
+    gitrepo_installations: t.List[requirements.GitRepoInstallationMetaInfo]
     """
     List of installed git repos, most of them are configurations.
     """
 
     transactions: t.List[ModuleEquipmentTransaction]
     """
-    List of transactions of config patches.
+    List of transactions of undoable commands
+    which are used to create or update the configurations.
     """
 
     status: ModuleEquipmentStatus = ModuleEquipmentStatus.PRISTINE
@@ -257,8 +258,8 @@ class ModuleEquipmentManager:
         """
         return self.meta.get(module_name, None) or ModuleEquipmentMetaInfo(
             module_name=module_name,
-            installed_packages=[],
-            installed_git_repos=[],
+            package_installations=[],
+            gitrepo_installations=[],
             transactions=[],
         )
 
@@ -305,8 +306,8 @@ class ModuleEquipmentManager:
         :param meta: equipment meta info of the module.
         """
         self._sync_packages_step(module, meta)
-        self._sync_git_repos_step(module, meta)
-        self._sync_config_files_step(module, meta)
+        self._sync_gitrepos_step(module, meta)
+        self._sync_commands_step(module, meta)
 
     @staticmethod
     def _sync_packages_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
@@ -316,73 +317,130 @@ class ModuleEquipmentManager:
         This method will install all the required packages if they are not installed,
         and remove all the installed packages if they are not required any more.
         """
-        # remove packages that are not required any more
-        for installed_meta in list(meta.installed_packages):
-            if installed_meta.requirement not in module.package_requirements():
-                installed_meta.requirement.uninstall(installed_meta.manager)
-                meta.installed_packages.remove(installed_meta)
+        # sync already installed
+        for installation in list(meta.package_installations):
+            required = utils.find(
+                module.package_requirements(),
+                value=installation.requirement,
+                default=None,
+            )
+
+            # not required any more, remove the installation
+            if required is None or not installation.requirement.is_satisfied():
+                if not installation.used_existing and installation.manager:
+                    installation.requirement.uninstall(installation.manager)
+                meta.package_installations.remove(installation)
 
         # install packages that are required but not installed
         for requirement in module.package_requirements():
-            if not requirement.is_installed():
-                manager = requirement.install()
-                if not manager:
-                    raise RuntimeError(f"failed to install package {requirement}")
-                meta.installed_packages.append(
+            installation = utils.find(
+                meta.package_installations,
+                pred=lambda x: x.requirement == requirement,
+                default=None,
+            )
+
+            # installed already
+            if installation is not None:
+                if not requirement.is_satisfied():
+                    # reinstall since the package is broken
+                    installation.manager = requirement.install()
+                    installation.used_existing = False
+                else:
+                    # update?
+                    # Currently, the installed package with different version will
+                    # be uninstalled and reinstalled with the new version. It seems
+                    # that there is no need to run update again.
+                    pass
+
+            # install for the first time
+            else:
+                if not requirement.is_satisfied():
+                    # install if the package is not installed
+                    manager = requirement.install()
+                    used_existing = False
+                else:
+                    manager = None
+                    used_existing = True
+
+                meta.package_installations.append(
                     requirements.PackageInstallationMetaInfo(
                         requirement=requirement,
                         manager=manager,
+                        used_existing=used_existing,
                     )
                 )
 
     @staticmethod
-    def _sync_git_repos_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
+    def _sync_gitrepos_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
         """
         Sync git repo requirements.
 
         This method will clone all the required git repos if they are not cloned,
         and remove all the cloned git repos if they are not required any more.
         """
-        # map repo url to complete requirement
-        git_repo_requirements = {
-            required.repo: required for required in module.git_repo_requirements()
-        }
 
-        for installed_meta in list(meta.installed_git_repos):
-            installed = installed_meta.requirement
-            # remove installed requirements that are not required any more
-            if installed.repo not in git_repo_requirements:
-                installed.uninstall()
-                meta.installed_git_repos.remove(installed_meta)
-                continue
+        # sync already installed
+        for installation in list(meta.gitrepo_installations):
+            required = utils.find(
+                module.gitrepo_requirements(),
+                value=installation.requirement,
+                key=lambda x: x.repo,
+                default=None,
+            )
 
-            required = git_repo_requirements[installed.repo]
-            # move installed requirements whose paths have changed
-            if required.path != installed.path:
-                shutils.move(installed.path, required.path)
+            # not required any more or broken, remove the installation
+            if required is None or not installation.requirement.is_satisfied():
+                installation.requirement.uninstall()
+                meta.gitrepo_installations.remove(installation)
+
+            # required but the local path has changed, move to the new dst
+            elif required.path != installation.requirement.path:
+                # TODO: make sure the dst is empty
+                shutils.move(installation.requirement.path, required.path)
 
         # install requirements that are required but not installed
-        for requirement in module.git_repo_requirements():
-            if not requirement.is_installed():
-                requirement.install()
-                meta.installed_git_repos.append(
+        for requirement in module.gitrepo_requirements():
+            installation = utils.find(
+                meta.gitrepo_installations,
+                pred=lambda x: x.requirement.repo == requirement.repo,
+                default=None,
+            )
+
+            # installed already
+            if installation is not None:
+                if not requirement.is_satisfied():
+                    # reinstall since the gitrepo is broken
+                    requirement.install()
+                    installation.used_existing = False
+                else:
+                    requirement.update()
+
+            # install for the first time
+            else:
+                if not requirement.is_satisfied():
+                    # install if the package is not installed
+                    requirement.install()
+                    used_existing = False
+                else:
+                    used_existing = True
+
+                meta.gitrepo_installations.append(
                     requirements.GitRepoInstallationMetaInfo(
                         requirement=requirement,
+                        used_existing=used_existing,
                     )
                 )
 
     @staticmethod
-    def _sync_config_files_step(
-        module: t.Type["Module"], meta: ModuleEquipmentMetaInfo
-    ):
+    def _sync_commands_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
         """
-        Sync config files.
+        Sync undoable commands sequences.
 
         This method will keep the common prefix steps,
         and undo all the executed steps after the common prefix steps.
         Then, it will execute the remaining steps.
         """
-        require_steps = list(module.config_steps())
+        require_steps = list(module.command_requirements())
 
         # exclude the steps that have been executed by checking the spec tuple identity
         for ti, transaction in enumerate(meta.transactions):
@@ -420,13 +478,13 @@ class ModuleEquipmentManager:
             meta.transactions.pop()
 
         # remove git repos
-        while meta.installed_git_repos:
-            meta.installed_git_repos[-1].requirement.uninstall()
-            meta.installed_git_repos.pop()
+        while meta.gitrepo_installations:
+            meta.gitrepo_installations[-1].requirement.uninstall()
+            meta.gitrepo_installations.pop()
 
         # uninstall packages
-        while meta.installed_packages:
-            meta.installed_packages[-1].requirement.uninstall(
-                meta.installed_packages[-1].manager
+        while meta.package_installations:
+            meta.package_installations[-1].requirement.uninstall(
+                meta.package_installations[-1].manager
             )
-            meta.installed_packages.pop()
+            meta.package_installations.pop()

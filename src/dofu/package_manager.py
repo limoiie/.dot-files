@@ -15,6 +15,10 @@ class PackageManager(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def update(self, package):
+        pass
+
+    @abc.abstractmethod
     def is_available(self) -> bool:
         return False
 
@@ -31,11 +35,23 @@ class CurlShPackageManager(PackageManager):
     Shell script to uninstall the package manager.
     """
 
+    update_cmd: str = None
+    """
+    Shell script to update the package manager.
+    """
+
+    def __post_init__(self):
+        if self.update_cmd is None:
+            self.update_cmd = self.install_cmd
+
     def install(self, package):
         return shutils.call(self.install_cmd) == 0
 
     def uninstall(self, package):
         return shutils.call(self.uninstall_cmd) == 0
+
+    def update(self, package):
+        return shutils.call(self.update_cmd) == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("curl", "sh")
@@ -49,6 +65,9 @@ class AptPackageManager(PackageManager):
     def uninstall(self, package):
         return shutils.call(f"sudo apt uninstall -y {package}") == 0
 
+    def update(self, package):
+        return shutils.call(f"sudo apt upgrade -y {package}") == 0
+
     def is_available(self) -> bool:
         return shutils.do_commands_exist("apt")
 
@@ -61,6 +80,9 @@ class CargoPackageManager(PackageManager):
     def uninstall(self, package):
         return shutils.call(f"cargo uninstall {package}") == 0
 
+    def update(self, package):
+        return shutils.call(f"cargo update --package {package}") == 0
+
     def is_available(self) -> bool:
         return shutils.do_commands_exist("cargo")
 
@@ -72,6 +94,9 @@ class BobNvimPackageManager(PackageManager):
 
     def uninstall(self, package):
         return shutils.call(f"bob uninstall latest") == 0
+
+    def update(self, package):
+        return shutils.call(f"bob use latest") == 0
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("bob")

@@ -20,7 +20,7 @@ def log(
     :param revision: the revision to check.
     :return: the log of the path.
     """
-    return shutils.check_output(
+    return shutils.check_output_no_side_effect(
         f"git log {shc(opts)} {revision} -- {path}",
         encoding=encoding,
         cwd=repo_path,
@@ -43,7 +43,7 @@ def pull(*opts: str, repo_path: str) -> None:
     """
     Pull a repo cloned at a local path.
 
-    :param opts: options to pass to git clone
+    :param opts: options to pass to git pull
     :param repo_path: where the repo having been cloned to
     """
     shutils.check_call(f"git pull {shc(opts)}", cwd=repo_path)
@@ -53,7 +53,7 @@ def fetch(*opts: str, repo_path: str) -> None:
     """
     Fetch a repo cloned at a local path.
 
-    :param opts: options to pass to git clone
+    :param opts: options to pass to git fetch
     :param repo_path: where the repo having been cloned to
     """
     shutils.check_call(f"git fetch {shc(opts)}", cwd=repo_path)
@@ -63,11 +63,34 @@ def checkout(*opts: str, repo_path: str, revision: str) -> None:
     """
     Checkout a path at a revision.
 
-    :param opts: options to pass to git clone
+    :param opts: options to pass to git checkout
     :param repo_path: where the repo having been cloned to
     :param revision: the revision to check.
     """
     shutils.check_call(f"git checkout {shc(opts)} {revision}", cwd=repo_path)
+
+
+def remote(*opts: str, repo_path: str) -> None:
+    """
+    Remote related operations.
+
+    :param opts: options to pass to git remote
+    :param repo_path: where the repo having been cloned to
+    """
+    shutils.check_call(f"git remote {shc(opts)}", cwd=repo_path)
+
+
+def remote_get_url(*opts: str, repo_path: str, name: str = "origin") -> None:
+    """
+    Get the url of a remote.
+
+    :param opts: options to pass to git remote get-url
+    :param repo_path: where the repo having been cloned to
+    :param name: the name of the remote.
+    """
+    shutils.check_call_no_side_effect(
+        f"git remote get-url {shc(opts)} {name}", cwd=repo_path
+    )
 
 
 def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
@@ -78,14 +101,11 @@ def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to check out.
     """
-    shutils.check_call(
-        f"git checkout {shc(opts)} -- {shc(paths)}",
-        cwd=repo_path,
-    )
+    shutils.check_call(f"git checkout {shc(opts)} -- {shc(paths)}", cwd=repo_path)
 
 
 def default_branch(repo_path: str) -> str:
-    return shutils.check_output(
+    return shutils.check_output_no_side_effect(
         "git symbolic-ref refs/remotes/origin/HEAD --short",
         encoding="utf-8",
         cwd=repo_path,

@@ -81,11 +81,23 @@ def call(sh: str, *args, **kwargs):
     return subprocess.call(sh, *args, shell=True, **kwargs)
 
 
+def call_no_side_effect(sh: str, *args, **kwargs):
+    if Options.instance().dry_run:
+        print(f"{sh} {args}")
+        return 0
+
+    return subprocess.call(sh, *args, shell=True, **kwargs)
+
+
 def run(sh: str, *args, **kwargs):
     if Options.instance().dry_run:
         print(f"{sh} {args}")
         return CompletedProcess([sh, *args] if args else sh, 0, None, None)
 
+    return subprocess.run(sh, *args, shell=True, **kwargs)
+
+
+def run_no_side_effect(sh: str, *args, **kwargs):
     return subprocess.run(sh, *args, shell=True, **kwargs)
 
 
@@ -99,11 +111,19 @@ def check_output(sh: str, *args, **kwargs):
     return subprocess.check_output(sh, *args, shell=True, **kwargs)
 
 
+def check_output_no_side_effect(sh: str, *args, **kwargs):
+    return subprocess.check_output(sh, *args, shell=True, **kwargs)
+
+
 def check_call(sh: str, *args, **kwargs):
     if Options.instance().dry_run:
         print(f"{sh} {args}")
         return 0
 
+    return subprocess.check_call(sh, *args, shell=True, **kwargs)
+
+
+def check_call_no_side_effect(sh: str, *args, **kwargs):
     return subprocess.check_call(sh, *args, shell=True, **kwargs)
 
 

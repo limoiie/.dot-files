@@ -7,8 +7,14 @@ import typing as t
 
 import autoserde
 
-from dofu import env, requirements, shutils, undoable_command as uc, utils
-from dofu.module import Module, ModuleRegistrationManager
+from dofu import (
+    env,
+    requirement as req,
+    shutils,
+    undoable_command as uc,
+    utils,
+    module as m,
+)
 
 
 @autoserde.serdeable
@@ -160,12 +166,12 @@ class ModuleEquipmentMetaInfo:
     Name of the installed module.
     """
 
-    package_installations: t.List[requirements.PackageInstallationMetaInfo]
+    package_installations: t.List[req.PackageInstallationMetaInfo]
     """
     List of installed packages, most of them are tools.
     """
 
-    gitrepo_installations: t.List[requirements.GitRepoInstallationMetaInfo]
+    gitrepo_installations: t.List[req.GitRepoInstallationMetaInfo]
     """
     List of installed git repos, most of them are configurations.
     """
@@ -207,7 +213,7 @@ class ModuleEquipmentMetaInfo:
         """
         Create a new transaction for applying config patches.
         """
-        clazz = ModuleRegistrationManager.module_class_by_name(self.module_name)
+        clazz = m.ModuleRegistrationManager.module_class_by_name(self.module_name)
         with ModuleEquipmentTransaction(clazz.last_commit_id()) as transaction:
             self.transactions.append(transaction)
             yield transaction
@@ -276,8 +282,8 @@ class ModuleEquipmentManager:
 
         :param module_names: list of module names.
         """
-        blueprint = ModuleRegistrationManager.resolve_equip_blueprint(module_names)
-        remove_blueprint = ModuleRegistrationManager.resolve_remove_blueprint(
+        blueprint = m.ModuleRegistrationManager.resolve_equip_blueprint(module_names)
+        remove_blueprint = m.ModuleRegistrationManager.resolve_remove_blueprint(
             set(self.meta) - set(module.name() for module in blueprint)
         )
         for module in remove_blueprint:
@@ -294,7 +300,9 @@ class ModuleEquipmentManager:
 
         self.save()
 
-    def _equip_one_step(self, module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
+    def _equip_one_step(
+        self, module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo
+    ):
         """
         Equip a module.
 
@@ -310,7 +318,7 @@ class ModuleEquipmentManager:
         self._sync_commands_step(module, meta)
 
     @staticmethod
-    def _sync_packages_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
+    def _sync_packages_step(module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo):
         """
         Sync package requirements.
 
@@ -363,7 +371,7 @@ class ModuleEquipmentManager:
                     used_existing = True
 
                 meta.package_installations.append(
-                    requirements.PackageInstallationMetaInfo(
+                    req.PackageInstallationMetaInfo(
                         requirement=requirement,
                         manager=manager,
                         used_existing=used_existing,
@@ -371,7 +379,7 @@ class ModuleEquipmentManager:
                 )
 
     @staticmethod
-    def _sync_gitrepos_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
+    def _sync_gitrepos_step(module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo):
         """
         Sync git repo requirements.
 
@@ -425,14 +433,14 @@ class ModuleEquipmentManager:
                     used_existing = True
 
                 meta.gitrepo_installations.append(
-                    requirements.GitRepoInstallationMetaInfo(
+                    req.GitRepoInstallationMetaInfo(
                         requirement=requirement,
                         used_existing=used_existing,
                     )
                 )
 
     @staticmethod
-    def _sync_commands_step(module: t.Type["Module"], meta: ModuleEquipmentMetaInfo):
+    def _sync_commands_step(module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo):
         """
         Sync undoable commands sequences.
 

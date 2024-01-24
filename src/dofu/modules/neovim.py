@@ -1,4 +1,6 @@
-from dofu import env, requirements as req, undoable_command as uc
+import dofu.package_requirements.bob_nvim
+import dofu.package_requirements.neovim
+from dofu import env, requirement as req, undoable_command as uc
 from dofu.module import Module
 from .rust import RustModule
 
@@ -6,8 +8,8 @@ from .rust import RustModule
 @Module.module("neovim", requires=[RustModule])
 class NeovimModule(Module):
     _package_requirements = [
-        req.PRBob(),
-        req.PRNeovim(),
+        dofu.package_requirements.bob_nvim.PRBob(),
+        dofu.package_requirements.neovim.PRNeovim(),
     ]
 
     _gitrepo_requirements = [

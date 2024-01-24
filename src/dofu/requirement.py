@@ -169,42 +169,6 @@ class PackageRequirement(Requirement):
 
 
 @dataclasses.dataclass
-class PRRustup(PackageRequirement):
-    _pkg_manager_candidates = {
-        pf.LINUX: pm.CurlShPackageManager(
-            "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
-            "rustup self uninstall",
-        ),
-    }
-
-    package: str = "rustup"
-    version: str = "latest"
-    command: str = "rustup"
-
-
-@dataclasses.dataclass
-class PRBob(PackageRequirement):
-    _pkg_manager_candidates = {
-        pf.ANY: pm.CargoPackageManager(),
-    }
-
-    package: str = "bob-nvim"
-    version: str = "latest"
-    command: str = "bob"
-
-
-@dataclasses.dataclass
-class PRNeovim(PackageRequirement):
-    _pkg_manager_candidates = {
-        pf.ANY: pm.BobNvimPackageManager(),
-    }
-
-    package: str = "neovim"
-    version: str = "latest"
-    command: str = "nvim"
-
-
-@dataclasses.dataclass
 class PackageInstallationMetaInfo:
     """
     Meta information about the installation of a package.

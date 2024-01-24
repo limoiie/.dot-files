@@ -1,5 +1,5 @@
 from dofu.module import Module
-from dofu.requirements import PRRustup
+from dofu.package_requirements.rustup import PRRustup
 
 
 @Module.module("rust", requires=[])

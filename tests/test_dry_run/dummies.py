@@ -5,7 +5,7 @@ from dofu import (
     module,
     package_manager as pm,
     platform as pf,
-    requirements as req,
+    requirement as req,
     shutils,
     undoable_command as uc,
 )

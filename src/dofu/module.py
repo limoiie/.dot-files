@@ -5,7 +5,7 @@ import typing as t
 
 import networkx as nx
 
-from dofu import env, requirements, undoable_command as uc, version_control as vc
+from dofu import env, requirement as req, undoable_command as uc, version_control as vc
 
 
 @dataclasses.dataclass
@@ -222,12 +222,12 @@ class Module:
     Name of the module. it will be set by the registration decorator.
     """
 
-    _package_requirements: t.List[requirements.PackageRequirement]
+    _package_requirements: t.List[req.PackageRequirement]
     """
     List of required packages, most of them are tools.
     """
 
-    _gitrepo_requirements: t.List[requirements.GitRepoRequirement]
+    _gitrepo_requirements: t.List[req.GitRepoRequirement]
     """
     List of required git repos, most of them are configurations.
     """

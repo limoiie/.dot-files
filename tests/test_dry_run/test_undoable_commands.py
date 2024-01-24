@@ -129,10 +129,7 @@ class TestDryRunUCMkdir:
         # not undo the creation, but printed
         assert os.path.exists(new_dir)
         assert re.match(
-            r""
-            r"rm -r .*nested/sub/dir.*"
-            r"rm -r .*nested/sub.*"
-            r"rm -r .*nested",
+            r"" r"rm -r .*nested/sub/dir.*" r"rm -r .*nested/sub.*" r"rm -r .*nested",
             capsys.readouterr().out,
             re.DOTALL | re.MULTILINE,
         )

@@ -44,7 +44,7 @@ class GitRepoRequirement(Requirement):
     A requirement of a git repository.
     """
 
-    repo: str
+    url: str
     """
     The URL of the git repository.
     """
@@ -74,12 +74,16 @@ class GitRepoRequirement(Requirement):
     The depth of the git repository.
     """
 
+    def __post_init__(self):
+        # fix repo url
+        self.url = vc.normalize_repo_url(self.url)
+
     def install(self):
         vc.clone(
             *[f"--branch={branch}" for branch in opt(self.branch)],
             *[f"--depth={depth}" for depth in opt(self.depth)],
             *[f"--submodules={submodules}" for submodules in opt(self.submodule)],
-            repo=self.repo,
+            repo=self.url,
             repo_path=self.path,
         )
         if self.commit_id is not None:
@@ -101,17 +105,10 @@ class GitRepoRequirement(Requirement):
     def is_satisfied(self):
         with utils.supress(subprocess.CalledProcessError):
             return os.path.isdir(self.path) and (
-                vc.remote_get_url(repo_path=self.path, name="origin") == self.repo_url
+                vc.remote_get_url(repo_path=self.path, name="origin") == self.url
             )
         # noinspection PyUnreachableCode
         return False
-
-    @property
-    def repo_url(self):
-        url = self.repo.rstrip("/")
-        if not url.endswith(".git"):
-            url += ".git"
-        return url
 
 
 @dataclasses.dataclass

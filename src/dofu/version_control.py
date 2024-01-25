@@ -4,6 +4,35 @@ import typing as t
 from dofu import shutils
 
 
+def normalize_repo_url(url: str):
+    """
+    Normalize a git repo url to a standard format of:
+        https://<domain>/<user>/<repo>
+    """
+    # Remove leading and trailing whitespace and slashes
+    url = url.strip(" /\n\r")
+
+    # Remove .git extension, if present
+    if url.endswith(".git"):
+        url = url[:-4]
+
+    # Check if the URL is in SSH format
+    # noinspection HttpUrlsUsage
+    if url.startswith("git@"):
+        # Replace colon separator with forward slash
+        url = url.replace(":", "/")
+        # Replace git@ with https://
+        url = url.replace("git@", "https://")
+
+    # Check if the URL is in HTTP format
+    elif url.startswith("http://"):
+        # Replace http:// with https://
+        # noinspection HttpUrlsUsage
+        url = url.replace("http://", "https://")
+
+    return url
+
+
 def log(
     *opts: str, repo_path: str, path: str, revision: str, encoding: str = None
 ) -> t.Union[str, bytes]:
@@ -88,8 +117,10 @@ def remote_get_url(*opts: str, repo_path: str, name: str = "origin") -> None:
     :param repo_path: where the repo having been cloned to
     :param name: the name of the remote.
     """
-    shutils.check_call_no_side_effect(
-        f"git remote get-url {shc(opts)} {name}", cwd=repo_path
+    return normalize_repo_url(
+        shutils.check_output_no_side_effect(
+            f"git remote get-url {shc(opts)} {name}", cwd=repo_path, encoding="utf-8"
+        )
     )
 
 

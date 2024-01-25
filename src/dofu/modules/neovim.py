@@ -14,7 +14,7 @@ class NeovimModule(Module):
 
     _gitrepo_requirements = [
         req.GitRepoRequirement(
-            repo="https://github.com/NvChad/NvChad.git",
+            url="https://github.com/NvChad/NvChad.git",
             path=env.xdg_config_path("NvChad"),
         ),
     ]

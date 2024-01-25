@@ -488,7 +488,7 @@ class ModuleEquipmentManager:
             required = utils.find(
                 module.gitrepo_requirements(),
                 value=installation.requirement,
-                key=lambda x: x.repo,
+                key=lambda x: x.url,
                 default=None,
             )
 
@@ -506,7 +506,7 @@ class ModuleEquipmentManager:
         for requirement in module.gitrepo_requirements():
             installation = utils.find(
                 meta.gitrepo_installations,
-                pred=lambda x: x.requirement.repo == requirement.repo,
+                pred=lambda x: x.requirement.url == requirement.url,
                 default=None,
             )
 

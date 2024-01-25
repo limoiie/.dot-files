@@ -87,7 +87,7 @@ class DummyModule(module.Module):
 
     _gitrepo_requirements = [
         req.GitRepoRequirement(
-            repo="https://github.com/sarcasticadmin/empty-repo",
+            url="https://github.com/sarcasticadmin/empty-repo",
             path=under_temp_workspace("dummy-repo"),
         ),
     ]

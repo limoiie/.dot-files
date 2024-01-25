@@ -4,17 +4,18 @@ import enum
 import functools
 import os
 import typing as t
+import itertools
 
 import autoserde
 
 from dofu import (
     env,
+    module as m,
     package_manager as pm,
     requirement as req,
     shutils,
     undoable_command as uc,
     utils,
-    module as m,
 )
 
 
@@ -161,32 +162,45 @@ class ModuleEquipmentTransaction(contextlib.AbstractContextManager):
             self.rollback()
 
     @property
-    def cursor(self):
+    def len(self):
         """
-        Cursor pointing to the last command rolled back.
+        Length of the records.
+        """
+        return len(self.records)
 
-        self.rollback_cursor == -1 means no record has been rolled back.
+    @property
+    def effect_len(self):
         """
-        if self.rollback_cursor == -1:
-            return len(self.records)
-        return self.rollback_cursor
+        Length of the effect records.
+        """
+        return len(self.records) if self.rollback_cursor == -1 else self.rollback_cursor
 
     @property
     def effect_records(self):
         """
         Get the effect records of the transaction.
         """
-        return self.records[: self.rollback_cursor]
+        return self.records[: self.effect_len]
 
-    def rollback(self, keeps: int = 0):
+    def rollback(self):
         """
         Rollback the transaction.
         """
+        for _ in self.rollback_lazily():
+            pass
+
+    def rollback_lazily(self):
+        """
+        Rollback the transaction lazily.
+
+        :return: generator of the rollback process.
+        """
         self.status = ModuleEquipmentTransactionStatus.ROLLED_BACK
-        for i in self.records[keeps : self.cursor : -1]:
+        for i in range(self.effect_len)[::-1]:
             try:
                 self.records[i].undo()
                 self.rollback_cursor = i
+                yield
 
             except Exception:
                 self.status = ModuleEquipmentTransactionStatus.FAILED_ROLLBACK
@@ -251,12 +265,39 @@ class ModuleEquipmentMetaInfo:
     @contextlib.contextmanager
     def transaction(self):
         """
-        Create a new transaction for applying config patches.
+        Create a new transaction for applying undoable commands.
         """
         clazz = m.ModuleRegistrationManager.module_class_by_name(self.module_name)
         with ModuleEquipmentTransaction(clazz.last_commit_id()) as transaction:
-            self.transactions.append(transaction)
-            yield transaction
+            try:
+                yield transaction
+
+            finally:
+                if transaction.records:  # append only non-empty transaction
+                    self.transactions.append(transaction)
+
+    @property
+    def len_commands(self):
+        """
+        Get the number of commands to apply the config patches.
+        """
+        return sum(transaction.effect_len for transaction in self.transactions)
+
+    def commands(self):
+        """
+        Get the commands to apply the config patches.
+        """
+        for transaction in self.transactions:
+            yield from transaction.effect_records
+
+    def rollback_lazily(self):
+        """
+        Rollback the commands one by one lazily.
+
+        :return: generator of the rollback process.
+        """
+        for transaction in reversed(self.transactions):
+            yield from transaction.rollback_lazily()
 
 
 @dataclasses.dataclass
@@ -488,30 +529,26 @@ class ModuleEquipmentManager:
         and undo all the executed steps after the common prefix steps.
         Then, it will execute the remaining steps.
         """
-        require_steps = list(module.command_requirements())
+        itr_required_commands = iter(module.command_requirements())
+        for i, (installed, required) in enumerate(
+            zip(meta.commands(), itr_required_commands)
+        ):
+            # skip the foremost steps that have been executed by checking spec identity
+            if installed.spec_tuple() != required.spec_tuple():
+                continue
+            # rollback the executed commands after index i
+            for _ in itertools.islice(meta.rollback_lazily(), meta.len_commands - i):
+                pass
+            break
 
-        # exclude the steps that have been executed by checking the spec tuple identity
-        for ti, transaction in enumerate(meta.transactions):
-            for ri, rec in enumerate(transaction.records):
-                if require_steps and require_steps[0].spec_tuple() == rec.spec_tuple():
-                    require_steps.pop(0)
-                    continue
+        # execute the remaining configuring commands
+        with meta.transaction() as transaction:
+            for command in itr_required_commands:
+                ret = command.exec()
+                if ret.retcode != 0:
+                    raise RuntimeError(f"failed to execute command: {ret}")
 
-                # undo the remaining transactions reversely
-                for transaction_to_rollback in meta.transactions[ti + 1 :: -1]:
-                    transaction_to_rollback.rollback()
-                meta.transactions[ti].rollback(keeps=ri)
-                break
-
-        if require_steps:
-            # execute the remaining new steps
-            with meta.transaction() as transaction:
-                for rec in require_steps:
-                    ret = rec.exec()
-                    if ret.retcode != 0:
-                        raise RuntimeError(f"failed to execute command: {ret.cmdline}")
-
-                    transaction.records.append(rec)
+                transaction.records.append(command)
 
     @staticmethod
     def _remove_one_step(meta: ModuleEquipmentMetaInfo):
@@ -520,12 +557,12 @@ class ModuleEquipmentManager:
 
         :param meta: equipment meta info of the module.
         """
-        # undo config patches
+        # undo commands
         while meta.transactions:
             meta.transactions[-1].rollback()
             meta.transactions.pop()
 
-        # remove git repos
+        # remove gitrepos
         while meta.gitrepo_installations:
             meta.gitrepo_installations[-1].requirement.uninstall()
             meta.gitrepo_installations.pop()

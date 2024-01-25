@@ -342,6 +342,12 @@ class ModuleEquipmentManager:
                 self, tmp_path, options=options, fmt="yaml", sort_keys=False
             )
 
+    def equipped_module_names(self):
+        """
+        Get the names of the equipped modules.
+        """
+        return [meta.module_name for meta in self.meta.values()]
+
     def _equipment_meta(self, module_name: str) -> ModuleEquipmentMetaInfo:
         """
         Get the meta information of an equipped module.

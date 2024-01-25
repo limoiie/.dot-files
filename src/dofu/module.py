@@ -106,6 +106,10 @@ class ModuleRegistrationManager:
             pass
 
     @classmethod
+    def all_module_names(cls):
+        return [attrs["meta"].name for _, attrs in cls.__graph.nodes.items()]
+
+    @classmethod
     def resolve_equip_blueprint(
         cls, module_names: t.Iterable[str]
     ) -> t.List[t.Type["Module"]]:

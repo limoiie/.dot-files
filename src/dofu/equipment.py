@@ -197,14 +197,13 @@ class ModuleEquipmentTransaction(contextlib.AbstractContextManager):
         """
         self.status = ModuleEquipmentTransactionStatus.ROLLED_BACK
         for i in range(self.effect_len)[::-1]:
-            try:
-                self.records[i].undo()
-                self.rollback_cursor = i
-                yield
-
-            except Exception:
+            ret = self.records[i].undo()
+            if ret is not None and ret.retcode != 0:
                 self.status = ModuleEquipmentTransactionStatus.FAILED_ROLLBACK
-                raise
+                raise ret.to_error()
+
+            self.rollback_cursor = i
+            yield
 
 
 @dataclasses.dataclass
@@ -289,6 +288,13 @@ class ModuleEquipmentMetaInfo:
         """
         for transaction in self.transactions:
             yield from transaction.effect_records
+
+    def rollback(self):
+        """
+        Rollback the commands one by one.
+        """
+        for _ in self.rollback_lazily():
+            pass
 
     def rollback_lazily(self):
         """
@@ -499,8 +505,8 @@ class ModuleEquipmentManager:
 
             # required but the local path has changed, move to the new dst
             elif required.path != installation.requirement.path:
-                # TODO: make sure the dst is empty
                 shutils.move(installation.requirement.path, required.path)
+                installation.requirement.path = required.path
 
         # install requirements that are required but not installed
         for requirement in module.gitrepo_requirements():
@@ -544,24 +550,25 @@ class ModuleEquipmentManager:
         and undo all the executed steps after the common prefix steps.
         Then, it will execute the remaining steps.
         """
-        itr_required_commands = iter(module.command_requirements())
-        for i, (installed, required) in enumerate(
-            zip(meta.commands(), itr_required_commands)
-        ):
+        itr_installed_cmds = iter(meta.commands())
+        itr_required_cmds = iter(module.command_requirements())
+        for installed, required in zip(itr_installed_cmds, itr_required_cmds):
             # skip the foremost steps that have been executed by checking spec identity
             if installed.spec_tuple() != required.spec_tuple():
-                continue
-            # rollback the executed commands after index i
-            for _ in itertools.islice(meta.rollback_lazily(), meta.len_commands - i):
-                pass
-            break
+                itr_installed_cmds = itertools.chain([installed], itr_installed_cmds)
+                itr_required_cmds = itertools.chain([required], itr_required_cmds)
+                break
+
+        # rollback the executed commands after index i
+        for _ in zip(itr_installed_cmds, meta.rollback_lazily()):
+            pass
 
         # execute the remaining configuring commands
         with meta.transaction() as transaction:
-            for command in itr_required_commands:
+            for command in itr_required_cmds:
                 ret = command.exec()
                 if ret.retcode != 0:
-                    raise RuntimeError(f"failed to execute command: {ret}")
+                    raise ret.to_error()
 
                 transaction.records.append(command)
 

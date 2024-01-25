@@ -3,6 +3,7 @@ import dataclasses
 import os
 import pathlib
 import re
+import subprocess
 import sys
 import typing as t
 
@@ -32,6 +33,14 @@ class ExecutionResult:
             retcode=result.returncode,
             stdout=result.stdout,
             stderr=result.stderr,
+        )
+
+    def to_error(self):
+        return subprocess.CalledProcessError(
+            returncode=self.retcode,
+            cmd=self.cmdline,
+            output=self.stdout,
+            stderr=self.stderr,
         )
 
 

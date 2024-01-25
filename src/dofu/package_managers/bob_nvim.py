@@ -7,10 +7,10 @@ from dofu.package_manager import PackageManager
 @dataclasses.dataclass
 class BobNvimPackageManager(PackageManager):
     def install(self, spec):
-        return shutils.call(f"bob use {spec.version}") == 0
+        shutils.check_call(f"bob use {spec.version}")
 
     def uninstall(self, spec):
-        return shutils.call(f"bob uninstall {spec.version}") == 0
+        shutils.check_call(f"bob uninstall {spec.version}")
 
     def update(self, spec):
         return self.install(spec)

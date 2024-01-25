@@ -2,9 +2,9 @@ import contextlib
 import dataclasses
 import enum
 import functools
+import itertools
 import os
 import typing as t
-import itertools
 
 import autoserde
 
@@ -367,19 +367,34 @@ class ModuleEquipmentManager:
         remove_blueprint = m.ModuleRegistrationManager.resolve_remove_blueprint(
             set(self.meta) - set(module.name() for module in blueprint)
         )
-        for module in remove_blueprint:
-            meta = self._equipment_meta(module.name())
-            # TODO: persistent current state if throw errors?
-            self._remove_one_step(meta)
-            del self.meta[meta.module_name]
 
-        for module in blueprint:
-            meta = self._equipment_meta(module.name())
-            # TODO: persistent current state if throw errors?
-            self._equip_one_step(module, meta)
-            self.meta[meta.module_name] = meta
+        try:
+            # remove modules that are not required any more
+            for module in remove_blueprint:
+                meta = self._equipment_meta(module.name())
+                try:
+                    self._remove_one_step(meta)
+                    meta.status = ModuleEquipmentStatus.REMOVED
+                except Exception:
+                    meta.status = ModuleEquipmentStatus.BROKEN
+                    raise
+                else:  # remove the meta only if the module is removed successfully
+                    del self.meta[meta.module_name]
 
-        self.save()
+            # equip modules that are required
+            for module in blueprint:
+                meta = self._equipment_meta(module.name())
+                try:
+                    self._equip_one_step(module, meta)
+                    meta.status = ModuleEquipmentStatus.INSTALLED
+                except Exception:
+                    meta.status = ModuleEquipmentStatus.BROKEN
+                    raise
+                finally:  # save the meta even if the module is broken
+                    self.meta[meta.module_name] = meta
+
+        finally:
+            self.save()
 
     def _equip_one_step(
         self, module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo

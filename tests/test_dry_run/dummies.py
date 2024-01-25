@@ -16,13 +16,13 @@ from .conftest import under_temp_workspace
 @dataclasses.dataclass
 class DummyWindowsPackageManager(pm.PackageManager):
     def install(self, spec):
-        return shutils.call(f'echo "pm-dummy install {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy install {spec.package}"')
 
     def uninstall(self, spec):
-        return shutils.call(f'echo "pm-dummy uninstall {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy uninstall {spec.package}"')
 
     def update(self, spec):
-        return shutils.call(f'echo "pm-dummy update {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy update {spec.package}"')
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")
@@ -31,13 +31,13 @@ class DummyWindowsPackageManager(pm.PackageManager):
 @dataclasses.dataclass
 class DummyUnixPackageManager(pm.PackageManager):
     def install(self, spec):
-        return shutils.call(f'echo "pm-dummy install {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy install {spec.package}"')
 
     def uninstall(self, spec):
-        return shutils.call(f'echo "pm-dummy uninstall {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy uninstall {spec.package}"')
 
     def update(self, spec):
-        return shutils.call(f'echo "pm-dummy update {spec.package}"') == 0
+        shutils.check_call(f'echo "pm-dummy update {spec.package}"')
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("echo")

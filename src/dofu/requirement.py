@@ -136,11 +136,28 @@ class PackageRequirement(Requirement):
 
         :return: The package manager used to install the tool.
         """
+        excs = []
         for platform, pkg_manager in self._pkg_manager_candidates.items():
             if platform():
-                if pkg_manager.install(self.spec):
+                try:
+                    pkg_manager.install(self.spec)
                     return pkg_manager
-        return None
+
+                except Exception as e:
+                    excs.append((platform, pkg_manager, e))
+                    continue
+
+        if excs:
+            raise RuntimeError(
+                f"Failed to install {self.spec}"
+                f" using any of the following strategies: {excs}"
+            )
+
+        platforms = list(self._pkg_manager_candidates.keys())
+        raise RuntimeError(
+            f"Failed to install {self.spec}"
+            f" because the current platform matches no one of: {platforms}"
+        )
 
     def update(self, pkg_manager: pm.PackageManager):
         """
@@ -149,9 +166,8 @@ class PackageRequirement(Requirement):
         :param pkg_manager:
         :return: The package manager used to update the tool.
         """
-        if pkg_manager.update(self.spec):
-            return pkg_manager
-        return None
+        pkg_manager.update(self.spec)
+        return pkg_manager
 
     def uninstall(self, pkg_manager: pm.PackageManager):
         """
@@ -160,9 +176,8 @@ class PackageRequirement(Requirement):
         :param pkg_manager: The package manager to use to uninstall the tool.
         :return: The package manager used to uninstall the tool.
         """
-        if pkg_manager.uninstall(self.spec):
-            return pkg_manager
-        return None
+        pkg_manager.uninstall(self.spec)
+        return pkg_manager
 
     def is_satisfied(self):
         return shutils.do_commands_exist(self.command)

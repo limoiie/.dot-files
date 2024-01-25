@@ -7,15 +7,15 @@ from dofu import specification as sp
 @dataclasses.dataclass
 class PackageManager(abc.ABC):
     @abc.abstractmethod
-    def install(self, spec: sp.PackageSpecification) -> bool:
+    def install(self, spec: sp.PackageSpecification):
         pass
 
     @abc.abstractmethod
-    def uninstall(self, spec: sp.PackageSpecification) -> bool:
+    def uninstall(self, spec: sp.PackageSpecification):
         pass
 
     @abc.abstractmethod
-    def update(self, spec: sp.PackageSpecification) -> bool:
+    def update(self, spec: sp.PackageSpecification):
         pass
 
     @abc.abstractmethod

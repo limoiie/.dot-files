@@ -8,13 +8,11 @@ from dofu.package_manager import PackageManager
 class CargoPackageManager(PackageManager):
     def install(self, spec):
         if not spec.version or spec.version == "latest":
-            return shutils.call(f"cargo install {spec.package}") == 0
-        return (
-            shutils.call(f"cargo install --version {spec.version} {spec.package}") == 0
-        )
+            shutils.check_call(f"cargo install {spec.package}")
+        shutils.check_call(f"cargo install --version {spec.version} {spec.package}")
 
     def uninstall(self, spec):
-        return shutils.call(f"cargo uninstall --package {spec.package}") == 0
+        shutils.check_call(f"cargo uninstall --package {spec.package}")
 
     def update(self, spec):
         return self.install(spec)

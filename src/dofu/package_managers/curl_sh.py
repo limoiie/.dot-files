@@ -26,13 +26,13 @@ class CurlShPackageManager(PackageManager):
             self.update_cmd = self.install_cmd
 
     def install(self, spec):
-        return shutils.call(self.install_cmd) == 0
+        shutils.check_call(self.install_cmd)
 
     def uninstall(self, spec):
-        return shutils.call(self.uninstall_cmd) == 0
+        shutils.check_call(self.uninstall_cmd)
 
     def update(self, spec):
-        return shutils.call(self.update_cmd) == 0
+        shutils.check_call(self.update_cmd)
 
     def is_available(self) -> bool:
         return shutils.do_commands_exist("curl", "sh")

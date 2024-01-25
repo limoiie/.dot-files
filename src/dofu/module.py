@@ -65,6 +65,7 @@ class ModuleRegistrationManager:
         """
 
         def decorator(clazz: t.Type["Module"]):
+            assert issubclass(clazz, Module)
             for module, attrs in cls.__graph.nodes.items():
                 if attrs and attrs["meta"].name == name:
                     raise ValueError(f"module {name} is already registered")

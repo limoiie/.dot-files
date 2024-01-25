@@ -1,4 +1,3 @@
-import networkx as nx
 import pytest
 
 from dofu.module import Module, ModuleRegistrationManager
@@ -6,26 +5,19 @@ from dofu.module import Module, ModuleRegistrationManager
 MRM = ModuleRegistrationManager
 
 
-@pytest.fixture(scope="function")
-def registration_preserver():
-    # noinspection PyProtectedMember
-    original_graph = MRM._ModuleRegistrationManager__graph
-    MRM._ModuleRegistrationManager__graph = nx.DiGraph()
-    # noinspection PyProtectedMember
-    yield MRM._ModuleRegistrationManager__graph
-    MRM._ModuleRegistrationManager__graph = original_graph
-
-
 class TestModuleRegistration:
     @pytest.fixture(scope="function", autouse=True)
     def graph(self, registration_preserver):
+        """
+        Provide a clean registration env and graph for each test.
+        """
         yield registration_preserver
 
     # noinspection PyUnusedLocal
     def test_register_module(self, graph):
         # first registration
         @Module.module("test")
-        class TestModule:
+        class TestModule(Module):
             pass
 
         assert TestModule in graph
@@ -33,18 +25,18 @@ class TestModuleRegistration:
         with pytest.raises(ValueError, match="module test .* already registered"):
             # duplicated registration
             @Module.module("test")
-            class TestOtherModule:
+            class TestOtherModule(Module):
                 pass
 
         assert TestModule in graph
 
     def test_register_module_with_dependency(self, graph):
         @Module.module("test")
-        class TestModule:
+        class TestModule(Module):
             pass
 
         @Module.module("other", requires=[TestModule])
-        class TestOtherModule:
+        class TestOtherModule(Module):
             pass
 
         assert TestModule in graph
@@ -54,10 +46,10 @@ class TestModuleRegistration:
         MRM.validate()
 
     def test_register_module_with_dependency_cycle(self, graph):
-        class TestModule:
+        class TestModule(Module):
             pass
 
-        class TestOtherModule:
+        class TestOtherModule(Module):
             pass
 
         Module.module("test", requires=[TestOtherModule])(TestModule)
@@ -73,15 +65,15 @@ class TestModuleRegistration:
 
     def test_resolve_equip_blueprint(self, graph):
         @Module.module("test")
-        class TestModule:
+        class TestModule(Module):
             pass
 
         @Module.module("other", requires=[TestModule])
-        class TestOtherModule:
+        class TestOtherModule(Module):
             pass
 
         @Module.module("another", requires=[TestOtherModule])
-        class TestAnotherModule:
+        class TestAnotherModule(Module):
             pass
 
         blueprint = MRM.resolve_equip_blueprint(["test"])
@@ -106,7 +98,7 @@ class TestModuleRegistration:
         assert blueprint == [TestModule, TestOtherModule, TestAnotherModule]
 
         @Module.module("one-more", requires=[TestModule, TestAnotherModule])
-        class TestOneMoreModule:
+        class TestOneMoreModule(Module):
             pass
 
         blueprint = MRM.resolve_equip_blueprint(["one-more"])
@@ -135,15 +127,15 @@ class TestModuleRegistration:
 
     def test_resolve_remove_blueprint(self, graph):
         @Module.module("test")
-        class TestModule:
+        class TestModule(Module):
             pass
 
         @Module.module("other", requires=[TestModule])
-        class TestOtherModule:
+        class TestOtherModule(Module):
             pass
 
         @Module.module("another", requires=[TestOtherModule])
-        class TestAnotherModule:
+        class TestAnotherModule(Module):
             pass
 
         blueprint = MRM.resolve_remove_blueprint(["test"])
@@ -168,7 +160,7 @@ class TestModuleRegistration:
         assert blueprint == [TestAnotherModule, TestOtherModule]
 
         @Module.module("one-more", requires=[TestModule, TestAnotherModule])
-        class TestOneMoreModule:
+        class TestOneMoreModule(Module):
             pass
 
         blueprint = MRM.resolve_remove_blueprint(["one-more"])
@@ -182,7 +174,7 @@ class TestModuleRegistration:
 
     def test_module_meta_by_name(self, graph):
         @Module.module("test")
-        class TestModule:
+        class TestModule(Module):
             pass
 
         assert MRM.module_meta_by_name("test") is not None

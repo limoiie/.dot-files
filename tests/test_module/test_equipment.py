@@ -1,7 +1,7 @@
 import autoserde
 import pytest
 
-from dofu import equipment as eqp, module, requirement as req, undoable_command as uc
+from dofu import equipment as eqp, module, requirement as req, undoable_commands as ucs
 from tests.dummies import DummyPackageRequirement, UCDummy
 
 
@@ -60,7 +60,7 @@ class TestEquipmentSerde:
 
         # deserialize
         with open(ser_file, "r") as inp:
-            command2 = autoserde.AutoSerde.deserialize(inp, cls=uc.UCBackupMv)
+            command2 = autoserde.AutoSerde.deserialize(inp, cls=ucs.UCBackupMv)
         assert command == command2
 
     def test_serde_equipment(self, tmp_path):

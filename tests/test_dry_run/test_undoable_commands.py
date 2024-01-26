@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from dofu import undoable_command as uc
+from dofu import undoable_commands as ucs
 from tests.test_undoable_commands.conftest import tmp_dir_with_a_dummy_file
 
 
@@ -17,7 +17,7 @@ class TestDryRunUCSymlink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCSymlink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -48,7 +48,7 @@ class TestDryRunUCLink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCLink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCLink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -77,7 +77,7 @@ class TestDryRunUCBackupMv:
         backup_file = f"{dummy_file}.dofu.bak"
 
         # exec
-        cmd = uc.UCBackupMv(path=dummy_file)
+        cmd = ucs.UCBackupMv(path=dummy_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -110,7 +110,7 @@ class TestDryRunUCMkdir:
         new_dir = f"{tmp_dir}/nested/sub/dir"
 
         # exec
-        cmd = uc.UCMkdir(path=new_dir)
+        cmd = ucs.UCMkdir(path=new_dir)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -145,7 +145,7 @@ class TestDryRunUCMove:
         dst_file = f"{dummy_file}.mv"
 
         # exec
-        cmd = uc.UCMove(src=dummy_file, dst=dst_file)
+        cmd = ucs.UCMove(src=dummy_file, dst=dst_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -176,7 +176,7 @@ class TestDryRunUCReplaceLine:
         tmp_dir, dummy_file = tmp_dir_with_a_dummy_file
 
         # exec
-        cmd = uc.UCReplaceLine(path=dummy_file, pattern="dummy", repl="DUMMY")
+        cmd = ucs.UCAppendLine(path=dummy_file, pattern="dummy", repl="DUMMY")
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None

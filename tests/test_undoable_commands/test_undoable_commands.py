@@ -2,19 +2,19 @@ import os
 import re
 import shutil
 
-from dofu import undoable_command as uc
+from dofu import undoable_command as uc, undoable_commands as ucs
 
 
 class TestUCSymlink:
     def test_spec_tuple(self):
-        assert uc.UCSymlink(src="a", dst="b").spec_tuple() == ("a", "b")
+        assert ucs.UCSymlink(src="a", dst="b").spec_tuple() == ("a", "b")
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
         tmp_dir, dummy_file = tmp_dir_with_a_dummy_file
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCSymlink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -34,7 +34,7 @@ class TestUCSymlink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCSymlink(src=non_existing_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=non_existing_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -46,7 +46,7 @@ class TestUCSymlink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCSymlink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -55,7 +55,7 @@ class TestUCSymlink:
         assert os.path.islink(link_file)
 
         # exec again
-        cmd = uc.UCSymlink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -67,7 +67,7 @@ class TestUCSymlink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCSymlink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCSymlink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -88,7 +88,10 @@ class TestUCSymlink:
 
 class TestUCLink:
     def test_spec_tuple(self):
-        assert uc.UCLink(src="a", dst="b").spec_tuple() == ("a", "b")
+        assert ucs.UCLink(src="a", dst="b").spec_tuple() == (
+            "a",
+            "b",
+        )
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
         tmp_dir, dummy_file = tmp_dir_with_a_dummy_file
@@ -97,7 +100,7 @@ class TestUCLink:
         assert os.stat(dummy_file).st_nlink == 1
 
         # exec
-        cmd = uc.UCLink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCLink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -119,7 +122,7 @@ class TestUCLink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCLink(src=non_existing_file, dst=link_file)
+        cmd = ucs.UCLink(src=non_existing_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -131,7 +134,7 @@ class TestUCLink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCLink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCLink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -142,7 +145,7 @@ class TestUCLink:
         assert os.stat(dummy_file).st_nlink == os.stat(link_file).st_nlink == 2
 
         # exec again
-        cmd = uc.UCLink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCLink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -154,7 +157,7 @@ class TestUCLink:
         link_file = f"{dummy_file}.ln"
 
         # exec
-        cmd = uc.UCLink(src=dummy_file, dst=link_file)
+        cmd = ucs.UCLink(src=dummy_file, dst=link_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -177,13 +180,13 @@ class TestUCLink:
 
 class TestBackupMv:
     def test_spec_tuple(self):
-        assert uc.UCBackupMv(path="a").spec_tuple() == ("a",)
+        assert ucs.UCBackupMv(path="a").spec_tuple() == ("a",)
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
         tmp_dir, dummy_file = tmp_dir_with_a_dummy_file
 
         # exec
-        cmd = uc.UCBackupMv(path=dummy_file)
+        cmd = ucs.UCBackupMv(path=dummy_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -203,7 +206,7 @@ class TestBackupMv:
         non_existing_file = f"{dummy_file}.non-existing"
 
         # exec
-        cmd = uc.UCBackupMv(path=non_existing_file)
+        cmd = ucs.UCBackupMv(path=non_existing_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -218,7 +221,7 @@ class TestBackupMv:
         shutil.copy(dummy_file, backup_file)
 
         # exec
-        cmd = uc.UCBackupMv(path=dummy_file)
+        cmd = ucs.UCBackupMv(path=dummy_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -238,14 +241,14 @@ class TestBackupMv:
 
 class TestMkdir:
     def test_spec_tuple(self):
-        assert uc.UCMkdir(path="a").spec_tuple() == ("a",)
+        assert ucs.UCMkdir(path="a").spec_tuple() == ("a",)
 
     def test_exec_undo(self, tmp_path):
         path_to_make = tmp_path / "nested" / "sub" / "dir"
         assert not os.path.exists(path_to_make)
 
         # exec
-        cmd = uc.UCMkdir(path=path_to_make)
+        cmd = ucs.UCMkdir(path=path_to_make)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -266,7 +269,7 @@ class TestMkdir:
         assert not os.path.exists(path_to_make)
 
         # exec
-        cmd = uc.UCMkdir(path=path_to_make)
+        cmd = ucs.UCMkdir(path=path_to_make)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -275,7 +278,7 @@ class TestMkdir:
         assert os.path.exists(path_to_make)
 
         # exec again
-        again_cmd = uc.UCMkdir(path=path_to_make)
+        again_cmd = ucs.UCMkdir(path=path_to_make)
         ret = again_cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -298,14 +301,17 @@ class TestMkdir:
 
 class TestMove:
     def test_spec_tuple(self):
-        assert uc.UCMove(src="a", dst="b").spec_tuple() == ("a", "b")
+        assert ucs.UCMove(src="a", dst="b").spec_tuple() == (
+            "a",
+            "b",
+        )
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
         tmp_dir, src_file = tmp_dir_with_a_dummy_file
         dst_file = f"{src_file}.mv"
 
         # exec
-        cmd = uc.UCMove(src=src_file, dst=dst_file)
+        cmd = ucs.UCMove(src=src_file, dst=dst_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -326,7 +332,7 @@ class TestMove:
         dst_file = f"{src_file}.mv"
 
         # exec
-        cmd = uc.UCMove(src=non_existing_file, dst=dst_file)
+        cmd = ucs.UCMove(src=non_existing_file, dst=dst_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -338,7 +344,7 @@ class TestMove:
         dst_file = f"{src_file}.mv"
 
         # exec
-        cmd = uc.UCMove(src=src_file, dst=dst_file)
+        cmd = ucs.UCMove(src=src_file, dst=dst_file)
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -348,7 +354,7 @@ class TestMove:
         assert os.path.exists(dst_file)
 
         # exec again
-        cmd = uc.UCMove(src=src_file, dst=dst_file)
+        cmd = ucs.UCMove(src=src_file, dst=dst_file)
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
@@ -358,7 +364,7 @@ class TestMove:
 
 class TestReplaceLine:
     def test_spec_tuple(self):
-        cmd = uc.UCReplaceLine(path="a", pattern="b", repl="c")
+        cmd = ucs.UCAppendLine(path="a", pattern="b", repl="c")
         assert cmd.spec_tuple() == ("a", "b", "c")
 
     def test_exec_undo(self, tmp_dir_with_a_dummy_file):
@@ -368,7 +374,7 @@ class TestReplaceLine:
             origin_content = f.read()
 
         # exec
-        cmd = uc.UCReplaceLine(path=dummy_file, pattern="dummy", repl="DUMMY")
+        cmd = ucs.UCAppendLine(path=dummy_file, pattern="dummy", repl="DUMMY")
         ret = cmd.exec()
         assert ret.retcode == 0
         assert ret.stdout is None
@@ -388,7 +394,7 @@ class TestReplaceLine:
         non_existing_file = f"{dummy_file}.non-existing"
 
         # exec
-        cmd = uc.UCReplaceLine(path=non_existing_file, pattern="dummy", repl="DUMMY")
+        cmd = ucs.UCAppendLine(path=non_existing_file, pattern="dummy", repl="DUMMY")
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))

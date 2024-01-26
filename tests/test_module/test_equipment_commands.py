@@ -3,7 +3,7 @@ import subprocess
 
 import pytest
 
-from dofu import equipment as eqp, module, undoable_command as uc
+from dofu import equipment as eqp, module, undoable_commands as ucs
 
 
 class TestEquipmentSyncCommands:
@@ -28,14 +28,14 @@ class TestEquipmentSyncCommands:
             _package_requirements = []
             _gitrepo_requirements = []
             _command_requirements = [
-                uc.UCMkdir(
+                ucs.UCMkdir(
                     path=tmp_path / "test-config-dir",
                 ),
-                uc.UCSymlink(
+                ucs.UCSymlink(
                     src=tmp_path / "test-config-dir",
                     dst=tmp_path / "test-config-link",
                 ),
-                uc.UCBackupMv(
+                ucs.UCBackupMv(
                     tmp_path / "test-config-dir",
                 ),
             ]
@@ -88,7 +88,7 @@ class TestEquipmentSyncCommands:
         # change the commands while preserving the first two steps
         prepare_module._command_requirements.pop()
         prepare_module._command_requirements.append(
-            uc.UCMove(
+            ucs.UCMove(
                 tmp_path / "test-config-link",
                 tmp_path / "test-config-moved",
             )
@@ -146,7 +146,7 @@ class TestEquipmentSyncCommands:
 
         # change the commands while preserving the first two steps
         prepare_module._command_requirements.append(
-            uc.UCMove(
+            ucs.UCMove(
                 tmp_path / "test-config-link",
                 tmp_path / "test-config-moved",
             )

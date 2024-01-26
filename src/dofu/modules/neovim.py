@@ -1,6 +1,9 @@
-import dofu.package_requirements.bob_nvim
-import dofu.package_requirements.neovim
-from dofu import env, requirement as req, undoable_command as uc
+from dofu import (
+    env,
+    package_requirements as prs,
+    requirement as req,
+    undoable_commands as ucs,
+)
 from dofu.module import Module
 from .rust import RustModule
 
@@ -8,8 +11,8 @@ from .rust import RustModule
 @Module.module("neovim", requires=[RustModule])
 class NeovimModule(Module):
     _package_requirements = [
-        dofu.package_requirements.bob_nvim.PRBob(),
-        dofu.package_requirements.neovim.PRNeovim(),
+        prs.PRBob(),
+        prs.PRNeovim(),
     ]
 
     _gitrepo_requirements = [
@@ -20,8 +23,8 @@ class NeovimModule(Module):
     ]
 
     _command_requirements = [
-        uc.UCBackupMv(path=env.xdg_config_path("NvChad")),
-        uc.UCSymlink(
+        ucs.UCBackupMv(path=env.xdg_config_path("NvChad")),
+        ucs.UCSymlink(
             src=env.dot_config_path("NvChad", "lua", "custom"),
             dst=env.xdg_config_path("NvChad", "lua", "custom"),
         ),

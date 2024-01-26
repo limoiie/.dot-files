@@ -7,6 +7,8 @@ import subprocess
 import sys
 import typing as t
 
+import autoserde
+
 from dofu import shutils
 from dofu.options import Options
 from .utils import deprecated
@@ -45,7 +47,7 @@ class ExecutionResult:
 
 
 @dataclasses.dataclass
-class UndoableCommand:
+class UndoableCommand(autoserde.Serdeable, abc.ABC):
     # ret: t.Optional[ExecutionResult]
 
     def exec(self) -> ExecutionResult:

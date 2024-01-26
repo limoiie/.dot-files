@@ -337,7 +337,7 @@ class ModuleEquipmentManager:
         """
         config_path = env.equipment_persistence_file()
         with shutils.file_update_guarder(config_path) as tmp_path:
-            options = autoserde.Options(recursively=True, strict=True, with_cls=False)
+            options = autoserde.Options(recursively=True, strict=True, with_cls=True)
             autoserde.AutoSerde.serialize(
                 self, tmp_path, options=options, fmt="yaml", sort_keys=False
             )

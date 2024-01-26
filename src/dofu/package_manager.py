@@ -1,11 +1,13 @@
 import abc
 import dataclasses
 
+import autoserde
+
 from dofu import specification as sp
 
 
 @dataclasses.dataclass
-class PackageManager(abc.ABC):
+class PackageManager(autoserde.Serdeable, abc.ABC):
     @abc.abstractmethod
     def install(self, spec: sp.PackageSpecification):
         pass

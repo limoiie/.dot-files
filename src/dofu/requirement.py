@@ -4,6 +4,8 @@ import os.path
 import subprocess
 import typing as t
 
+import autoserde
+
 from dofu import (
     package_manager as pm,
     platform as pf,
@@ -14,7 +16,7 @@ from dofu import (
 )
 
 
-class Requirement(abc.ABC):
+class Requirement(autoserde.Serdeable, abc.ABC):
     @abc.abstractmethod
     def install(self):
         pass

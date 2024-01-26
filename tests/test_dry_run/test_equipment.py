@@ -2,7 +2,28 @@ import re
 
 import pytest
 
+from dofu import module, requirement as req
 from dofu.equipment import ModuleEquipmentManager
+from tests.dummies import DummyPackageRequirement, UCDummy
+from tests.test_dry_run.conftest import under_temp_workspace
+
+
+@module.Module.module("dummy", requires=[])
+class DummyModule(module.Module):
+    _package_requirements = [
+        DummyPackageRequirement(),
+    ]
+
+    _gitrepo_requirements = [
+        req.GitRepoRequirement(
+            url="https://github.com/sarcasticadmin/empty-repo",
+            path=under_temp_workspace("dummy-repo"),
+        ),
+    ]
+
+    _command_requirements = [
+        UCDummy(content="dummy-content"),
+    ]
 
 
 class TestDryRunEquipment:

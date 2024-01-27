@@ -11,6 +11,14 @@ def xdg_config_path(*nested: os.PathLike) -> os.PathLike:
     return os.path.join(user_home(), ".config", *nested)
 
 
+def user_home_path(*nested: os.PathLike) -> os.PathLike:
+    return os.path.join(user_home(), *nested)
+
+
+def project_path(*nested: os.PathLike) -> os.PathLike:
+    return os.path.join(project_root(), *nested)
+
+
 @functools.cache
 def user_home() -> os.PathLike:
     return os.path.expanduser("~")

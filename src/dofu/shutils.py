@@ -231,6 +231,10 @@ def do_commands_exist(*commands: str):
     return True
 
 
+def command_path(command: str) -> str:
+    return subprocess.check_output(f"command -v {command}", encoding="utf-8").strip()
+
+
 @dataclasses.dataclass
 class Ensure(abc.ABC):
     action: str
@@ -318,7 +322,7 @@ class EnsurePathExists(Ensure):
         if self.to_del:
             return
         # create a new file
-        open(self.path, 'w+').close()
+        open(self.path, "w+").close()
 
     def failure_reason(self):
         return f"{self.path} not exists"
@@ -344,7 +348,9 @@ class EnsurePathNotExists(Ensure):
         return f"{self.path} already exists"
 
 
-def ensure_path_exists(action: str, path: str, is_dir: bool = None, to_del: bool = False):
+def ensure_path_exists(
+    action: str, path: str, is_dir: bool = None, to_del: bool = False
+):
     return EnsurePathExists(
         action=action,
         path=path,

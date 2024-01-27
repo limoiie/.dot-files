@@ -119,7 +119,9 @@ class PackageRequirement(Requirement):
     A requirement of a package.
     """
 
-    _pkg_manager_candidates: t.ClassVar[t.Dict[pf.Platform, pm.PackageManager]]
+    _pkg_manager_candidates: t.ClassVar[
+        t.Dict[pf.Platform, t.Union[pm.PackageManager, t.List[pm.PackageManager]]]
+    ]
     """
     A dictionary indicating which package managers should be used on what platform.
     
@@ -129,6 +131,13 @@ class PackageRequirement(Requirement):
     spec: sp.PackageSpecification
     command: str
 
+    @classmethod
+    def make(cls, name: str, *, version: str = "latest", command: str = None):
+        return cls(
+            spec=sp.PackageSpecification(package=name, version=version),
+            command=command or name,
+        )
+
     def install(self):
         """
         Install the tool using the first available package manager.
@@ -136,15 +145,18 @@ class PackageRequirement(Requirement):
         :return: The package manager used to install the tool.
         """
         excs = []
-        for platform, pkg_manager in self._pkg_manager_candidates.items():
+        for platform, pkg_managers in self._pkg_manager_candidates.items():
             if platform():
-                try:
-                    pkg_manager.install(self.spec)
-                    return pkg_manager
+                if isinstance(pkg_managers, pm.PackageManager):
+                    pkg_managers = [pkg_managers]
+                for pkg_manager in pkg_managers:
+                    try:
+                        pkg_manager.install(self.spec)
+                        return pkg_manager
 
-                except Exception as e:
-                    excs.append((platform, pkg_manager, e))
-                    continue
+                    except Exception as e:
+                        excs.append((platform, pkg_manager, e))
+                        continue
 
         if excs:
             raise RuntimeError(

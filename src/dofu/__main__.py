@@ -24,13 +24,19 @@ def main(
     manager = ModuleEquipmentManager.load()
 
     # choose modules to equip
-    module_names = gum.choose(
-        *ModuleRegistrationManager.all_module_names(),
-        header="Choose modules to equip",
-        selected=manager.equipped_module_names(),
-        no_limit=True,
-        select_if_one=True,
-    ).strip().split("\n") if not module_names else module_names
+    module_names = (
+        gum.choose(
+            *ModuleRegistrationManager.all_module_names(),
+            header="Choose modules to equip",
+            selected=manager.equipped_module_names(),
+            no_limit=True,
+            select_if_one=True,
+        )
+        .strip()
+        .split("\n")
+        if not module_names
+        else module_names
+    )
 
     module_names = list(filter(None, module_names))
     if module_names:

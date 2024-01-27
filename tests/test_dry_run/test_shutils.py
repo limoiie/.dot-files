@@ -59,9 +59,7 @@ class TestDryRunFileUpdateGuarder:
         with shutils.file_update_guarder(dummy_file) as tmp_file:
             pathlib.Path(tmp_file).write_text("world\n")
 
-        assert re.match(
-            r"mv .*dummy.txt.dofu.tmp .*dummy.txt", capsys.readouterr().out
-        )
+        assert re.match(r"mv .*dummy.txt.dofu.tmp .*dummy.txt", capsys.readouterr().out)
 
         # the tmp file was deleted
         assert not os.path.exists(tmp_dummy_file)

@@ -212,13 +212,17 @@ def log(
 
 def pager(
     content: str = None,
-    *, file: str = None, show_line_numbers: bool = None, soft_wrap: bool = None, timeout: int = None
+    *,
+    file: str = None,
+    show_line_numbers: bool = None,
+    soft_wrap: bool = None,
+    timeout: int = None,
 ):
     if content is not None:
         stdin = contextlib.nullcontext(content)
     else:
         assert file is not None
-        stdin = open(file, 'r')
+        stdin = open(file, "r")
 
     with stdin as stdin:
         return subprocess.check_output(

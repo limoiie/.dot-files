@@ -26,10 +26,10 @@ class CurlShPackageManager(PackageManager):
             self.update_cmd = self.install_cmd
 
     def install(self, spec):
-        shutils.check_call(self.install_cmd)
+        shutils.check_call(self.install_cmd.format(version=spec.version))
 
     def uninstall(self, spec):
-        shutils.check_call(self.uninstall_cmd)
+        shutils.check_call(self.uninstall_cmd.format(version=spec.version))
 
     def update(self, spec):
         shutils.check_call(self.update_cmd)

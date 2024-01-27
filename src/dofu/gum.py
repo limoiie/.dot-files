@@ -1,3 +1,4 @@
+import contextlib
 import subprocess
 import typing as t
 
@@ -187,21 +188,47 @@ def write(
     )
 
 
-def log():
-    pass
+def log(
+    text,
+    *,
+    format__: str,
+    formatter: str,
+    level: t.Literal["debug", "info", "warn", "error", "fatal"] = None,
+    prefix: str = None,
+    structured: bool = None,
+    time: str = None,
+):
+    return subprocess.check_output(
+        ["gum", "log"]
+        + [f"--format='{format__}'" for format__ in opt(format__)]
+        + [f"--formatter='{formatter}'" for formatter in opt(formatter)]
+        + [f"--level='{level}'" for level in opt(level)]
+        + [f"--prefix='{prefix}'" for prefix in opt(prefix)]
+        + [f"--structured" for _ in opt(structured)]
+        + [f"--time='{time}'" for time in opt(time)]
+        + [f"'{text}'"],
+    )
 
 
 def pager(
-    *, show_line_numbers: bool = None, soft_wrap: bool = None, timeout: int = None
+    content: str = None,
+    *, file: str = None, show_line_numbers: bool = None, soft_wrap: bool = None, timeout: int = None
 ):
-    # fixme: redirect the stdin to set up the content
-    return subprocess.check_output(
-        ["gum", "pager"]
-        + [f"--show-line-numbers" for _ in opt(show_line_numbers)]
-        + [f"--soft-wrap" for _ in opt(soft_wrap)]
-        + [f"--timeout={timeout}" for timeout in opt(timeout)],
-        encoding="utf-8",
-    )
+    if content is not None:
+        stdin = contextlib.nullcontext(content)
+    else:
+        assert file is not None
+        stdin = open(file, 'r')
+
+    with stdin as stdin:
+        return subprocess.check_output(
+            ["gum", "pager"]
+            + [f"--show-line-numbers" for _ in opt(show_line_numbers)]
+            + [f"--soft-wrap" for _ in opt(soft_wrap)]
+            + [f"--timeout={timeout}" for timeout in opt(timeout)],
+            stdin=stdin,
+            encoding="utf-8",
+        )
 
 
 def spin(

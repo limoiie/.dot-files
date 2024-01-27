@@ -24,11 +24,18 @@ class UCAppendLine(UndoableCommand):
         replaced_line = None
         pattern = re.compile(self.pattern)
         for line in shutils.input_file(self.path, inplace=True):
+            # replace the first line that matches the pattern
             if replaced_line is None and re.search(pattern, line):
                 replaced_line = line
                 new_line = self.repl.rstrip("\n")
                 line = (new_line + "\n") if line.endswith("\n") else new_line
             sys.stdout.write(line)
+
+        # if no line was replaced, append the line at the end of the file
+        if replaced_line is None:
+            # append the line at the end of the file
+            shutils.check_call(f"echo '{self.repl}' >> {self.path}")
+            replaced_line = ""
 
         self.replaced_line = replaced_line
         self.ret = self._success_result()

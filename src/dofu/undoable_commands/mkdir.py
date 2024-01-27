@@ -25,7 +25,7 @@ class UCMkdir(UndoableCommand):
             while not last_exist_path.exists():
                 last_exist_path = last_exist_path.parent
 
-            shutils.mkdirs(path)
+            shutils.mkdirs(path, exist_ok=True)
             self.last_exist_path = last_exist_path
 
         self.ret = self._success_result()

@@ -4,7 +4,7 @@ import sys
 import typing as t
 
 from dofu import shutils
-from dofu.undoable_command import ExecutionResult, UndoableCommand, assert_exists
+from dofu.undoable_command import ExecutionResult, UndoableCommand
 
 
 @dataclasses.dataclass
@@ -19,8 +19,6 @@ class UCAppendLine(UndoableCommand):
         return f"sed -i.dofu.bak 's/{self.pattern}/{self.repl}/g' {self.path}"
 
     def _exec(self):
-        assert_exists(self.path, "Failed to replace line", "path")
-
         replaced_line = None
         pattern = re.compile(self.pattern)
         for line in shutils.input_file(self.path, inplace=True):
@@ -42,8 +40,6 @@ class UCAppendLine(UndoableCommand):
         return self.ret
 
     def _undo(self):
-        assert_exists(self.path, "Failed to replace line", "path")
-
         for line in shutils.input_file(self.path, inplace=True):
             if line.startswith(self.repl):
                 line = self.replaced_line

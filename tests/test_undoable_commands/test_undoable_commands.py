@@ -210,7 +210,7 @@ class TestBackupMv:
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
-        assert re.search(rb"Failed to backup mv.*not exists.*", ret.stderr)
+        assert re.search(rb"Failed to mv.*not exists", ret.stderr)
         assert ret.stdout is None
 
     def test_exec_undo_with_existing_backup(self, tmp_dir_with_a_dummy_file):
@@ -398,5 +398,5 @@ class TestReplaceLine:
         ret = cmd.exec()
         assert ret.retcode == 1
         assert isinstance(ret.stderr, (str, bytes))
-        assert re.search(rb"Failed to replace line.*not exists.*", ret.stderr)
+        assert re.search(rb"Failed to input_file.*not exists", ret.stderr)
         assert ret.stdout is None

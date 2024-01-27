@@ -1,3 +1,4 @@
+import re
 import shutil
 import subprocess
 
@@ -66,7 +67,5 @@ class TestGitRepoRequirement:
         assert not requirement.is_satisfied()
 
         # install
-        with pytest.raises(subprocess.CalledProcessError):
+        with pytest.raises(RuntimeError, match=r"git clone.*already exists"):
             requirement.install()
-
-        assert capfd.readouterr().err.startswith("fatal: destination path")

@@ -1,13 +1,11 @@
 import abc
 import dataclasses
-import os
 import subprocess
 import typing as t
 
 import autoserde
 
 from dofu import shutils
-from dofu.options import Options
 
 
 @dataclasses.dataclass
@@ -85,19 +83,3 @@ class UndoableCommand(autoserde.Serdeable, abc.ABC):
         return ExecutionResult(
             cmdline=self.cmdline(), retcode=0, stdout=stdout, stderr=stderr
         )
-
-
-def assert_exists(path, msg, name="path"):
-    if Options.instance().dry_run:
-        return
-
-    if not os.path.exists(path):
-        raise RuntimeError(f"{msg}: {name} {path} not exists")
-
-
-def assert_not_exists(path, msg, name="path"):
-    if Options.instance().dry_run:
-        return
-
-    if os.path.exists(path):
-        raise RuntimeError(f"{msg}: {name} {path} already exists")

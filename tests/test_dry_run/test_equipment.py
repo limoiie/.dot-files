@@ -50,7 +50,7 @@ class TestDryRunEquipment:
             # execute config step
             r'echo "uc-dummy exec dummy-content"',
             # persist equipment
-            r"move .*/equipment.yaml.dofu.tmp .*/equipment.yaml",
+            r"mv .*/equipment.yaml.dofu.tmp .*/equipment.yaml",
         ]
 
         # print("Captured stdout:")

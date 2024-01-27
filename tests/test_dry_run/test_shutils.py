@@ -60,7 +60,7 @@ class TestDryRunFileUpdateGuarder:
             pathlib.Path(tmp_file).write_text("world\n")
 
         assert re.match(
-            r"move .*.dummy.txt.dofu.tmp to .*dummy.txt", capsys.readouterr().out
+            r"mv .*dummy.txt.dofu.tmp .*dummy.txt", capsys.readouterr().out
         )
 
         # the tmp file was deleted

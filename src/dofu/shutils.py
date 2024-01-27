@@ -1,15 +1,22 @@
+import abc
 import contextlib
+import dataclasses
 import fileinput
 import os
 import shutil
 import subprocess
+import typing as t
 
-from .options import Options
+from dofu import gum
+from dofu.options import Options, Strategy
 
 CompletedProcess = subprocess.CompletedProcess
 
 
 def mkdirs(path, mode=0o777, exist_ok=False):
+    if not exist_ok:
+        EnsurePathNotExists(action=f"mkdir -p", path=path)()
+
     if Options.instance().dry_run:
         print(f"mkdir -p {path}")
         return
@@ -18,6 +25,9 @@ def mkdirs(path, mode=0o777, exist_ok=False):
 
 
 def link(src, dst, *, follow_symlinks=True):
+    EnsurePathExists(action=f"ln", path=src, is_dir=False)()
+    EnsurePathNotExists(action=f"ln", path=dst)()
+
     if Options.instance().dry_run:
         print(f"ln {src} to {dst}")
         return
@@ -26,6 +36,9 @@ def link(src, dst, *, follow_symlinks=True):
 
 
 def symlink(src, dst, target_is_directory=False, *, dir_fd=None):
+    EnsurePathExists(action=f"ln -s", path=src, is_dir=target_is_directory)()
+    EnsurePathNotExists(action=f"ln -s", path=dst)()
+
     if Options.instance().dry_run:
         print(f"ln -s {src} to {dst}")
         return
@@ -34,6 +47,8 @@ def symlink(src, dst, target_is_directory=False, *, dir_fd=None):
 
 
 def unlink(path, *, dir_fd=None):
+    EnsurePathExists(action=f"unlink", path=path, is_dir=False, to_del=True)()
+
     if Options.instance().dry_run:
         print(f"unlink {path}")
         return
@@ -42,6 +57,8 @@ def unlink(path, *, dir_fd=None):
 
 
 def remove(path, *, dir_fd=None):
+    EnsurePathExists(action=f"rm", path=path, is_dir=False, to_del=True)()
+
     if Options.instance().dry_run:
         print(f"rm {path}")
         return
@@ -50,6 +67,8 @@ def remove(path, *, dir_fd=None):
 
 
 def rmdir(path, *, dir_fd=None):
+    EnsurePathExists(action=f"rmdir", path=path, is_dir=True, to_del=True)()
+
     if Options.instance().dry_run:
         print(f"rm -r {path}")
         return
@@ -58,6 +77,9 @@ def rmdir(path, *, dir_fd=None):
 
 
 def move(src, dst):
+    EnsurePathExists(action=f"mv", path=src)()
+    EnsurePathNotExists(action=f"mv", path=dst)()
+
     if Options.instance().dry_run:
         print(f"mv {src} {dst}")
         return
@@ -66,6 +88,8 @@ def move(src, dst):
 
 
 def rmtree(path, ignore_errors=False, onerror=None):
+    EnsurePathExists(action=f"mv", path=path, to_del=True)()
+
     if Options.instance().dry_run:
         print(f"rm -rf {path}")
         return
@@ -137,6 +161,12 @@ def input_file(
     encoding=None,
     errors=None,
 ):
+    if isinstance(files, (str, os.PathLike)):
+        files = [files]
+
+    for file in files:
+        EnsurePathExists(action=f"input_file", path=file, is_dir=False)()
+
     if Options.instance().dry_run:
         if inplace:
             print(f"The file {files} will be updated inplace as:")
@@ -166,9 +196,7 @@ def file_update_guarder(path: os.PathLike):
     :param path: The path to the file.
     """
 
-    temp_path = str(path) + ".dofu.tmp"
-    while os.path.exists(temp_path):
-        temp_path += ".tmp"
+    temp_path = backup_path(str(path), suffix=".dofu.tmp")
 
     try:
         yield temp_path
@@ -180,14 +208,13 @@ def file_update_guarder(path: os.PathLike):
         raise
 
     if Options.instance().dry_run:
+        # dry run, remove the changes
         if os.path.exists(temp_path):
             os.remove(temp_path)
-
-        print(f"move {temp_path} to {path}")
-        return
-
-    if os.path.exists(path):
-        remove(path)
+    else:
+        # replace the original file with the temporary file
+        if os.path.exists(path):
+            remove(path)
     move(temp_path, path)
 
 
@@ -202,3 +229,140 @@ def do_commands_exist(*commands: str):
         if subprocess.call(f"command -v {command}", shell=True) != 0:
             return False
     return True
+
+
+@dataclasses.dataclass
+class Ensure(abc.ABC):
+    action: str
+
+    def __call__(self, *args, **kwargs):
+        return self.ensure()
+
+    def ensure(self):
+        strategy = Options.instance().strategy
+        while strategy is not None and not self.condition():
+            if Options.instance().dry_run:
+                return
+            strategy = self.strategy_execs[strategy.value](self)
+
+    @abc.abstractmethod
+    def condition(self) -> bool:
+        pass
+
+    def interactive(self) -> t.Optional[Strategy]:
+        strategy = gum.choose(
+            "TRY-AGAIN",
+            *Strategy.all_decidable_names(),
+            header=f"{self.failure_message()}, what to do?",
+            selected=[Strategy.NON_INTRUSIVE.name],
+        ).strip()
+
+        # try again
+        if strategy == "TRY-AGAIN":
+            return Strategy.INTERACTIVE
+
+        # apply chosen strategy
+        strategy = Strategy[strategy]
+        return self.strategy_execs[strategy](self)
+
+    @abc.abstractmethod
+    def overwrite(self) -> t.Optional[Strategy]:
+        pass
+
+    @abc.abstractmethod
+    def non_intrusive(self) -> t.Optional[Strategy]:
+        pass
+
+    def cancel(self) -> None:
+        raise RuntimeError(self.failure_message())
+
+    strategy_execs = [
+        interactive,
+        overwrite,
+        non_intrusive,
+        cancel,
+    ]
+
+    def failure_message(self) -> str:
+        return f"Failed to {self.action}: {self.failure_reason()}"
+
+    @abc.abstractmethod
+    def failure_reason(self):
+        pass
+
+
+@dataclasses.dataclass
+class EnsurePathExists(Ensure):
+    path: str
+    """
+    The path to be checked.
+    """
+
+    is_dir: bool = None
+    """
+    Whether the path is a directory.
+    """
+
+    to_del: bool = False
+    """
+    Whether the path is to be deleted.
+    """
+
+    def condition(self) -> bool:
+        return os.path.exists(self.path)
+
+    def overwrite(self):
+        return self.non_intrusive()
+
+    def non_intrusive(self):
+        if self.to_del:
+            return
+        # create a new file
+        open(self.path, 'w+').close()
+
+    def failure_reason(self):
+        return f"{self.path} not exists"
+
+
+@dataclasses.dataclass
+class EnsurePathNotExists(Ensure):
+    path: str
+    """
+    The path to be checked.
+    """
+
+    def condition(self) -> bool:
+        return not os.path.exists(self.path)
+
+    def overwrite(self):
+        shutil.rmtree(self.path)
+
+    def non_intrusive(self):
+        shutil.move(self.path, backup_path(self.path))
+
+    def failure_reason(self):
+        return f"{self.path} already exists"
+
+
+def ensure_path_exists(action: str, path: str, is_dir: bool = None, to_del: bool = False):
+    return EnsurePathExists(
+        action=action,
+        path=path,
+        is_dir=is_dir,
+        to_del=to_del,
+    )()
+
+
+def ensure_path_not_exists(action: str, path: str):
+    return EnsurePathNotExists(
+        action=action,
+        path=path,
+    )()
+
+
+def backup_path(path, *, suffix=".dofu.bak"):
+    part_suffix = suffix[suffix.rfind(".") :]
+    unoccupied_path = f"{path}{suffix}"
+    while os.path.exists(unoccupied_path):
+        unoccupied_path += part_suffix
+    return unoccupied_path

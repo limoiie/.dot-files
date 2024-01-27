@@ -65,6 +65,9 @@ def clone(*opts: str, repo: str, repo_path: str = "", cwd: str = None) -> None:
     :param repo_path: where the repo should be cloned to
     :param cwd: current working directory
     """
+    if cwd:
+        shutils.ensure_path_exists(action="git clone", path=cwd, is_dir=True)
+    shutils.ensure_path_not_exists(action="git clone", path=repo_path)
     shutils.check_call(f"git clone {shc(opts)} {repo} {repo_path}", cwd=cwd)
 
 
@@ -75,6 +78,7 @@ def pull(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git pull
     :param repo_path: where the repo having been cloned to
     """
+    shutils.ensure_path_exists(action="git pull", path=repo_path, is_dir=True)
     shutils.check_call(f"git pull {shc(opts)}", cwd=repo_path)
 
 
@@ -85,6 +89,7 @@ def fetch(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git fetch
     :param repo_path: where the repo having been cloned to
     """
+    shutils.ensure_path_exists(action="git fetch", path=repo_path, is_dir=True)
     shutils.check_call(f"git fetch {shc(opts)}", cwd=repo_path)
 
 
@@ -96,6 +101,7 @@ def checkout(*opts: str, repo_path: str, revision: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param revision: the revision to check.
     """
+    shutils.ensure_path_exists(action="git checkout", path=repo_path, is_dir=True)
     shutils.check_call(f"git checkout {shc(opts)} {revision}", cwd=repo_path)
 
 
@@ -106,6 +112,7 @@ def remote(*opts: str, repo_path: str) -> None:
     :param opts: options to pass to git remote
     :param repo_path: where the repo having been cloned to
     """
+    shutils.ensure_path_exists(action="git remote", path=repo_path, is_dir=True)
     shutils.check_call(f"git remote {shc(opts)}", cwd=repo_path)
 
 
@@ -117,6 +124,7 @@ def remote_get_url(*opts: str, repo_path: str, name: str = "origin") -> None:
     :param repo_path: where the repo having been cloned to
     :param name: the name of the remote.
     """
+    shutils.ensure_path_exists(action="git remote get-url", path=repo_path, is_dir=True)
     return normalize_repo_url(
         shutils.check_output_no_side_effect(
             f"git remote get-url {shc(opts)} {name}", cwd=repo_path, encoding="utf-8"
@@ -132,6 +140,7 @@ def checkout_paths(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to check out.
     """
+    shutils.ensure_path_exists(action="git checkout", path=repo_path, is_dir=True)
     shutils.check_call(f"git checkout {shc(opts)} -- {shc(paths)}", cwd=repo_path)
 
 
@@ -151,6 +160,7 @@ def add_one(*opts: str, repo_path: str, path: str) -> None:
     :param repo_path: where the repo having been cloned to
     :param path: the path to add.
     """
+    shutils.ensure_path_exists(action="git add", path=repo_path, is_dir=True)
     shutils.check_call(f"git add {shc(opts)} {path}", cwd=repo_path)
 
 
@@ -162,6 +172,7 @@ def add(*opts: str, repo_path: str, paths: t.List[str]) -> None:
     :param repo_path: where the repo having been cloned to
     :param paths: a list of paths to add.
     """
+    shutils.ensure_path_exists(action="git add", path=repo_path, is_dir=True)
     shutils.check_call(f"git add {shc(opts)} {shc(paths)}", cwd=repo_path)
 
 

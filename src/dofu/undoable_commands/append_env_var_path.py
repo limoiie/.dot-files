@@ -33,9 +33,13 @@ class UCAppendEnvVarPath(UndoableCommand):
                     last_export_path_no = i
                     # extract paths in PATH
                     paths_in_path = [
-                        *m.group(1).split(":"),
-                        "$PATH",
-                        *m.group(2).split(":"),
+                        path
+                        for path in (
+                            *m.group(1).split(":"),
+                            "$PATH",
+                            *m.group(2).split(":"),
+                        )
+                        if path
                     ]
                     # if already in PATH, break
                     if self.path in paths_in_path:
@@ -53,22 +57,20 @@ class UCAppendEnvVarPath(UndoableCommand):
                         if i == 0:
                             sys.stdout.write(f'export PATH="$PATH:{self.path}"\n')
                         sys.stdout.write(line)
+
                     # if the last export path line, append to the line
                     elif last_export_path_no == i:
-                        if len(line) + len(self.path) + 1 < 80:
-                            # if the line is short enough, append to the last export line
-                            k = paths_in_path.index("$PATH")
-                            paths_in_path.insert(
-                                len(paths_in_path) if k == 0 else -1, self.path
-                            )
-                            sys.stdout.write(
-                                f'export PATH="{":".join(paths_in_path)}"\n'
-                            )
-                        else:
+                        dollar_path_at_left = paths_in_path.index("$PATH") == 0
+                        if len(line) + len(self.path) + 1 >= 80:
                             # if the line is too long, append after the last export line
-                            sys.stdout.write(
-                                f'{line}\nexport PATH="$PATH:{self.path}"\n'
-                            )
+                            paths_in_path = ["$PATH"]
+                            line = line if line.endswith("\n") else f"{line}\n"
+                            sys.stdout.write(f"{line}")
+
+                        paths_in_path.insert(
+                            len(paths_in_path) if dollar_path_at_left else -1, self.path
+                        )
+                        sys.stdout.write(f'export PATH="{":".join(paths_in_path)}"\n')
 
                     # no touch other lines
                     else:

@@ -82,25 +82,33 @@ class UCAppendEnvVarPath(UndoableCommand):
         return self.ret
 
     def _undo(self):
-        with shutils.input_file(self.rc, inplace=True) as file:
-            for line in file:
-                m = re.match(_export_path_pattern, line.rstrip())
-                if m is not None:
-                    # extract paths in PATH
-                    paths_in_path = [
-                        *m.group(1).split(":"),
-                        "$PATH",
-                        *m.group(2).split(":"),
-                    ]
-
-                    # if in PATH, remove it and write back
-                    if self.path in paths_in_path:
-                        paths_in_path.remove(self.path)
-                        sys.stdout.write(f'export PATH="{":".join(paths_in_path)}"\n')
+        if self.appended:
+            with shutils.input_file(self.rc, inplace=True) as file:
+                for line in file:
+                    m = re.match(_export_path_pattern, line.rstrip())
+                    if m is not None:
+                        # extract paths in PATH
+                        paths_in_path = [
+                            path
+                            for path in (
+                                *m.group(1).split(":"),
+                                "$PATH",
+                                *m.group(2).split(":"),
+                            )
+                            if path
+                        ]
+                        if self.path in paths_in_path:
+                            # the path in PATH, remove it
+                            paths_in_path.remove(self.path)
+                            if paths_in_path:
+                                # not empty, write back
+                                sys.stdout.write(
+                                    f'export PATH="{":".join(paths_in_path)}"\n'
+                                )
+                            continue
 
                     # no touch other lines
-                    else:
-                        sys.stdout.write(line)
+                    sys.stdout.write(line)
 
         self.appended = None
         self.ret = None

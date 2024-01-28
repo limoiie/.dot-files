@@ -291,7 +291,7 @@ class Ensure(abc.ABC):
         while strategy is not None and not self.condition():
             if Options.instance().dry_run:
                 return
-            strategy = self.strategy_execs[strategy.value](self)
+            strategy = self.strategy_execs[strategy.value]()
 
     @abc.abstractmethod
     def condition(self) -> bool:
@@ -311,7 +311,7 @@ class Ensure(abc.ABC):
 
         # apply chosen strategy
         strategy = Strategy[strategy]
-        return self.strategy_execs[strategy.value](self)
+        return self.strategy_execs[strategy.value]()
 
     @abc.abstractmethod
     def overwrite(self) -> t.Optional[Strategy]:
@@ -324,12 +324,14 @@ class Ensure(abc.ABC):
     def cancel(self) -> None:
         raise RuntimeError(self.failure_message())
 
-    strategy_execs = [
-        interactive,
-        overwrite,
-        non_intrusive,
-        cancel,
-    ]
+    @property
+    def strategy_execs(self):
+        return [
+            self.interactive,
+            self.overwrite,
+            self.non_intrusive,
+            self.cancel,
+        ]
 
     def failure_message(self) -> str:
         return f"Failed to {self.action}: {self.failure_reason()}"
@@ -383,7 +385,10 @@ class EnsurePathNotExists(Ensure):
         return not os.path.exists(self.path)
 
     def overwrite(self):
-        shutil.rmtree(self.path)
+        if os.path.islink(self.path) or os.path.isfile(self.path):
+            os.remove(self.path)
+        elif os.path.isdir(self.path):
+            shutil.rmtree(self.path)
 
     def non_intrusive(self):
         shutil.move(self.path, backup_path(self.path))

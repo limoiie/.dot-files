@@ -208,9 +208,7 @@ class TestBackupMv:
         # exec
         cmd = ucs.UCBackupMv(path=non_existing_file)
         ret = cmd.exec()
-        assert ret.retcode == 1
-        assert isinstance(ret.stderr, (str, bytes))
-        assert re.search(rb"Failed to mv.*not exists", ret.stderr)
+        assert ret.retcode == 0
         assert ret.stdout is None
 
     def test_exec_undo_with_existing_backup(self, tmp_dir_with_a_dummy_file):

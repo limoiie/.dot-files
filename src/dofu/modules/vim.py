@@ -23,7 +23,7 @@ class VimModule(Module):
             dst=env.xdg_config_path("vim", "viminfo"),
         ),
         # setup ideavimrc
-        ucs.UCLink(
+        ucs.UCSymlink(
             src=env.project_path(".ideavimrc"),
             dst=env.user_home_path(".ideavimrc"),
         ),

@@ -7,6 +7,7 @@ from .go_mods import GoModsModule
 from .golang import GolangModule
 from .neovim import NeovimModule
 from .rust import RustModule
+from .starship import StarshipModule
 from .tmux import TmuxModule
 from .vim import VimModule
 from .zsh import ZshModule
@@ -19,6 +20,7 @@ __all__ = [
     "GolangModule",
     "NeovimModule",
     "RustModule",
+    "StarshipModule",
     "TmuxModule",
     "VimModule",
     "ZshModule",

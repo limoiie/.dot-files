@@ -194,13 +194,13 @@ def input_file(
     if dry_run and inplace:
         with open(filepath, "r") as origin:
             _dryrun_logger.info(
-                f"update {filepath} as:\n"
+                f"update {str(filepath)} as:\n"
                 + "".join(
                     difflib.unified_diff(
                         origin.readlines(),
                         updated_lines,
-                        fromfile=filepath,
-                        tofile=filepath + "<inplace>",
+                        fromfile=str(filepath),
+                        tofile=str(filepath) + "<inplace>",
                     )
                 ).rstrip()
             )

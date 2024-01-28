@@ -1,3 +1,4 @@
+from .append_env_var import UCAppendEnvVar
 from .append_env_var_path import UCAppendEnvVarPath
 from .append_line import UCAppendLine
 from .backup_mv import UCBackupMv

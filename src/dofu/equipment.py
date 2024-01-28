@@ -540,8 +540,7 @@ class ModuleEquipmentManager:
         # install packages that are required but not installed
         for requirement in module.package_requirements():
             _logger.info(
-                f"Installing non-installed package"
-                f" - {_repr_pkg_requirement(requirement)}"
+                f"Equipping package" f" - {_repr_pkg_requirement(requirement)}"
             )
 
             installation = utils.find(
@@ -630,9 +629,7 @@ class ModuleEquipmentManager:
 
         # install requirements that are required but not installed
         for requirement in module.gitrepo_requirements():
-            _logger.info(
-                f"Syncing installed gitrepo" f" - {_repr_git_requirement(requirement)}"
-            )
+            _logger.info(f"Equipping gitrepo - {_repr_git_requirement(requirement)}")
 
             installation = utils.find(
                 meta.gitrepo_installations,

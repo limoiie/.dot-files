@@ -55,7 +55,6 @@ class App:
 
         :param module_names: The names of modules to equip.
         """
-        print("names", module_names)
         # load module equipment meta information
         manager = ModuleEquipmentManager.load()
 

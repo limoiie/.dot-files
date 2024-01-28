@@ -23,7 +23,7 @@ class App:
     """
 
     @staticmethod
-    def init(
+    def __init(
         *,
         dry_run: bool = False,
         strategy: typing.Literal["ask", "force", "auto", "quit"] = "ask",
@@ -43,7 +43,7 @@ class App:
         options.strategy = Strategy.from_name(strategy)
 
     @staticmethod
-    @extend_interface(init)
+    @extend_interface(__init)
     def list(*module_names: str, installed_only: bool = None):
         """
         List modules.
@@ -66,8 +66,12 @@ class App:
                 continue
 
             _logger.info(
-                f"Module {module.name()} " +
-                ("[green]Installed[/]" if is_installed else "[red]Not Installed[/red]"),
+                f"Module {module.name()} "
+                + (
+                    "[green]Installed[/]"
+                    if is_installed
+                    else "[red]Not Installed[/red]"
+                ),
             )
             _logger.debug("- Requirements: ")
 
@@ -86,7 +90,7 @@ class App:
             _logger.debug(f"--")
 
     @staticmethod
-    @extend_interface(init)
+    @extend_interface(__init)
     def equip(*module_names: str):
         """
         Equip modules.
@@ -120,7 +124,7 @@ class App:
             manager.equip(module_names)
 
     @staticmethod
-    @extend_interface(init)
+    @extend_interface(__init)
     def install(*module_names: str):
         """
         Install modules.
@@ -161,7 +165,7 @@ class App:
             manager.equip(module_names)
 
     @staticmethod
-    @extend_interface(init)
+    @extend_interface(__init)
     def remove(*module_names: str):
         """
         Remove modules.
@@ -199,7 +203,7 @@ class App:
             manager.remove(module_names)
 
     @staticmethod
-    @extend_interface(init)
+    @extend_interface(__init)
     def sync(*module_names: str):
         """
         Sync modules.

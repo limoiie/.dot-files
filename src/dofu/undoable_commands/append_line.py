@@ -16,12 +16,13 @@ class UCAppendLine(UndoableCommand):
     ret: t.Optional[ExecutionResult] = None
 
     @staticmethod
-    def make_source_line(path: str, pattern: str, file_to_source: str):
-        return UCAppendLine(
-            path=path,
-            pattern=pattern,
-            repl=f"[ -f {file_to_source} ] && source {file_to_source}",
-        )
+    def make_source_line(
+        path: str, pattern: str, file_to_source: str, check_exists: bool = True
+    ):
+        repl = f'source "{file_to_source}"'
+        if check_exists:
+            repl = f'[ -f "{file_to_source}" ] && {repl}'
+        return UCAppendLine(path=path, pattern=pattern, repl=repl)
 
     def cmdline(self) -> str:
         return f"sed -i.dofu.bak 's/{self.pattern}/{self.repl}/g' {self.path}"

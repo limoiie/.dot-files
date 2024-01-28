@@ -193,7 +193,7 @@ class TestDryRunUCReplaceLine:
     def _enable_dry_run(self, enable_dry_run):
         pass
 
-    def test_exec_undo(self, caplog, capsys, tmp_dir_with_a_dummy_file):
+    def test_exec_undo(self, caplog, tmp_dir_with_a_dummy_file):
         tmp_dir, dummy_file = tmp_dir_with_a_dummy_file
 
         # exec
@@ -206,8 +206,7 @@ class TestDryRunUCReplaceLine:
         assert ret.stderr is None
 
         # mv not executed, but printed
-        assert re.match(r"update.* as:", "\n".join(caplog.messages))
-        assert capsys.readouterr().out == "DUMMY"
+        assert re.match(r".*update.* as:.*dummy.*DUMMY", caplog.text, re.DOTALL)
 
         # mick the replacing
         dummy_file.write_text("DUMMY\n")
@@ -218,7 +217,6 @@ class TestDryRunUCReplaceLine:
             cmd.undo()
 
         # not undo the creation, but printed
-        assert re.match(r"update.* as:", "\n".join(caplog.messages))
-        assert capsys.readouterr().out == "dummy"
+        assert re.match(r".*update.* as:.*DUMMY.*dummy", caplog.text, re.DOTALL)
         assert os.path.exists(dummy_file)
         assert dummy_file.read_text() == "DUMMY\n"

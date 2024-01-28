@@ -19,6 +19,16 @@ def project_path(*nested: os.PathLike) -> os.PathLike:
     return os.path.join(project_root(), *nested)
 
 
+def project_path_relhome(*nested: os.PathLike) -> os.PathLike:
+    relpath = os.path.relpath(project_path(*nested), user_home())
+    return os.path.join("$HOME", relpath)
+
+
+def xdg_config_path_relhome(*nested: os.PathLike) -> os.PathLike:
+    relpath = os.path.relpath(xdg_config_path(*nested), user_home())
+    return os.path.join("$HOME", relpath)
+
+
 @functools.cache
 def user_home() -> os.PathLike:
     return os.path.expanduser("~")

@@ -1,7 +1,9 @@
 import abc
 import contextlib
 import dataclasses
+import difflib
 import fileinput
+import io
 import logging
 import os
 import shutil
@@ -155,8 +157,9 @@ def check_call_no_side_effect(sh: str, *args, **kwargs):
     return subprocess.check_call(sh, *args, shell=True, **kwargs)
 
 
+@contextlib.contextmanager
 def input_file(
-    files,
+    filepath,
     inplace=False,
     backup=".dofu.bak",
     *,
@@ -165,26 +168,42 @@ def input_file(
     encoding=None,
     errors=None,
 ):
-    if isinstance(files, (str, os.PathLike)):
-        files = [files]
+    ensure_path_exists(action=f"input_file", path=filepath, is_dir=False)
 
-    for file in files:
-        EnsurePathExists(action=f"input_file", path=file, is_dir=False)()
-
-    if Options.instance().dry_run:
-        if inplace:
-            _dryrun_logger.info(f"replace {files} as:")
-        inplace = False
-
-    return fileinput.input(
-        files,
-        inplace=inplace,
+    updated_lines = []
+    dry_run = Options.instance().dry_run
+    with fileinput.input(
+        filepath,
+        inplace=not dry_run and inplace,
         backup=backup,
         mode=mode,
         openhook=openhook,
         encoding=encoding,
         errors=errors,
-    )
+    ) as file:
+        if dry_run and inplace:
+            with io.StringIO() as tmp:
+                with contextlib.redirect_stdout(tmp):
+                    yield file
+                tmp.seek(0)
+                updated_lines = tmp.readlines()
+
+        else:
+            yield file
+
+    if dry_run and inplace:
+        with open(filepath, "r") as origin:
+            _dryrun_logger.info(
+                f"update {filepath} as:\n"
+                + "".join(
+                    difflib.unified_diff(
+                        origin.readlines(),
+                        updated_lines,
+                        fromfile=filepath,
+                        tofile=filepath + "<inplace>",
+                    )
+                ).rstrip()
+            )
 
 
 @contextlib.contextmanager

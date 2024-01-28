@@ -121,7 +121,7 @@ class TestDryRunInputFile:
     def _enable_dry_run(self, enable_dry_run):
         pass
 
-    def test_basic(self, capsys, caplog, tmp_path):
+    def test_basic(self, caplog, tmp_path):
         dummy_file = tmp_path / "dummy.txt"
         dummy_file.write_text("hello\n")
 
@@ -132,8 +132,7 @@ class TestDryRunInputFile:
                     sys.stdout.write(line.replace("hello", "world"))
 
         # the changes do not executed, but printed
-        assert re.match(r".*update.* as:", caplog.text)
-        assert capsys.readouterr().out == "world\n"
+        assert re.match(r".*update.*as:.*hello.*world.*", caplog.text, re.DOTALL)
 
         # the original file is not changed
         assert os.path.exists(dummy_file)

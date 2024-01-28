@@ -28,9 +28,9 @@ class VimModule(Module):
             dst=env.user_home_path(".ideavimrc"),
         ),
         # append 'source the dotfiles' to vimrc
-        ucs.UCAppendLine(
+        ucs.UCAppendLine.make_source_line(
             path=env.xdg_config_path("vim", "vimrc"),
             pattern=".*common-vimrc",
-            repl=f"source {env.project_path('common-vimrc')}",
+            file_to_source=env.project_path_relhome("common-vimrc"),
         ),
     ]

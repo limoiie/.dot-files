@@ -1,11 +1,14 @@
 import dataclasses
 import functools
 import inspect
+import logging
 import typing as t
 
 import networkx as nx
 
 from dofu import env, requirement as req, undoable_command as uc, version_control as vc
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -95,11 +98,14 @@ class ModuleRegistrationManager:
         # check whether all modules required by a module are registered
         for module, attrs in cls.__graph.nodes.items():
             if not attrs:
+                _logger.error(f"Module {module} is not registered")
                 raise ValueError(f"module {module} is not registered")
 
         # check whether there is a cycle in the dependency graph
         try:
             dependency_cycle = nx.find_cycle(cls.__graph)
+
+            _logger.error(f"Dependency cycle detected: {dependency_cycle}")
             raise ValueError(f"dependency cycle detected: {dependency_cycle}")
 
         except nx.NetworkXNoCycle:

@@ -1,3 +1,4 @@
+import logging
 import re
 
 import pytest
@@ -31,16 +32,18 @@ class TestDryRunEquipment:
     def _enable_dry_run(self, enable_dry_run):
         pass
 
-    def test_cli_sync(self, capsys):
+    def test_cli_sync(self, caplog):
         """
         Test that dry run does not execute the command.
         """
 
         # create temp manager for isolating the test
         manager = ModuleEquipmentManager()
-        manager.sync(["dummy"])
 
-        stdout = capsys.readouterr()
+        with caplog.at_level(logging.INFO):
+            manager.sync(["dummy"])
+
+        stdout = caplog.text
 
         messages = [
             # install package
@@ -53,14 +56,11 @@ class TestDryRunEquipment:
             r"mv .*/equipment.yaml.dofu.tmp .*/equipment.yaml",
         ]
 
-        # print("Captured stdout:")
-        # print(stdout.out)
-
         pos = 0
         for message in messages:
             pattern = re.compile(message, re.MULTILINE)
-            assert pattern.search(stdout.out, pos)
-            pos = pattern.search(stdout.out, pos).end()
+            assert pattern.search(stdout, pos)
+            pos = pattern.search(stdout, pos).end()
 
 
 class TestNoDryRunEquipment:
@@ -75,9 +75,8 @@ class TestNoDryRunEquipment:
 
         # create temp manager for isolating the test
         manager = ModuleEquipmentManager()
-        manager.sync(["dummy"])
 
-        stdout = capfd.readouterr()
+        manager.sync(["dummy"])
 
         messages = [
             # dummy install package
@@ -86,11 +85,10 @@ class TestNoDryRunEquipment:
             r"^uc-dummy exec dummy-content",
         ]
 
-        # print("Captured stdout:")
-        # print(stdout.out)
+        out = capfd.readouterr().out
 
         pos = 0
         for message in messages:
             pattern = re.compile(message, re.MULTILINE)
-            assert pattern.search(stdout.out, pos)
-            pos = pattern.search(stdout.out, pos).end()
+            assert pattern.search(out, pos)
+            pos = pattern.search(out, pos).end()

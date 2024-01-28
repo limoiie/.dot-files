@@ -3,56 +3,45 @@ import enum
 
 
 class Strategy(enum.Enum):
-    INTERACTIVE = 0
+    ASK = 0
     """
     Ask the user what to do.
     """
 
-    OVERWRITE = 1
+    FORCE = 1
     """
     Solve the problem by overwriting in force.
     """
 
-    NON_INTRUSIVE = 2
+    AUTO = 2
     """
     Non-intrusively try to solve the problem.
     """
 
-    CANCEL = 3
+    QUIT = 3
     """
     Cancel the operation.
     """
 
     @staticmethod
-    def from_flags(*, interactive: bool, overwrite: bool, backup: bool, cancel: bool):
-        assert (
-            interactive + overwrite + backup + cancel == 1
-        ), f"Choose exactly one strategy from {','.join(Strategy.all_names())}"
-
-        if interactive:
-            return Strategy.INTERACTIVE
-        elif overwrite:
-            return Strategy.OVERWRITE
-        elif backup:
-            return Strategy.NON_INTRUSIVE
-        elif cancel:
-            return Strategy.CANCEL
+    def from_name(name: str):
+        return Strategy[name.upper()]
 
     @staticmethod
     def all_names():
         return [
-            Strategy.INTERACTIVE.name,
-            Strategy.OVERWRITE.name,
-            Strategy.NON_INTRUSIVE.name,
-            Strategy.CANCEL.name,
+            Strategy.ASK.name,
+            Strategy.FORCE.name,
+            Strategy.AUTO.name,
+            Strategy.QUIT.name,
         ]
 
     @staticmethod
     def all_decidable_names():
         return [
-            Strategy.OVERWRITE.name,
-            Strategy.NON_INTRUSIVE.name,
-            Strategy.CANCEL.name,
+            Strategy.FORCE.name,
+            Strategy.AUTO.name,
+            Strategy.QUIT.name,
         ]
 
 
@@ -82,5 +71,5 @@ class Options:
 
 _options: Options = Options(
     dry_run=False,
-    strategy=Strategy.CANCEL,
+    strategy=Strategy.QUIT,
 )

@@ -1,11 +1,13 @@
-from dofu import env, undoable_commands as ucs
+from dofu import env, package_requirements as prs, undoable_commands as ucs
 from dofu.module import Module
 from dofu.modules.rust import RustModule
 
 
 @Module.module("vim", requires=[RustModule])
 class VimModule(Module):
-    _package_requirements = []
+    _package_requirements = [
+        prs.PRSystem.make("vim"),
+    ]
 
     _gitrepo_requirements = []
 
@@ -20,6 +22,11 @@ class VimModule(Module):
         ucs.UCSafeMove(
             src=env.user_home_path(".viminfo"),
             dst=env.xdg_config_path("vim", "viminfo"),
+        ),
+        # setup ideavimrc
+        ucs.UCLink(
+            src=env.project_path(".ideavimrc"),
+            dst=env.user_home_path(".ideavimrc"),
         ),
         # append 'source the dotfiles' to vimrc
         ucs.UCAppendLine(

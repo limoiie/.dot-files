@@ -29,13 +29,14 @@ class UCAppendLine(UndoableCommand):
     def _exec(self):
         replaced_line = None
         pattern = re.compile(self.pattern)
-        for line in shutils.input_file(self.path, inplace=True):
-            # replace the first line that matches the pattern
-            if replaced_line is None and re.search(pattern, line):
-                replaced_line = line
-                new_line = self.repl.rstrip("\n")
-                line = (new_line + "\n") if line.endswith("\n") else new_line
-            sys.stdout.write(line)
+        with shutils.input_file(self.path, inplace=True) as file:
+            for line in file:
+                # replace the first line that matches the pattern
+                if replaced_line is None and re.search(pattern, line):
+                    replaced_line = line
+                    new_line = self.repl.rstrip("\n")
+                    line = (new_line + "\n") if line.endswith("\n") else new_line
+                sys.stdout.write(line)
 
         # if no line was replaced, append the line at the end of the file
         if replaced_line is None:
@@ -48,10 +49,11 @@ class UCAppendLine(UndoableCommand):
         return self.ret
 
     def _undo(self):
-        for line in shutils.input_file(self.path, inplace=True):
-            if line.startswith(self.repl):
-                line = self.replaced_line
-            sys.stdout.write(line)
+        with shutils.input_file(self.path, inplace=True) as file:
+            for line in file:
+                if line.startswith(self.repl):
+                    line = self.replaced_line
+                sys.stdout.write(line)
 
     def spec_tuple(self):
         return self.path, self.pattern, self.repl

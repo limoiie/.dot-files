@@ -3,6 +3,7 @@ import dataclasses
 import enum
 import functools
 import itertools
+import logging
 import os
 import typing as t
 
@@ -17,6 +18,8 @@ from dofu import (
     undoable_command as uc,
     utils,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -200,6 +203,8 @@ class ModuleEquipmentTransaction(contextlib.AbstractContextManager):
             ret = self.records[i].undo()
             if ret is not None and ret.retcode != 0:
                 self.status = ModuleEquipmentTransactionStatus.FAILED_ROLLBACK
+                _logger.error(f"Failed to rollback command {self.records[i]} - {ret}")
+
                 raise ret.to_error()
 
             self.rollback_cursor = i
@@ -381,32 +386,110 @@ class ModuleEquipmentManager:
         )
 
         try:
-            # remove modules that are not required any more
-            for module in remove_blueprint:
-                meta = self._equipment_meta(module.name())
-                try:
-                    self._remove_one_step(meta)
-                    meta.status = ModuleEquipmentStatus.REMOVED
-                except Exception:
-                    meta.status = ModuleEquipmentStatus.BROKEN
-                    raise
-                else:  # remove the meta only if the module is removed successfully
-                    del self.meta[meta.module_name]
-
-            # equip modules that are required
-            for module in blueprint:
-                meta = self._equipment_meta(module.name())
-                try:
-                    self._equip_one_step(module, meta)
-                    meta.status = ModuleEquipmentStatus.INSTALLED
-                except Exception:
-                    meta.status = ModuleEquipmentStatus.BROKEN
-                    raise
-                finally:  # save the meta even if the module is broken
-                    self.meta[meta.module_name] = meta
+            self._remove_modules(remove_blueprint)
+            self._equip_modules(blueprint)
 
         finally:
             self.save()
+
+    def remove(self, module_names: t.List[str]):
+        """
+        Remove the modules.
+
+        This method will remove the given modules and the modules they depend on.
+
+        The order of the modules is not important
+        as the order will be resolved automatically
+        to make sure that each module is removed after its dependencies are removed.
+
+        :param module_names: list of module names.
+        """
+        blueprint = m.ModuleRegistrationManager.resolve_remove_blueprint(module_names)
+
+        try:
+            self._remove_modules(blueprint)
+
+        finally:
+            self.save()
+
+    def equip(self, module_names: t.List[str]):
+        """
+        Equip the modules.
+
+        This method will equip the given modules and the modules they depend on.
+
+        The order of the modules is not important
+        as the order will be resolved automatically
+        to make sure that each module is equipped after its dependencies are equipped.
+
+        :param module_names: list of module names.
+        """
+        blueprint = m.ModuleRegistrationManager.resolve_equip_blueprint(module_names)
+
+        try:
+            self._equip_modules(blueprint)
+
+        finally:
+            self.save()
+
+    def _remove_modules(self, blueprint):
+        """
+        Remove modules.
+
+        :param blueprint: A list of modules to remove sorted topologically.
+        """
+        _logger.info(
+            f"{len(blueprint)} modules to be removed"
+            f" - {[module.name() for module in blueprint]}"
+        )
+
+        # remove modules that are not required any more
+        for module in blueprint:
+            _logger.info(f"Removing module {module.name()}")
+
+            meta = self._equipment_meta(module.name())
+            try:
+                self._remove_one_step(meta)
+                meta.status = ModuleEquipmentStatus.REMOVED
+                _logger.info(f"Removed!")
+
+            except Exception:
+                meta.status = ModuleEquipmentStatus.BROKEN
+                _logger.error(f"Failed to remove Module {module.name()}")
+                raise
+
+            else:  # remove the meta only if the module is removed successfully
+                del self.meta[meta.module_name]
+
+    def _equip_modules(self, blueprint: t.List[t.Type["m.Module"]]):
+        """
+        Equip modules.
+
+        :param blueprint: A list of modules to equip sorted topologically.
+        :return:
+        """
+        _logger.info(
+            f"{len(blueprint)} modules to be equipped"
+            f" - {[module.name() for module in blueprint]}"
+        )
+
+        # equip modules that are required
+        for module in blueprint:
+            _logger.info(f"Synchronizing module {module.name()}")
+
+            meta = self._equipment_meta(module.name())
+            try:
+                self._equip_one_step(module, meta)
+                meta.status = ModuleEquipmentStatus.INSTALLED
+                _logger.info(f"Equipped!")
+
+            except Exception:
+                meta.status = ModuleEquipmentStatus.BROKEN
+                _logger.error(f"Failed to equip Module {module.name()}")
+                raise
+
+            finally:  # save the meta even if the module is broken
+                self.meta[meta.module_name] = meta
 
     def _equip_one_step(
         self, module: t.Type["m.Module"], meta: ModuleEquipmentMetaInfo
@@ -435,6 +518,11 @@ class ModuleEquipmentManager:
         """
         # sync already installed
         for installation in list(meta.package_installations):
+            _logger.info(
+                f"Syncing installed package"
+                f" - {_repr_pkg_requirement(installation.requirement)}"
+            )
+
             required = utils.find(
                 module.package_requirements(),
                 value=installation.requirement,
@@ -443,12 +531,19 @@ class ModuleEquipmentManager:
 
             # not required any more, remove the installation
             if required is None or not installation.requirement.is_satisfied():
+                _logger.debug(f" - package is not required any more, uninstalling it")
+
                 if not installation.used_existing and installation.manager:
                     installation.requirement.uninstall(installation.manager)
                 meta.package_installations.remove(installation)
 
         # install packages that are required but not installed
         for requirement in module.package_requirements():
+            _logger.info(
+                f"Installing non-installed package"
+                f" - {_repr_pkg_requirement(requirement)}"
+            )
+
             installation = utils.find(
                 meta.package_installations,
                 pred=lambda x: x.requirement == requirement,
@@ -457,11 +552,17 @@ class ModuleEquipmentManager:
 
             # installed already
             if installation is not None:
+                _logger.debug(f" - reinstall package since having been installed")
+
                 if not requirement.is_satisfied():
+                    _logger.warning(f" - reinstalling package as seemed broken")
+
                     # reinstall since the package is broken
                     installation.manager = requirement.install()
                     installation.used_existing = False
                 else:
+                    _logger.debug(f" - updating package...")
+
                     # update?
                     # Currently, the installed package with different version will
                     # be uninstalled and reinstalled with the new version. It seems
@@ -471,10 +572,14 @@ class ModuleEquipmentManager:
             # install for the first time
             else:
                 if not requirement.is_satisfied():
+                    _logger.debug(f" - installing package")
+
                     # install if the package is not installed
                     manager = requirement.install()
                     used_existing = False
                 else:
+                    _logger.debug(f" - using existing package installed by other")
+
                     manager = None
                     used_existing = True
 
@@ -497,6 +602,11 @@ class ModuleEquipmentManager:
 
         # sync already installed
         for installation in list(meta.gitrepo_installations):
+            _logger.info(
+                f"Syncing cloned gitrepo"
+                f" - {_repr_git_requirement(installation.requirement)}"
+            )
+
             required = utils.find(
                 module.gitrepo_requirements(),
                 value=installation.requirement,
@@ -506,16 +616,24 @@ class ModuleEquipmentManager:
 
             # not required any more or broken, remove the installation
             if required is None or not installation.requirement.is_satisfied():
+                _logger.debug(f" - removing gitrepo as not being required any more")
+
                 installation.requirement.uninstall()
                 meta.gitrepo_installations.remove(installation)
 
             # required but the local path has changed, move to the new dst
             elif required.path != installation.requirement.path:
+                _logger.debug(f" - moving gitrepo to new dst {required.path}")
+
                 shutils.move(installation.requirement.path, required.path)
                 installation.requirement.path = required.path
 
         # install requirements that are required but not installed
         for requirement in module.gitrepo_requirements():
+            _logger.info(
+                f"Syncing installed gitrepo" f" - {_repr_git_requirement(requirement)}"
+            )
+
             installation = utils.find(
                 meta.gitrepo_installations,
                 pred=lambda x: x.requirement.url == requirement.url,
@@ -525,19 +643,27 @@ class ModuleEquipmentManager:
             # installed already
             if installation is not None:
                 if not requirement.is_satisfied():
+                    _logger.warning(f" - re-cloning gitrepo as seemed broken")
+
                     # reinstall since the gitrepo is broken
                     requirement.install()
                     installation.used_existing = False
                 else:
+                    _logger.debug(f" - updating existing gitrepo")
+
                     requirement.update()
 
             # install for the first time
             else:
                 if not requirement.is_satisfied():
+                    _logger.debug(f" - cloning gitrepo")
+
                     # install if the package is not installed
                     requirement.install()
                     used_existing = False
                 else:
+                    _logger.debug(f" - using existing gitrepo")
+
                     used_existing = True
 
                 meta.gitrepo_installations.append(
@@ -556,6 +682,8 @@ class ModuleEquipmentManager:
         and undo all the executed steps after the common prefix steps.
         Then, it will execute the remaining steps.
         """
+        _logger.info(f"Syncing commands")
+
         itr_installed_cmds = iter(meta.commands())
         itr_required_cmds = iter(module.command_requirements())
         for installed, required in zip(itr_installed_cmds, itr_required_cmds):
@@ -565,9 +693,13 @@ class ModuleEquipmentManager:
                 itr_required_cmds = itertools.chain([required], itr_required_cmds)
                 break
 
+        _logger.debug(f" - rolling back withdrawn config commands if any")
+
         # rollback the executed commands after index i
         for _ in zip(itr_installed_cmds, meta.rollback_lazily()):
             pass
+
+        _logger.debug(f" - executing new config commands if any")
 
         # execute the remaining configuring commands
         with meta.transaction() as transaction:
@@ -585,15 +717,21 @@ class ModuleEquipmentManager:
 
         :param meta: equipment meta info of the module.
         """
+        _logger.info("Rolling back config command transactions")
+
         # undo commands
         while meta.transactions:
             meta.transactions[-1].rollback()
             meta.transactions.pop()
 
+        _logger.info("Removing gitrepos")
+
         # remove gitrepos
         while meta.gitrepo_installations:
             meta.gitrepo_installations[-1].requirement.uninstall()
             meta.gitrepo_installations.pop()
+
+        _logger.info("Uninstalling packages")
 
         # uninstall packages
         while meta.package_installations:
@@ -601,3 +739,11 @@ class ModuleEquipmentManager:
                 meta.package_installations[-1].manager
             )
             meta.package_installations.pop()
+
+
+def _repr_pkg_requirement(requirement: req.PackageRequirement):
+    return f"{requirement.spec.package}:{requirement.spec.version}"
+
+
+def _repr_git_requirement(requirement: req.GitRepoRequirement):
+    return f'{requirement.url}@{requirement.branch or "main"}'

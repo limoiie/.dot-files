@@ -1,6 +1,9 @@
 import contextlib
+import logging
 
 import typing as t
+
+_logger = logging.getLogger(__name__)
 
 
 def deprecated(func=None, *, reason: str = ""):
@@ -11,9 +14,9 @@ def deprecated(func=None, *, reason: str = ""):
     def decorator(fn):
         def wrapper(*args, **kwargs):
             if reason:
-                print(f"WARNING: {fn.__name__} is deprecated: {reason}")
+                _logger.warning(f"{fn.__name__} is deprecated: {reason}")
             else:
-                print(f"WARNING: {fn.__name__} is deprecated.")
+                _logger.warning(f"{fn.__name__} is deprecated.")
             return fn(*args, **kwargs)
 
         return wrapper

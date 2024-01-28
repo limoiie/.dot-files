@@ -13,7 +13,7 @@ import typing as t
 from dofu import gum
 from dofu.options import Options, Strategy
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__ + "[/] [green]RUN")
 _dryrun_logger = logging.getLogger(__name__ + "[/] [blue]DRYRUN")
 
 CompletedProcess = subprocess.CompletedProcess
@@ -27,6 +27,7 @@ def mkdirs(path, mode=0o777, exist_ok=False):
         _dryrun_logger.info(f"mkdir -p {path}")
         return
 
+    _logger.info(f"mkdir -p {path}")
     return os.makedirs(path, mode=mode, exist_ok=exist_ok)
 
 
@@ -38,6 +39,7 @@ def link(src, dst, *, follow_symlinks=True):
         _dryrun_logger.info(f"ln {src} {dst}")
         return
 
+    _logger.info(f"ln {src} {dst}")
     return os.link(src, dst, follow_symlinks=follow_symlinks)
 
 
@@ -49,6 +51,7 @@ def symlink(src, dst, target_is_directory=False, *, dir_fd=None):
         _dryrun_logger.info(f"ln -s {src} {dst}")
         return
 
+    _logger.info(f"ln -s {src} {dst}")
     return os.symlink(src, dst, target_is_directory=target_is_directory, dir_fd=dir_fd)
 
 
@@ -59,6 +62,7 @@ def unlink(path, *, dir_fd=None):
         _dryrun_logger.info(f"unlink {path}")
         return
 
+    _logger.info(f"unlink {path}")
     return os.unlink(path, dir_fd=dir_fd)
 
 
@@ -69,6 +73,7 @@ def remove(path, *, dir_fd=None):
         _dryrun_logger.info(f"rm {path}")
         return
 
+    _logger.info(f"rm {path}")
     return os.remove(path, dir_fd=dir_fd)
 
 
@@ -79,6 +84,7 @@ def rmdir(path, *, dir_fd=None):
         _dryrun_logger.info(f"rm -r {path}")
         return
 
+    _logger.info(f"rm -r {path}")
     return os.rmdir(path, dir_fd=dir_fd)
 
 
@@ -90,6 +96,7 @@ def move(src, dst):
         _dryrun_logger.info(f"mv {src} {dst}")
         return
 
+    _logger.info(f"mv {src} {dst}")
     return shutil.move(src, dst)
 
 
@@ -100,6 +107,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
         _dryrun_logger.info(f"rm -rf {path}")
         return
 
+    _logger.info(f"rm -rf {path}")
     return shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
 
 
@@ -108,6 +116,7 @@ def call(sh: str, *args, **kwargs):
         _dryrun_logger.info(f"{sh} {args}")
         return 0
 
+    _logger.info(f"{sh} {args}")
     return subprocess.call(sh, *args, shell=True, **kwargs)
 
 
@@ -116,6 +125,7 @@ def call_no_side_effect(sh: str, *args, **kwargs):
         _dryrun_logger.info(f"{sh} {args}")
         return 0
 
+    _logger.info(f"{sh} {args}")
     return subprocess.call(sh, *args, shell=True, **kwargs)
 
 
@@ -124,6 +134,7 @@ def run(sh: str, *args, **kwargs):
         _dryrun_logger.info(f"{sh} {args}")
         return CompletedProcess([sh, *args] if args else sh, 0, None, None)
 
+    _logger.info(f"{sh} {args}")
     return subprocess.run(sh, *args, shell=True, **kwargs)
 
 
@@ -138,6 +149,7 @@ def check_output(sh: str, *args, **kwargs):
             return ""
         return b""
 
+    _logger.info(f"{sh} {args}")
     return subprocess.check_output(sh, *args, shell=True, **kwargs)
 
 
@@ -150,6 +162,7 @@ def check_call(sh: str, *args, **kwargs):
         _dryrun_logger.info(f"{sh} {args}")
         return 0
 
+    _logger.info(f"{sh} {args}")
     return subprocess.check_call(sh, *args, shell=True, **kwargs)
 
 
@@ -300,7 +313,7 @@ class Ensure(abc.ABC):
 
         # apply chosen strategy
         strategy = Strategy[strategy]
-        return self.strategy_execs[strategy](self)
+        return self.strategy_execs[strategy.value](self)
 
     @abc.abstractmethod
     def overwrite(self) -> t.Optional[Strategy]:

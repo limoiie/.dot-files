@@ -58,19 +58,14 @@ class App:
         # load module equipment meta information
         manager = ModuleEquipmentManager.load()
 
-        equipped_module_names = set(manager.equipped_module_names())
-
         # choose modules to equip
         module_names = (
             gum.choose(
-                *(
-                    module_name
-                    for module_name in ModuleRegistrationManager.all_module_names()
-                    if module_name not in equipped_module_names
-                ),
+                *ModuleRegistrationManager.all_module_names(),
                 header="Choose modules to equip",
                 no_limit=True,
                 select_if_one=True,
+                selected=manager.equipped_module_names(),
             )
             .strip()
             .split("\n")

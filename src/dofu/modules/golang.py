@@ -12,9 +12,9 @@ class GolangModule(Module):
 
     _command_requirements = [
         ucs.UCAppendEnvVarPath(
-            "$HOME/go/bin:$HOME/.local/.go/bin", env.user_home_path(".bashrc")
+            "/usr/local/go/bin:$HOME/go/bin", env.user_home_path(".bashrc")
         ),
         ucs.UCAppendEnvVarPath(
-            "$HOME/go/bin:$HOME/.local/.go/bin", env.user_home_path(".zshrc")
+            "/usr/local/go/bin:$HOME/go/bin", env.user_home_path(".zshrc")
         ),
     ]

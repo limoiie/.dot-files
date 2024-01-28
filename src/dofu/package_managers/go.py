@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 @dataclasses.dataclass
 class GoPackageManager(PackageManager):
     def install(self, spec):
-        shutils.check_call(f"go install {spec.version}@{spec.package}")
+        shutils.check_call(f"go install {spec.package}@{spec.version}")
 
     def uninstall(self, spec):
         _logger.warning("Uninstalling Go packages is not supported")

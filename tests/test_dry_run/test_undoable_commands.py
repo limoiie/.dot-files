@@ -28,14 +28,16 @@ class TestDryRunUCSymlink:
 
         # ln -s not executed, but printed
         assert not os.path.exists(link_file)
-        assert re.match(r"ln -s .*dummy_file .*dummy_file.ln", '\n'.join(caplog.messages))
+        assert re.match(
+            r"ln -s .*dummy_file .*dummy_file.ln", "\n".join(caplog.messages)
+        )
 
         # undo
         caplog.clear()
         with caplog.at_level(logging.INFO):
             cmd.undo()
 
-        assert re.match(r"unlink .*dummy_file.ln", '\n'.join(caplog.messages))
+        assert re.match(r"unlink .*dummy_file.ln", "\n".join(caplog.messages))
 
         assert not os.path.exists(link_file)
         assert os.path.exists(dummy_file)
@@ -61,14 +63,14 @@ class TestDryRunUCLink:
 
         # ln not executed, but printed
         assert not os.path.exists(link_file)
-        assert re.match(r"ln .*dummy_file .*dummy_file.ln", '\n'.join(caplog.messages))
+        assert re.match(r"ln .*dummy_file .*dummy_file.ln", "\n".join(caplog.messages))
 
         # undo
         caplog.clear()
         with caplog.at_level(logging.INFO):
             cmd.undo()
 
-        assert re.match(r"unlink .*dummy_file.ln", '\n'.join(caplog.messages))
+        assert re.match(r"unlink .*dummy_file.ln", "\n".join(caplog.messages))
 
         assert not os.path.exists(link_file)
         assert os.path.exists(dummy_file)
@@ -94,14 +96,18 @@ class TestDryRunUCBackupMv:
 
         # mv not executed, but printed
         assert not os.path.exists(backup_file)
-        assert re.match(r"mv .*dummy_file .*dummy_file.dofu.bak", '\n'.join(caplog.messages))
+        assert re.match(
+            r"mv .*dummy_file .*dummy_file.dofu.bak", "\n".join(caplog.messages)
+        )
 
         # undo
         caplog.clear()
         with caplog.at_level(logging.INFO):
             cmd.undo()
 
-        assert re.match(r"mv .*dummy_file.dofu.bak .*dummy_file", '\n'.join(caplog.messages))
+        assert re.match(
+            r"mv .*dummy_file.dofu.bak .*dummy_file", "\n".join(caplog.messages)
+        )
 
         assert not os.path.exists(backup_file)
         assert os.path.exists(dummy_file)
@@ -127,7 +133,7 @@ class TestDryRunUCMkdir:
 
         # mkdir not executed, but printed
         assert not os.path.exists(new_dir)
-        assert re.match(r"mkdir -p .*nested/sub/dir", '\n'.join(caplog.messages))
+        assert re.match(r"mkdir -p .*nested/sub/dir", "\n".join(caplog.messages))
 
         # mick the creating
         os.makedirs(new_dir)
@@ -141,7 +147,7 @@ class TestDryRunUCMkdir:
         assert os.path.exists(new_dir)
         assert re.match(
             r"" r"rm -r .*nested/sub/dir.*" r"rm -r .*nested/sub.*" r"rm -r .*nested",
-            '\n'.join(caplog.messages),
+            "\n".join(caplog.messages),
             re.DOTALL | re.MULTILINE,
         )
 
@@ -166,7 +172,7 @@ class TestDryRunUCMove:
 
         # mv not executed, but printed
         assert not os.path.exists(dst_file)
-        assert re.match(r"mv .*dummy_file .*dummy_file.mv", '\n'.join(caplog.messages))
+        assert re.match(r"mv .*dummy_file .*dummy_file.mv", "\n".join(caplog.messages))
 
         # mick the moving
         os.rename(dummy_file, dst_file)
@@ -179,7 +185,7 @@ class TestDryRunUCMove:
 
         # not undo the creation, but printed
         assert os.path.exists(dst_file)
-        assert re.match(r"mv .*dummy_file.mv .*dummy_file", '\n'.join(caplog.messages))
+        assert re.match(r"mv .*dummy_file.mv .*dummy_file", "\n".join(caplog.messages))
 
 
 class TestDryRunUCReplaceLine:
@@ -200,7 +206,7 @@ class TestDryRunUCReplaceLine:
         assert ret.stderr is None
 
         # mv not executed, but printed
-        assert re.match(r"replace .* as:", '\n'.join(caplog.messages))
+        assert re.match(r"update.* as:", "\n".join(caplog.messages))
         assert capsys.readouterr().out == "DUMMY"
 
         # mick the replacing
@@ -212,7 +218,7 @@ class TestDryRunUCReplaceLine:
             cmd.undo()
 
         # not undo the creation, but printed
-        assert re.match(r"replace .* as:", '\n'.join(caplog.messages))
+        assert re.match(r"update.* as:", "\n".join(caplog.messages))
         assert capsys.readouterr().out == "dummy"
         assert os.path.exists(dummy_file)
         assert dummy_file.read_text() == "DUMMY\n"

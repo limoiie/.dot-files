@@ -20,7 +20,7 @@ class TestDryRunSubprocess:
         assert ret == 0
 
         # the command is not executed, but printed
-        assert '\n'.join(caplog.messages) == "echo hello ()"
+        assert "\n".join(caplog.messages) == "echo hello ()"
 
     def test_run(self, caplog):
         with caplog.at_level(logging.INFO):
@@ -32,7 +32,7 @@ class TestDryRunSubprocess:
         assert ret.stderr is None
 
         # the command is not executed, but printed
-        assert '\n'.join(caplog.messages) == "echo hello ()"
+        assert "\n".join(caplog.messages) == "echo hello ()"
 
     def test_check_output(self, caplog):
         with caplog.at_level(logging.INFO):
@@ -40,7 +40,7 @@ class TestDryRunSubprocess:
         assert ret == b""
 
         # the command is not executed, but printed
-        assert '\n'.join(caplog.messages) == "echo hello ()"
+        assert "\n".join(caplog.messages) == "echo hello ()"
 
     def test_check_call(self, caplog):
         with caplog.at_level(logging.INFO):
@@ -48,7 +48,7 @@ class TestDryRunSubprocess:
         assert ret == 0
 
         # the command is not executed, but printed
-        assert '\n'.join(caplog.messages) == "echo hello ()"
+        assert "\n".join(caplog.messages) == "echo hello ()"
 
 
 class TestDryRunFileUpdateGuarder:
@@ -132,7 +132,7 @@ class TestDryRunInputFile:
                     sys.stdout.write(line.replace("hello", "world"))
 
         # the changes do not executed, but printed
-        assert re.match(r".*replace.* as:", caplog.text)
+        assert re.match(r".*update.* as:", caplog.text)
         assert capsys.readouterr().out == "world\n"
 
         # the original file is not changed

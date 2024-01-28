@@ -32,5 +32,6 @@ class VimModule(Module):
             path=env.xdg_config_path("vim", "vimrc"),
             pattern=".*common-vimrc",
             file_to_source=env.project_path_relhome("common-vimrc"),
+            check_exists=False,
         ),
     ]

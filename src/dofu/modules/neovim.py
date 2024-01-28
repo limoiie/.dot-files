@@ -27,7 +27,7 @@ class NeovimModule(Module):
         ),
         req.GitRepoRequirement(
             url="https://github.com/LazyVim/starter.git",
-            path=env.xdg_config_path("LazyNvim"),
+            path=env.xdg_config_path("LazyVim"),
         ),
     ]
 

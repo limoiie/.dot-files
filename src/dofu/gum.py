@@ -28,18 +28,24 @@ def choose(
     height: int = None,
     timeout: int = None,
 ):
-    return subprocess.check_output(
-        ["gum", "choose"]
-        + [f"--header='{header}'" for header in opt(header)]
-        + [f"--selected={','.join(slct)}" for slct in opt(selected) if slct]
-        + [f"--select-if-one" for _ in opt(select_if_one)]
-        + [f"--limit={limit}" for limit in opt(limit)]
-        + [f"--no-limit" for _ in opt(no_limit)]
-        + [f"--height={height}" for height in opt(height)]
-        + [f"--timeout={timeout}" for timeout in opt(timeout)]
-        + list(items),
-        encoding="utf-8",
-    )
+    try:
+        return subprocess.check_output(
+            ["gum", "choose"]
+            + [f"--header='{header}'" for header in opt(header)]
+            + [f"--selected={','.join(slct)}" for slct in opt(selected) if slct]
+            + [f"--select-if-one" for _ in opt(select_if_one)]
+            + [f"--limit={limit}" for limit in opt(limit)]
+            + [f"--no-limit" for _ in opt(no_limit)]
+            + [f"--height={height}" for height in opt(height)]
+            + [f"--timeout={timeout}" for timeout in opt(timeout)]
+            + list(items),
+            encoding="utf-8",
+        )
+
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 130:  # esc
+            return ""
+        raise
 
 
 def confirm(

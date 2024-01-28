@@ -483,7 +483,7 @@ class ModuleEquipmentManager:
                 meta.status = ModuleEquipmentStatus.INSTALLED
                 _logger.info(f"Equipped!")
 
-            except Exception as e:
+            except Exception:
                 meta.status = ModuleEquipmentStatus.BROKEN
                 _logger.error(f"Failed to equip Module {module.name()}")
                 raise

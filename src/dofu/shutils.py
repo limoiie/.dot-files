@@ -206,17 +206,15 @@ def input_file(
 
     if dry_run and inplace:
         with open(filepath, "r") as origin:
-            _dryrun_logger.info(
-                f"update {str(filepath)} as:\n"
-                + "".join(
-                    difflib.unified_diff(
-                        origin.readlines(),
-                        updated_lines,
-                        fromfile=str(filepath),
-                        tofile=str(filepath) + "<inplace>",
-                    )
-                ).rstrip()
+            diff_lines = difflib.unified_diff(
+                origin.readlines(),
+                updated_lines,
+                fromfile=str(filepath),
+                tofile=str(filepath) + "<inplace>",
             )
+
+        diff_text = "".join(diff_lines).rstrip() or "No change!"
+        _dryrun_logger.info(f"update {str(filepath)} as:\n{diff_text}")
 
 
 @contextlib.contextmanager

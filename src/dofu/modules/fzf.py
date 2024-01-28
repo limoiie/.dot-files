@@ -18,11 +18,11 @@ class FzfModule(Module):
         ucs.UCAppendLine.make_source_line(
             path=env.user_home_path(".bashrc"),
             pattern=r"\-f.*fzf.bash",
-            file_to_source=env.xdg_config_path("fzf.bash"),
+            file_to_source=env.xdg_config_path_relhome("fzf.bash"),
         ),
         ucs.UCAppendLine.make_source_line(
             path=env.user_home_path(".zshrc"),
             pattern=r"\-f.*fzf.zsh",
-            file_to_source=env.xdg_config_path("fzf.zsh"),
+            file_to_source=env.xdg_config_path_relhome("fzf.zsh"),
         ),
     ]

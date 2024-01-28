@@ -19,13 +19,14 @@ class UCChSh(UndoableCommand):
     def _exec(self):
         self.origin_shell = os.environ.get("SHELL")
         shell = shutils.command_path(self.shell)
-        shutils.check_call(f"chsh -s ${shell}")
+        shutils.check_call(f"chsh -s {shell}")
         self.real_shell = shell
+        self.ret = self._success_result()
         return self.ret
 
     def _undo(self):
         if self.origin_shell:
-            shutils.check_call(f"chsh -s ${self.origin_shell}")
+            shutils.check_call(f"chsh -s {self.origin_shell}")
         self.origin_shell = None
         self.ret = None
 

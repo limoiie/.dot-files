@@ -483,7 +483,7 @@ class ModuleEquipmentManager:
                 meta.status = ModuleEquipmentStatus.INSTALLED
                 _logger.info(f"Equipped!")
 
-            except Exception:
+            except Exception as e:
                 meta.status = ModuleEquipmentStatus.BROKEN
                 _logger.error(f"Failed to equip Module {module.name()}")
                 raise
@@ -703,6 +703,7 @@ class ModuleEquipmentManager:
             for command in itr_required_cmds:
                 ret = command.exec()
                 if ret.retcode != 0:
+                    _logger.error(f"Failed to execute command {command} - {ret}")
                     raise ret.to_error()
 
                 transaction.records.append(command)

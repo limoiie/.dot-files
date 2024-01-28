@@ -263,7 +263,9 @@ def do_commands_exist(*commands: str):
 
 
 def command_path(command: str) -> str:
-    return subprocess.check_output(f"command -v {command}", encoding="utf-8").strip()
+    return subprocess.check_output(
+        f"command -v {command}", shell=True, encoding="utf-8"
+    ).strip()
 
 
 @dataclasses.dataclass

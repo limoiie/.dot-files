@@ -1,10 +1,9 @@
-import re
 import shutil
 import subprocess
 
 import pytest
 
-from dofu import requirement as req, version_control as vc, env
+from dofu import env, requirement as req, version_control as vc
 
 
 @pytest.fixture(scope="function")
@@ -67,5 +66,7 @@ class TestGitRepoRequirement:
         assert not requirement.is_satisfied()
 
         # install
-        with pytest.raises(RuntimeError, match=r"git clone.*already exists"):
+        with pytest.raises(
+            subprocess.CalledProcessError, match=r"git clone.*already exists"
+        ):
             requirement.install()

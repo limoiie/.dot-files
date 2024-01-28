@@ -1,5 +1,6 @@
 import re
 import shutil
+import subprocess
 
 import pytest
 
@@ -123,7 +124,9 @@ class TestEquipmentSyncGitRepos:
 
         # install test-one-module
         mngr = eqp.ModuleEquipmentManager()
-        with pytest.raises(RuntimeError, match="git clone.*already exists"):
+        with pytest.raises(
+            subprocess.CalledProcessError, match="git clone.*already exists"
+        ):
             mngr.sync(["test-one-module"])
         meta = mngr.meta["test-one-module"]
 

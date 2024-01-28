@@ -1,7 +1,10 @@
 import dataclasses
+import logging
 
 from dofu import shutils
 from dofu.package_manager import PackageManager
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -10,8 +13,7 @@ class GoPackageManager(PackageManager):
         shutils.check_call(f"go install {spec.version}@{spec.package}")
 
     def uninstall(self, spec):
-        # TODO: no uninstall command for go
-        pass
+        _logger.warning("Uninstalling Go packages is not supported")
 
     def update(self, spec):
         return self.install(spec)

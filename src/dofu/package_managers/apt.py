@@ -9,6 +9,7 @@ class AptPackageManager(PackageManager):
     def install(self, spec):
         if not spec.version or spec.version == "latest":
             shutils.check_call(f"sudo apt install -y {spec.package}")
+            return
         shutils.check_call(f"sudo apt install -y {spec.package}={spec.version}")
 
     def uninstall(self, spec):

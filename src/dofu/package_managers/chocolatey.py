@@ -9,6 +9,7 @@ class ChocolateyPackageManager(PackageManager):
     def install(self, spec):
         if not spec.version or spec.version != "latest":
             shutils.check_call(f"choco install {spec.package} --version {spec.version}")
+            return
         shutils.check_call(f"choco install {spec.package}")
 
     def uninstall(self, spec):
@@ -16,6 +17,7 @@ class ChocolateyPackageManager(PackageManager):
             shutils.check_call(
                 f"choco uninstall {spec.package} --version {spec.version}"
             )
+            return
         shutils.check_call(f"choco uninstall {spec.package}")
 
     def update(self, spec):

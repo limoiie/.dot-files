@@ -71,5 +71,5 @@ class Options:
 
 _options: Options = Options(
     dry_run=False,
-    strategy=Strategy.QUIT,
+    strategy=Strategy.ASK,
 )

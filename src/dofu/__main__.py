@@ -26,7 +26,7 @@ class App:
     def init(
         *,
         dry_run: bool = False,
-        strategy: typing.Literal["ask", "force", "auto", "quit"] = "quit",
+        strategy: typing.Literal["ask", "force", "auto", "quit"] = "ask",
         loglevel: typing.Literal["debug", "info", "warn", "error", "fatal"] = None,
     ):
         """

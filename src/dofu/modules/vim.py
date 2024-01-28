@@ -1,9 +1,8 @@
 from dofu import env, package_requirements as prs, undoable_commands as ucs
 from dofu.module import Module
-from dofu.modules.rust import RustModule
 
 
-@Module.module("vim", requires=[RustModule])
+@Module.module("vim", requires=[])
 class VimModule(Module):
     _package_requirements = [
         prs.PRSystem.make("vim"),

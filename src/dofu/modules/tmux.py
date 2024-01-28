@@ -5,10 +5,9 @@ from dofu import (
     undoable_commands as ucs,
 )
 from dofu.module import Module
-from .rust import RustModule
 
 
-@Module.module("tmux", requires=[RustModule])
+@Module.module("tmux", requires=[])
 class TmuxModule(Module):
     _package_requirements = [
         prs.PRSystem.make("tmux"),

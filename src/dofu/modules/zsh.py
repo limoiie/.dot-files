@@ -5,10 +5,9 @@ from dofu import (
     undoable_commands as ucs,
 )
 from dofu.module import Module
-from .rust import RustModule
 
 
-@Module.module("zsh", requires=[RustModule])
+@Module.module("zsh", requires=[])
 class ZshModule(Module):
     _package_requirements = [
         prs.PRSystem.make(name="zsh"),

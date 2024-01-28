@@ -733,9 +733,10 @@ class ModuleEquipmentManager:
 
         # uninstall packages
         while meta.package_installations:
-            meta.package_installations[-1].requirement.uninstall(
-                meta.package_installations[-1].manager
-            )
+            if meta.package_installations[-1].manager is not None:
+                meta.package_installations[-1].requirement.uninstall(
+                    meta.package_installations[-1].manager
+                )
             meta.package_installations.pop()
 
 

@@ -19,16 +19,16 @@ _dryrun_logger = logging.getLogger(__name__ + "[/] [blue]DRYRUN")
 CompletedProcess = subprocess.CompletedProcess
 
 
-def mkdirs(path, mode=0o777, exist_ok=False):
-    if not exist_ok:
-        EnsurePathNotExists(action=f"mkdir -p", path=path)()
+def copy(src, dst, *, follow_symlinks=True):
+    EnsurePathExists(action=f"cp", path=src, is_dir=False)()
+    EnsurePathNotExists(action=f"cp", path=dst)()
 
     if Options.instance().dry_run:
-        _dryrun_logger.info(f"mkdir -p {path}")
-        return
+        _dryrun_logger.info(f"cp {src} {dst}")
+        return None
 
-    _logger.info(f"mkdir -p {path}")
-    return os.makedirs(path, mode=mode, exist_ok=exist_ok)
+    _logger.info(f"cp {src} {dst}")
+    return shutil.copy(src, dst, follow_symlinks=follow_symlinks)
 
 
 def link(src, dst, *, follow_symlinks=True):
@@ -37,7 +37,7 @@ def link(src, dst, *, follow_symlinks=True):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"ln {src} {dst}")
-        return
+        return None
 
     _logger.info(f"ln {src} {dst}")
     return os.link(src, dst, follow_symlinks=follow_symlinks)
@@ -49,7 +49,7 @@ def symlink(src, dst, target_is_directory=False, *, dir_fd=None):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"ln -s {src} {dst}")
-        return
+        return None
 
     _logger.info(f"ln -s {src} {dst}")
     return os.symlink(src, dst, target_is_directory=target_is_directory, dir_fd=dir_fd)
@@ -60,10 +60,34 @@ def unlink(path, *, dir_fd=None):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"unlink {path}")
-        return
+        return None
 
     _logger.info(f"unlink {path}")
     return os.unlink(path, dir_fd=dir_fd)
+
+
+def mkdirs(path, mode=0o777, exist_ok=False):
+    if not exist_ok:
+        EnsurePathNotExists(action=f"mkdir -p", path=path)()
+
+    if Options.instance().dry_run:
+        _dryrun_logger.info(f"mkdir -p {path}")
+        return None
+
+    _logger.info(f"mkdir -p {path}")
+    return os.makedirs(path, mode=mode, exist_ok=exist_ok)
+
+
+def move(src, dst):
+    EnsurePathExists(action=f"mv", path=src)()
+    EnsurePathNotExists(action=f"mv", path=dst)()
+
+    if Options.instance().dry_run:
+        _dryrun_logger.info(f"mv {src} {dst}")
+        return None
+
+    _logger.info(f"mv {src} {dst}")
+    return shutil.move(src, dst)
 
 
 def remove(path, *, dir_fd=None):
@@ -71,7 +95,7 @@ def remove(path, *, dir_fd=None):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"rm {path}")
-        return
+        return None
 
     _logger.info(f"rm {path}")
     return os.remove(path, dir_fd=dir_fd)
@@ -82,22 +106,10 @@ def rmdir(path, *, dir_fd=None):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"rm -r {path}")
-        return
+        return None
 
     _logger.info(f"rm -r {path}")
     return os.rmdir(path, dir_fd=dir_fd)
-
-
-def move(src, dst):
-    EnsurePathExists(action=f"mv", path=src)()
-    EnsurePathNotExists(action=f"mv", path=dst)()
-
-    if Options.instance().dry_run:
-        _dryrun_logger.info(f"mv {src} {dst}")
-        return
-
-    _logger.info(f"mv {src} {dst}")
-    return shutil.move(src, dst)
 
 
 def rmtree(path, ignore_errors=False, onerror=None):
@@ -105,7 +117,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
 
     if Options.instance().dry_run:
         _dryrun_logger.info(f"rm -rf {path}")
-        return
+        return None
 
     _logger.info(f"rm -rf {path}")
     return shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)

@@ -3,7 +3,7 @@ import typing
 
 import fire
 
-from dofu import gum
+from dofu import env, gum
 from dofu.equipment import ModuleEquipmentManager
 from dofu.inspect import extend_interface
 from dofu.logging import init as init_logging
@@ -236,6 +236,25 @@ class App:
         module_names = list(filter(None, module_names))
         if module_names:
             manager.sync(module_names)
+
+    @staticmethod
+    @extend_interface(__init)
+    def integrate():
+        """
+        Integrate dofu to your env.
+
+        This command will create a shell command in your .local/bin folder
+        to let you access dofu from everywhere in this computer.
+        """
+        from dofu import shutils, undoable_commands as ucs
+
+        dofu_exec_file = env.user_home_path(".local", "bin", "dofu")
+        shutils.copy(src=env.project_path("dofu"), dst=dofu_exec_file)
+        ucs.UCAppendEnvVar(
+            varname="DOT_FILES_ROOT",
+            value=env.project_path_relhome(),
+            rc=dofu_exec_file,
+        ).exec()
 
 
 if __name__ == "__main__":

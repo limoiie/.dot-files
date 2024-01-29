@@ -81,7 +81,7 @@ __config_go() {
 # Configure fzf
 __config_fzf() {
     # activate env
-    [ -f "~/.fzf.zsh" ] && source ~/.fzf.zsh
+    [ -f "$XDG_CONFIG_HOME/.fzf.zsh" ] && source "$XDG_CONFIG_HOME/.fzf.zsh"
     if ! __requires fzf; then
         return
     fi
@@ -210,10 +210,9 @@ __config_exa() {
 # Configure starship
 __config_starship() {
     if ! __requires starship; then
+        unset USE_STARSHIP_THEME
         return
     fi
-
-    unset USE_STARSHIP_THEME
 }
 
 __config_cargo

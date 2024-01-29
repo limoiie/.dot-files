@@ -17,8 +17,8 @@ if [[ -z ${USE_STARSHIP_THEME} ]]; then
   autoload -Uz promptinit
   promptinit
   prompt walters
-  # theme walters cus: change the symbol '>' to '$' 
-  export PROMPT='%B%(?..[%?] )%b%n@%U%m%u$ '
+  # theme walters cus: change the symbol '>' to '%'
+  export PROMPT='%B%(?..[%?])%b%(!.%n@%U%m%u.) %# '
 else
   eval "$(starship init zsh)"
 fi

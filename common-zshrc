@@ -30,7 +30,7 @@ if [[ -z ${USE_STARSHIP_THEME} ]]; then
       esac ;;
     *) os_icon='' ;;
   esac
-  export PROMPT="${os_icon}%B%(?..[%? ])%b%# "
+  export PROMPT="${os_icon}%B%(?..[%?] )%b%# "
   [ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%U%m%u %# "
 else
   eval "$(starship init zsh)"

@@ -14,11 +14,24 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
 # zsh prompt initialization
 if [[ -z ${USE_STARSHIP_THEME} ]]; then
+  local os_icon
+
   autoload -Uz promptinit
   promptinit
   prompt walters
-  # theme walters cus: change the symbol '>' to '%'
-  export PROMPT='%B%(?..[%?])%b%(!.%n@%U%m%u.)%# '
+  case `uname` in
+    Darwin) os_icon=' ' ;;
+    Linux) 
+      case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
+        ubuntu) os_icon=' ' ;;
+        kali) os_icon=' ' ;;
+        arch) os_icon=' ' ;;
+        *) os_icon='󰌽 ' ;;
+      esac ;;
+    *) os_icon='' ;;
+  esac
+  export PROMPT="${os_icon}%B%(?..[%? ])%b%# "
+  [ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%n@%U%m%u %# "
 else
   eval "$(starship init zsh)"
 fi

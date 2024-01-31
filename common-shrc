@@ -26,21 +26,21 @@ alias j5=%5
 
 # Disable proxy
 proxy-off() {
-    unset http_proxy
-    unset https_proxy
-    unset ftp_proxy
-    unset rsync_proxy
-    echo -e "Proxy is disabled"
+  unset http_proxy
+  unset https_proxy
+  unset ftp_proxy
+  unset rsync_proxy
+  echo -e "Proxy is disabled"
 }
 
 # Enable proxy
 proxy-on() {
-    export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
-    export http_proxy="http://127.0.0.1:7890"
-    export https_proxy=$http_proxy
-    export ftp_proxy=$http_proxy
-    export rsync_proxy=$http_proxy
-    echo -e "Proxy is enabled on $http_proxy!"
+  export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
+  export http_proxy="http://127.0.0.1:7890"
+  export https_proxy=$http_proxy
+  export ftp_proxy=$http_proxy
+  export rsync_proxy=$http_proxy
+  echo -e "Proxy is enabled on $http_proxy!"
 }
 
 # ============================================================================
@@ -49,170 +49,162 @@ proxy-on() {
 
 # Return true only if all commands exist
 __requires() {
-    for command in "$@"; do
-        if ! command -v "$command" >/dev/null 2>&1; then
-            return 1
-        fi
-    done
-    return 0
+  for command in "$@"; do
+    if ! command -v "$command" >/dev/null 2>&1; then
+      return 1
+    fi
+  done
+  return 0
 }
 
 # Configure cargo
 __config_cargo() {
-    # activate cargo
-    [ -f "~/.cargo/env" ] && source ~/.cargo/env
-    if ! __requires cargo; then
-        return
-    fi
+  # activate cargo
+  [ -f "~/.cargo/env" ] && source ~/.cargo/env
+  __requires cargo || return
 
-    export PATH=$PATH:~/.cargo/bin
+  export PATH=$PATH:~/.cargo/bin
 }
 
 # Configure go
 __config_go() {
-    if ! __requires go; then
-        return
-    fi
+  __requires go || return
 
-    __requires lazydocker && alias dtop="lazydocker"
-    __requires lazygit && alias gtop="lazygit"
+  __requires lazydocker && alias dtop="lazydocker"
+  __requires lazygit && alias gtop="lazygit"
 }
 
 # Configure fzf
 __config_fzf() {
-    # activate env
-    [ -f "$XDG_CONFIG_HOME/.fzf.zsh" ] && source "$XDG_CONFIG_HOME/.fzf.zsh"
-    if ! __requires fzf; then
-        return
-    fi
+  __requires fzf || return
 
-    # view layout
-    export FZF_DEFAULT_OPTS='--border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
-    export FZF_COMPLETION_TRIGGER='..'
+  # view layout
+  export FZF_DEFAULT_OPTS='--border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
+  export FZF_COMPLETION_TRIGGER='..'
 
-    # enable fzf completioin and key-bindings
-    #source /usr/share/doc/fzf/examples/completion.zsh
-    #source /usr/share/doc/fzf/examples/key-bindings.zsh
+  # enable fzf completioin and key-bindings
+  #source /usr/share/doc/fzf/examples/completion.zsh
+  #source /usr/share/doc/fzf/examples/key-bindings.zsh
 }
+
+
+# run fzf in a popup tmux frame
+_pop_fzf() {
+  fzf-tmux -p80%,60% -- \
+    --layout=reverse --multi --height=50% --min-height=20 --border \
+    --color='header:italic:underline' \
+    --preview-window='right,50%,border-left' \
+    "$@"
+}
+
 
 # Configure fzf plugins
 __config_fzf_plugins() {
-    if ! __requires fzf; then
-        return
-    fi
+  __requires fzf || return
 
-    # Boost ps with fzf
-    psf() {
-        ps $@ | fzf
-    }
+  # Boost ps with fzf
+  psf() {
+    ps $@ | _pop_fzf
+  }
 
-    # Boost z with fzf
-    zf() {
-        dir=$(z -l | fzf | awk '{ print $2 }')
-        if [[ -d "$dir" ]]; then
-            cd $dir
-        fi
-    }
+  # Boost z with fzf
+  zf() {
+    set -e
+    cd $(z -l | _pop_fzf | awk '{ print $2 }')
+  }
 
+  if __requires bat; then
     # Load git helper tui tools
-    __requires bat && \
-        source "${DOT_HOME}/scripts/git-fzf.sh"
-
-    # Call fzf with bat as preview
-    __requires bat && \
-        fp() {
-            preview="bat --color=always --style=numbers --line-range=:500 {}"
-            fzf $@ --preview $preview
-        }
+    source "${DOT_HOME}/scripts/git-fzf.sh"
 
     # Boost tail with bat
-    __requires bat && \
-        bail() {
-            tail $@ | bat --paging=never -l log
-        }
+    bail() {
+      tail $@ | bat --paging=never -l=log
+    }
+
+    # Call fzf with bat as preview
+    pf() {
+      _pop_fzf $@ --preview="bat --color=always --line-range=:500 {}"
+    }
+
+    # Call fzf with bat and imgcat as preview
+    caf() {
+      local pcat tcat
+      pcat="imgcat -H 50%"
+      tcat="bat --color=always"
+      _pop_fzf $@ --preview="case {} in *jpg|*jpeg|*png) $pcat {} ;; *) $tcat {} ;; esac"
+    }
 
     # Boost rg with fzf
     __requires rg && \
-        rgf() {
-            local initial_query rgp_options rgp_prefix bat_prefix bat_context
-            initial_query=${@: -1}
-            rgp_options_len=$(($# > 0 ? $# - 1 : 0))
-            rgp_options=${@: 1:${rgp_options_len}}
-            rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
-            bat_prefix="bat --color=always --style=numbers"
-            bat_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
+      rgf() {
+        local initial_query rgp_options rgp_prefix bat_prefix bat_context
+        initial_query=${@: -1}
+        rgp_options_len=$(($# > 0 ? $# - 1 : 0))
+        rgp_options=${@: 1:${rgp_options_len}}
+        rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
+        cut_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
 
-            FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" fzf \
-                --bind "change:reload:$rgp_prefix {q} || true" \
-                --preview="$bat_prefix \$(echo {} | $bat_context)" \
-                --ansi --disabled --query "$initial_query" \
-                --height=50% --layout=reverse
-        }
+        FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" _pop_fzf \
+          --bind "change:reload:$rgp_prefix {q} || true" \
+          --preview="bat \$(echo {} | $cut_context)" \
+          --ansi --disabled --query "$initial_query"
+      }
+  fi
 
-    # Preview to select gist id and run 
-    __requires gist && \
-        gisf() {
-            local gist_id=$(gist -l | fzf | awk '{print $1}' | awk -F/ '{print $4}')
-            gist $@ ${gist_id}
-        }
+  # Preview to select gist id and run 
+  __requires gist && \
+    gisf() {
+      local gist_id=$(gist -l | _pop_fzf | awk '{print $1}' | awk -F/ '{print $4}')
+      gist $@ ${gist_id}
+    }
 }
 
 # Configure bat
 __config_bat() {
-    if ! __requires bat; then
-        return
-    fi
+  __requires bat || return
 
-    # theme
-    export BAT_THEME=TwoDark
-    # using bat for man
-    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  # theme
+  export BAT_THEME=TwoDark
+  # using bat for man
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 }
 
 # Configure emacs
 __config_emacs() {
-    if ! __requires emacs; then
-        return
-    fi
+  __requires emacs || return
 
-    alias et="emacs -nw"
-    alias en="emacs -nw"
-    alias ec="emacsclient -a '' -c"
+  alias et="emacs -nw"
+  alias en="emacs -nw"
+  alias ec="emacsclient -a '' -c"
 }
 
 # Configure neovim
 __config_vim() {
-    if ! __requires nvim; then
-        return
-    fi
+  __requires nvim || return
 
-    alias vi="nvim"
-    alias nv="NVIM_APPNAME=NvChad nvim"
-    alias nvchad="NVIM_APPNAME=NvChad nvim"
-    alias lv="NVIM_APPNAME=LazyVim nvim"
-    alias lazyvim="NVIM_APPNAME=LazyVim nvim"
-    alias av="NVIM_APPNAME=AstroNvim nvim"
-    alias astronvim="NVIM_APPNAME=AstroNvim nvim"
+  alias vi="nvim"
+  alias nv="NVIM_APPNAME=NvChad nvim"
+  alias nvchad="NVIM_APPNAME=NvChad nvim"
+  alias lv="NVIM_APPNAME=LazyVim nvim"
+  alias lazyvim="NVIM_APPNAME=LazyVim nvim"
+  alias av="NVIM_APPNAME=AstroNvim nvim"
+  alias astronvim="NVIM_APPNAME=AstroNvim nvim"
 
-    # Relocate .vimrc file
-    # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
+  # Relocate .vimrc file
+  # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
 }
 
 # Configure exa
 __config_exa() {
-    if ! __requires exa; then
-        return
-    fi
+  __requires exa || return
 
-    alias ls="exa"
+  alias ls="exa"
 }
 
 # Configure starship
 __config_starship() {
-    if ! __requires starship; then
-        unset USE_STARSHIP_THEME
-        return
-    fi
+  __requires starship || return
 }
 
 __config_cargo
@@ -238,15 +230,15 @@ __config_starship
 #
 # $ python -m <fire-widget> -- --completion | fix-fire <module> > .complete
 fire-zsh-complete() {
-    MODULE=$1
-    sed 's/:/: /g' | \
-    sed "s/__main__.py$/python -m ${MODULE}/g" | \
-    sed "s/__main__.py/${MODULE}/g" | \
-    sed "s/__main__py/${MODULE}/g"
+  MODULE=$1
+  sed 's/:/: /g' | \
+  sed "s/__main__.py$/python -m ${MODULE}/g" | \
+  sed "s/__main__.py/${MODULE}/g" | \
+  sed "s/__main__py/${MODULE}/g"
 }
 
 # remove all the emacs swap files under current folder
 _clean_emacs_cache() {
-    rm .*~
+  rm .*~
 }
 

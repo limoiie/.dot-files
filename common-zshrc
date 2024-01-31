@@ -14,8 +14,6 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
 # zsh prompt initialization
 if [[ -z ${USE_STARSHIP_THEME} ]]; then
-  local os_icon
-
   autoload -Uz promptinit
   promptinit
   prompt walters

@@ -14,8 +14,10 @@ class PRStarship(PackageRequirement):
         ),
     }
 
-    spec: sp.PackageSpecification = sp.PackageSpecification(
-        package="starship",
-        version="latest",
+    spec: sp.PackageSpecification = dataclasses.field(
+        default_factory=lambda: sp.PackageSpecification(
+            package="starship",
+            version="latest",
+        )
     )
     command: str = "starship"

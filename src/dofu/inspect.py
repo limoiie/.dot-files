@@ -127,10 +127,12 @@ def extend_kwonly(fn: callable, *more_kwonly, **kwdefaults):
     )
 
     fn.__code__ = co.replace(
-        co_kwonlyargcount=extended_kwonlyargcount, co_varnames=extended_varnames
+        co_kwonlyargcount=extended_kwonlyargcount,
+        co_nlocals=len(extended_varnames),
+        co_varnames=extended_varnames,
     )
     if not fn.__kwdefaults__:
-        fn.__kwdefaults__ = dict()
+        fn.__kwdefaults__ = {}
     fn.__kwdefaults__.update(**kwdefaults)
 
 

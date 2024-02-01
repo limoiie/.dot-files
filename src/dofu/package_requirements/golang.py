@@ -19,8 +19,10 @@ class PRGolang(PackageRequirement):
         ),
     }
 
-    spec: sp.PackageSpecification = sp.PackageSpecification(
-        package="go",
-        version="1.21.6",
+    spec: sp.PackageSpecification = dataclasses.field(
+        default_factory=lambda: sp.PackageSpecification(
+            package="go",
+            version="1.21.6",
+        )
     )
     command: str = "go"

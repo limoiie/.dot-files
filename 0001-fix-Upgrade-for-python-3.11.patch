@@ -1,0 +1,107 @@
+From 392864e7f134894778a36dd26c706c6999a11ff9 Mon Sep 17 00:00:00 2001
+From: limoiie <limo.iie4@gmail.com>
+Date: Thu, 1 Feb 2024 09:02:57 +0800
+Subject: [PATCH] [fix] Upgrade for python 3.11
+
+---
+ src/dofu/inspect.py                       | 6 ++++--
+ src/dofu/package_requirements/golang.py   | 8 +++++---
+ src/dofu/package_requirements/neovim.py   | 8 +++++---
+ src/dofu/package_requirements/rustup.py   | 8 +++++---
+ src/dofu/package_requirements/starship.py | 8 +++++---
+ 5 files changed, 24 insertions(+), 14 deletions(-)
+
+diff --git a/src/dofu/inspect.py b/src/dofu/inspect.py
+index b9bed7c..b109118 100644
+--- a/src/dofu/inspect.py
++++ b/src/dofu/inspect.py
+@@ -127,10 +127,12 @@ def extend_kwonly(fn: callable, *more_kwonly, **kwdefaults):
+     )
+ 
+     fn.__code__ = co.replace(
+-        co_kwonlyargcount=extended_kwonlyargcount, co_varnames=extended_varnames
++        co_kwonlyargcount=extended_kwonlyargcount,
++        co_nlocals=len(extended_varnames),
++        co_varnames=extended_varnames,
+     )
+     if not fn.__kwdefaults__:
+-        fn.__kwdefaults__ = dict()
++        fn.__kwdefaults__ = {}
+     fn.__kwdefaults__.update(**kwdefaults)
+ 
+ 
+diff --git a/src/dofu/package_requirements/golang.py b/src/dofu/package_requirements/golang.py
+index 122ee42..e5375c1 100644
+--- a/src/dofu/package_requirements/golang.py
++++ b/src/dofu/package_requirements/golang.py
+@@ -19,8 +19,10 @@ class PRGolang(PackageRequirement):
+         ),
+     }
+ 
+-    spec: sp.PackageSpecification = sp.PackageSpecification(
+-        package="go",
+-        version="1.21.6",
++    spec: sp.PackageSpecification = dataclasses.field(
++        default_factory=lambda: sp.PackageSpecification(
++            package="go",
++            version="1.21.6",
++        )
+     )
+     command: str = "go"
+diff --git a/src/dofu/package_requirements/neovim.py b/src/dofu/package_requirements/neovim.py
+index da1a180..3af7661 100644
+--- a/src/dofu/package_requirements/neovim.py
++++ b/src/dofu/package_requirements/neovim.py
+@@ -10,8 +10,10 @@ class PRNeovim(PackageRequirement):
+         pf.ANY: pms.BobNvimPackageManager(),
+     }
+ 
+-    spec: sp.PackageSpecification = sp.PackageSpecification(
+-        package="neovim",
+-        version="latest",
++    spec: sp.PackageSpecification = dataclasses.field(
++        default_factory=lambda: sp.PackageSpecification(
++            package="neovim",
++            version="latest",
++        )
+     )
+     command: str = "nvim"
+diff --git a/src/dofu/package_requirements/rustup.py b/src/dofu/package_requirements/rustup.py
+index 2e619d8..26ba4e4 100644
+--- a/src/dofu/package_requirements/rustup.py
++++ b/src/dofu/package_requirements/rustup.py
+@@ -13,8 +13,10 @@ class PRRustup(PackageRequirement):
+         ),
+     }
+ 
+-    spec: sp.PackageSpecification = sp.PackageSpecification(
+-        package="rustup",
+-        version="latest",
++    spec: sp.PackageSpecification = dataclasses.field(
++        default_factory=lambda: sp.PackageSpecification(
++            package="rustup",
++            version="latest",
++        )
+     )
+     command: str = "rustup"
+diff --git a/src/dofu/package_requirements/starship.py b/src/dofu/package_requirements/starship.py
+index 012a311..576758c 100644
+--- a/src/dofu/package_requirements/starship.py
++++ b/src/dofu/package_requirements/starship.py
+@@ -14,8 +14,10 @@ class PRStarship(PackageRequirement):
+         ),
+     }
+ 
+-    spec: sp.PackageSpecification = sp.PackageSpecification(
+-        package="starship",
+-        version="latest",
++    spec: sp.PackageSpecification = dataclasses.field(
++        default_factory=lambda: sp.PackageSpecification(
++            package="starship",
++            version="latest",
++        )
+     )
+     command: str = "starship"
+-- 
+2.39.2
+

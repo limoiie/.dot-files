@@ -10,8 +10,10 @@ class PRNeovim(PackageRequirement):
         pf.ANY: pms.BobNvimPackageManager(),
     }
 
-    spec: sp.PackageSpecification = sp.PackageSpecification(
-        package="neovim",
-        version="latest",
+    spec: sp.PackageSpecification = dataclasses.field(
+        default_factory=lambda: sp.PackageSpecification(
+            package="neovim",
+            version="latest",
+        )
     )
     command: str = "nvim"

@@ -13,8 +13,10 @@ class PRRustup(PackageRequirement):
         ),
     }
 
-    spec: sp.PackageSpecification = sp.PackageSpecification(
-        package="rustup",
-        version="latest",
+    spec: sp.PackageSpecification = dataclasses.field(
+        default_factory=lambda: sp.PackageSpecification(
+            package="rustup",
+            version="latest",
+        )
     )
     command: str = "rustup"

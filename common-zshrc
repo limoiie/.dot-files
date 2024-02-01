@@ -21,7 +21,7 @@ if [[ -z ${USE_STARSHIP_THEME} ]]; then
     Darwin) os_icon=' ' ;;
     Linux) 
       case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
-        ubuntu) os_icon=' ' ;;
+        ubuntu) os_icon=' ' ;;
         kali) os_icon=' ' ;;
         arch) os_icon=' ' ;;
         *) os_icon='󰌽 ' ;;

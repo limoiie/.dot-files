@@ -1,5 +1,4 @@
-The MIT License (MIT)
-
+/*
 Copyright © 2024 Mo Lee
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,3 +18,48 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+*/
+
+package choose
+
+import (
+	"github.com/charmbracelet/bubbles/key"
+)
+
+type keyMap struct {
+	complete key.Binding
+	toggle   key.Binding
+}
+
+// ShortHelp provides additional short help entries. This satisfies the
+// help.KeyMap interface and is entirely optional.
+func (keys keyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		keys.complete,
+		keys.toggle,
+	}
+}
+
+// FullHelp provides additional full help entries. This satisfies the
+// help.KeyMap interface and is entirely optional.
+func (keys keyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{
+			keys.complete,
+			keys.toggle,
+		},
+	}
+}
+
+func defaultKeyMap() *keyMap {
+	return &keyMap{
+		complete: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "complete with selections"),
+		),
+		toggle: key.NewBinding(
+			key.WithKeys("tab", "whitespace"),
+			key.WithHelp("tab", "toggle selection"),
+		),
+	}
+}

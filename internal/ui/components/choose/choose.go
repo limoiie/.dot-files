@@ -73,11 +73,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Toggle selection
 			case key.Matches(msg, m.delegateKeys.toggle):
 				selectedItem.chosen = !selectedItem.chosen
-				m.list.SetItem(i, selectedItem)
-				if !m.noLimit {
-					return m, tea.Quit // Single choose mode, complete once chosen
+				// Find the real index of the selected item as the list may be filtered
+				realIdx := -1
+				for i, curr := range m.list.Items() {
+					if curr, ok := curr.(item); ok {
+						if curr.title == selectedItem.title {
+							realIdx = i
+							break
+						}
+					}
 				}
-				return m, nil // No limit choose mode, continue to choose
+				// Update the chosen state of the real item
+				if realIdx != -1 {
+					cmd := m.list.SetItem(realIdx, selectedItem)
+					if !m.noLimit {
+						return m, tea.Quit // Single choose mode, complete once chosen
+					}
+					return m, cmd // No limit choose mode, continue to choose
+				}
 			}
 		}
 	}

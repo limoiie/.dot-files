@@ -60,7 +60,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			break
 		}
 		if selectedItem, ok := m.list.SelectedItem().(item); ok {
-			i := m.list.Index()
 			switch {
 			// Force quit
 			case key.Matches(msg, m.list.KeyMap.ForceQuit):
@@ -86,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// This will also call our delegate's update function.
 	updatedListModel, cmd := m.list.Update(msg)
 	m.list = updatedListModel
-	return m, tea.Batch(cmd)
+	return m, cmd
 }
 
 func (m Model) View() string {
@@ -111,14 +110,14 @@ func New(opt Options) Model {
 
 	// Setup list
 	delegate := newItemDelegate(delegateKeys, opt)
-	groceryList := list.New(opt.Items, delegate, 0, 0)
+	groceryList := list.New(opt.items, delegate, 0, 0)
 	groceryList.Title = opt.Title
 	groceryList.Styles.Title = titleStyle
 
 	return Model{
 		list:         groceryList,
 		delegateKeys: delegateKeys,
-		noLimit:      opt.NoLimit,
+		noLimit:      opt.noLimit,
 		forceQuit:    false,
 	}
 }

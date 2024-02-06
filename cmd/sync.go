@@ -59,10 +59,8 @@ to quickly create a Cobra application.`,
 				))
 			}
 			// prompt user to choose
-			modules, err = choose.Run(choose.Options{
-				Items:           items,
+			modules, err = choose.Many(items, choose.Options{
 				Title:           "Choose modules to sync with",
-				NoLimit:         true,
 				ShowDescription: true,
 				Height:          2,
 				Space:           0,

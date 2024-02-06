@@ -114,7 +114,7 @@ func (delegate DefaultItemDelegate) Render(w io.Writer, m list.Model, index int,
 func newItemDelegate(keys *keyMap, opt Options) list.ItemDelegate {
 	delegate := DefaultItemDelegate{
 		list.NewDefaultDelegate(),
-		opt.NoLimit,
+		opt.noLimit,
 	}
 	delegate.SetHeight(opt.Height)
 	delegate.SetSpacing(opt.Space)

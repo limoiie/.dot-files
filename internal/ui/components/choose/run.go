@@ -2,6 +2,7 @@ package choose
 
 import (
 	"fmt"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,7 +16,23 @@ var (
 			Padding(0, 1)
 )
 
-func Run(opt Options) ([]string, error) {
+func Many(items []list.Item, opt Options) ([]string, error) {
+	opt.items = items
+	opt.noLimit = true
+	return run(opt)
+}
+
+func One(items []list.Item, opt Options) (string, error) {
+	opt.items = items
+	opt.noLimit = false
+	chosen, err := run(opt)
+	if err == nil && len(chosen) > 0 {
+		return chosen[0], nil
+	}
+	return "", err
+}
+
+func run(opt Options) ([]string, error) {
 	model := New(opt)
 	finalModel, err := tea.NewProgram(model).Run()
 	if err != nil {

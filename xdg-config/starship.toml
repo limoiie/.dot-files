@@ -1,19 +1,20 @@
 add_newline = false
 
-format = """$all\
-$line_break \
-$jobs\
-$character"""
+# format = """$all\
+# $line_break \
+# $jobs\
+# $character"""
 
 [character]
 success_symbol = "[%](bold green)"
 error_symbol = "[%](bold red)"
 
 [status]
-symbol = " "
+symbol = "💥:"
 disabled = false
 
 [jobs]
+symbol = "🚀"
 threshold = 1
 
 [time]

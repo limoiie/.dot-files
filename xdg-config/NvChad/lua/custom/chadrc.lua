@@ -3,7 +3,7 @@
 local M = {}
 
 M.ui = {
-  theme_toggle = { "aquarium", "aquarium" },
+  theme_toggle = { "aquarium", "one_light" },
   theme = "aquarium",
   nvdash = {
     load_on_startup = true,

@@ -1,5 +1,5 @@
 local plugins = {
-  -- override plugin config
+  -- NvChad builtin plugins
   {
     "neovim/nvim-lspconfig",
     dependencies = {
@@ -13,7 +13,14 @@ local plugins = {
       require "custom.configs.lspconfig"
     end,
   },
-  -- install new plugin
+  {
+    "folke/which-key.nvim",
+    disable = false,
+    config = function()
+      require("custom.configs.which-key")
+    end,
+  },
+  -- Custom plugins
   { "easymotion/vim-easymotion", lazy = false, },
   {
     "github/copilot.vim",

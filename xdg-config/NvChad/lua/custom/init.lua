@@ -9,10 +9,6 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
 vim.o.guifont = "Maple Mono NF:h15;Maple Mono SC NF:h15"
 vim.wo.relativenumber = true
 
-vim.api.nvim_set_keymap("n", "F", "<cmd>lua vim.diagnostic.open_float()<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", {noremap = true, silent = true})
-
 if vim.g.neovide then
   vim.g.neovide_input_macos_alt_is_meta = true
   vim.g.neovide_remember_window_size = false

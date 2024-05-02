@@ -16,3 +16,5 @@
 
 [pager]
   diff = bat -ldiff
+[core]
+	autocrlf = input

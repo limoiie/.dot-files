@@ -1,73 +1,99 @@
-local plugins = {
-  -- NvChad builtin plugins
+return {
+  {
+    "stevearc/conform.nvim",
+    -- event = 'BufWritePre', -- uncomment for format on save
+    config = function()
+      require "configs.conform"
+    end,
+  },
+
+  -- Custom plugins
   {
     "neovim/nvim-lspconfig",
     dependencies = {
       "jose-elias-alvarez/null-ls.nvim",
       config = function()
-        require "custom.configs.null-ls"
+        require "configs.null-ls"
       end,
     },
     config = function()
-      require "plugins.configs.lspconfig"
-      require "custom.configs.lspconfig"
+      require("nvchad.configs.lspconfig").defaults()
+      require "configs.lspconfig"
     end,
   },
-  {
-    "folke/which-key.nvim",
-    disable = false,
-    config = function()
-      require("custom.configs.which-key")
-    end,
-  },
-  -- Custom plugins
-  { "easymotion/vim-easymotion", lazy = false, },
+
+  { "easymotion/vim-easymotion", lazy = false },
+
   {
     "folke/todo-comments.nvim",
-    keys = { "<leader>T" },
+    keys = { "gt", "[t", "]t" },
+    cmd = { "TodoTelescope", "TodoTrouble" },
     dependencies = { "nvim-lua/plenary.nvim" },
-    config = function ()
-      require "custom.configs.todo-comments"
+    config = function()
+      require "configs.todo-comments"
     end,
   },
+
   {
     "folke/trouble.nvim",
     branch = "dev",
     keys = { "<leader>x" },
     cmd = { "Trouble" },
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function ()
-      require "custom.configs.trouble"
+    config = function()
+      require "configs.trouble"
     end,
   },
+
+  {
+    "folke/which-key.nvim",
+    disable = false,
+    config = function()
+      require "configs.which-key"
+    end,
+  },
+
   {
     "github/copilot.vim",
     config = function()
-      require "custom.configs.copilot"
+      require "configs.copilot"
     end,
   },
+
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch
     event = "VeryLazy",
     config = function()
-      require "custom.configs.nvim-surround"
+      require "configs.nvim-surround"
     end,
   },
-  {
-    "nvim-orgmode/orgmode",
-    config = function()
-      require "custom.configs.orgmode"
-    end,
-  },
+
   { "Pocco81/TrueZen.nvim" },
+
+  -- {
+  -- 	"williamboman/mason.nvim",
+  -- 	opts = {
+  -- 		ensure_installed = {
+  -- 			"lua-language-server", "stylua",
+  -- 			"html-lsp", "css-lsp" , "prettier"
+  -- 		},
+  -- 	},
+  -- },
+
   {
-    "TimUntersberger/neogit",
-    requires = "nvim-lua/plenary.nvim",
-    config = function()
-      require "custom.configs.neogit"
-    end,
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = {
+        "vim",
+        "lua",
+        "vimdoc",
+        "html",
+        "css",
+        "haskell",
+        "markdown",
+        "markdown_inline",
+      },
+    },
   },
 }
-
-return plugins

@@ -1,9 +1,12 @@
--- custom.plugins.orgmode
-local orgmode = require "orgmode"
+local present, plugin = pcall(require, "orgmode")
 
-orgmode.setup_ts_grammar()
+if not present then
+  return
+end
 
-orgmode.setup {
+plugin.setup_ts_grammar()
+
+plugin.setup {
   org_agenda_files = {'~/Projects/notes'},
   org_default_notes_file = {'~/Projects/notes/capture/note.org'}
 }

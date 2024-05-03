@@ -3,9 +3,9 @@
 local M = {}
 
 M.ui = {
-  transparency = true,
+  transparency = false,
   theme_toggle = { "aquarium", "one_light" },
-  theme = "aquarium",
+  theme = "one_light",
   statusline = {
     theme = "vscode_colored", -- default,vscode,vscode_colored,minimal
     separator_style = "default" -- default: round,block,arrow; minimal: round

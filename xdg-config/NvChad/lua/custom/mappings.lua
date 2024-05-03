@@ -1,5 +1,20 @@
 local mappings = {
   -- NvChad builtin
+  general = {
+    n = {
+      ["<leader>bb"] = { ":enew<CR>", "New buffer" },
+    }
+  },
+  tabufline = {
+    n = {
+      ["<leader>bx"] = {
+        function()
+          require("nvchad.tabufline").close_buffer()
+        end,
+        "Close buffer",
+      },
+    }
+  },
   lspconfig = {
     n = {
       ["F"] = {
@@ -53,12 +68,44 @@ local mappings = {
     }
   },
   -- Custom
+  ["folke/todo-comments.nvim"] = {
+    n = {
+      ["[t"] = {
+        function()
+          require("todo-comments").jump_prev()
+        end,
+        "Previous Todo",
+      },
+      ["]t"] = {
+        function()
+          require("todo-comments").jump_next()
+        end,
+        "Next Todo",
+      },
+      ["<leader>Tl"] = { ":TodoLocList<CR>", "Todo in LocList" },
+      ["<leader>Tq"] = { ":TodoQuickFix<CR>", "Todo in Quickfix" },
+      ["<leader>Tt"] = { ":TodoTelescope<CR>", "Todo in Telescope" },
+      ["<leader>Tx"] = { ":TodoTrouble<CR>", "Todo in Trouble" },
+    }
+  },
+  -- trouble.nvim is a panel-like UI component for showing lists including Quickfix, LocList, etc
+  ["folke/trouble.nvim"] = {
+    n = {
+      ['<leader>xx'] = { ":Trouble<CR>", "Toggle"},
+      ['<leader>xd'] = { ":Trouble diagnostics toggle filter.buf=0<CR>", "Toggle Document Diagnostics"},
+      ['<leader>xD'] = { ":Trouble diagnostics toggle<CR>", "Toggle Workspace Diagnostics"},
+      ['<leader>xl'] = { ":Trouble lsp toggle focus=false win.position=right<CR>", "Toggle LSP Def/Ref/..."},
+      ['<leader>xL'] = { ":Trouble loclist toggle<CR>", "Toggle Loclist"},
+      ['<leader>xq'] = { ":Trouble qflist toggle<CR>", "Toggle Quickfix"},
+      ['<leader>xs'] = { ":Trouble symbols toggle focus=false<CR>", "Toggle Symbols"},
+    }
+  },
   ["Pocco81/TrueZen.nvim"] = {
     n = {
-      ['<leader>za'] = { ":TZAtaraxis<CR>", "zen ataraxis" },
-      ['<leader>zf'] = { ":TZFocus<CR>", "zen focus current window" },
-      ['<leader>zm'] = { ":TZMinimalist<CR>", "zen minimalize" },
-      ['<leader>zn'] = { ":TZNarrow<CR>", "zen narrow" },
+      ['<leader>za'] = { ":TZAtaraxis<CR>", "Zen ataraxis" },
+      ['<leader>zf'] = { ":TZFocus<CR>", "Zen focus current window" },
+      ['<leader>zm'] = { ":TZMinimalist<CR>", "Zen minimalize" },
+      ['<leader>zn'] = { ":TZNarrow<CR>", "Zen narrow" },
     },
     v = {
       ['<leader>zn'] = { ":'<,'>TZNarrow<CR>", "zen narrow" },

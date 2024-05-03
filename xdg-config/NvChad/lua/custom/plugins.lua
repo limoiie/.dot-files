@@ -23,8 +23,26 @@ local plugins = {
   -- Custom plugins
   { "easymotion/vim-easymotion", lazy = false, },
   {
-    "github/copilot.vim",
+    "folke/todo-comments.nvim",
+    keys = { "<leader>T" },
+    dependencies = { "nvim-lua/plenary.nvim" },
     config = function ()
+      require "custom.configs.todo-comments"
+    end,
+  },
+  {
+    "folke/trouble.nvim",
+    branch = "dev",
+    keys = { "<leader>x" },
+    cmd = { "Trouble" },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function ()
+      require "custom.configs.trouble"
+    end,
+  },
+  {
+    "github/copilot.vim",
+    config = function()
       require "custom.configs.copilot"
     end,
   },
@@ -53,4 +71,3 @@ local plugins = {
 }
 
 return plugins
-

@@ -1,16 +1,23 @@
--- EXAMPLE 
+-- EXAMPLE
 local on_attach = require("nvchad.configs.lspconfig").on_attach
 local on_init = require("nvchad.configs.lspconfig").on_init
 local capabilities = require("nvchad.configs.lspconfig").capabilities
 
-local lspconfig = require "lspconfig"
-local servers = { "pyright", "rust_analyzer", "ocamllsp", "hls" }
+local lspconfig = require("lspconfig")
+local servers = {
+	"clangd", -- c, cpp, objc
+	"cmake", -- cmake
+	"hls", -- haskell
+	"ocamllsp", -- ocaml
+	"pyright", -- python
+	"rust_analyzer", -- rust
+}
 
 -- lsps with default config
 for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    on_init = on_init,
-    capabilities = capabilities,
-  }
+	lspconfig[lsp].setup({
+		on_attach = on_attach,
+		on_init = on_init,
+		capabilities = capabilities,
+	})
 end

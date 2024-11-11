@@ -1,6 +1,7 @@
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 
+inoremap jk <Esc>
 let mapleader=" "
 
 set surround

@@ -16,7 +16,8 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 if [[ -z ${USE_STARSHIP_THEME} ]]; then
   autoload -Uz promptinit
   promptinit
-  prompt walters
+  # prompt walters
+  prompt adam1
   case `uname` in
     Darwin) os_icon=' ' ;;
     Linux) 
@@ -89,7 +90,6 @@ source "${ZPLUG_HOME}/init.zsh"
 zplug "marlonrichert/zsh-autocomplete", as:plugin
 zplug "paulirish/git-open", as:plugin
 zplug "plugins/z", from:oh-my-zsh
-zplug "plugins/wd", from:oh-my-zsh
 zplug "plugins/git", from:oh-my-zsh
 zplug "plugins/docker", from:oh-my-zsh
 zplug "zsh-users/zsh-syntax-highlighting"

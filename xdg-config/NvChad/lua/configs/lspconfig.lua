@@ -8,6 +8,7 @@ local servers = {
 	"clangd", -- c, cpp, objc
 	"cmake", -- cmake
 	"hls", -- haskell
+	"marksman", -- markdown
 	"ocamllsp", -- ocaml
 	"pyright", -- python
 	"rust_analyzer", -- rust

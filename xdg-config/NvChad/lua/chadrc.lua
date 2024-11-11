@@ -6,8 +6,8 @@ local M = {}
 
 M.ui = {
   transparency = false,
-  theme_toggle = { "one_light", "one_light" },
-  theme = "one_light",
+  theme_toggle = { "bearded-arc", "bearded-arc" },
+  theme = "bearded-arc",
   statusline = {
     theme = "vscode_colored", -- default,vscode,vscode_colored,minimal
     separator_style = "default", -- default: round,block,arrow; minimal: round

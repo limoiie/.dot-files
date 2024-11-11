@@ -6,6 +6,9 @@
 export XDG_CONFIG_HOME="$HOME/.config"
 export DOT_HOME="$HOME/.dot-files"
 
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+
 # prevent ctrl-d from killing session
 set -o ignoreeof
 
@@ -91,7 +94,7 @@ __config_fzf() {
 # run fzf in a popup tmux frame
 _pop_fzf() {
   fzf-tmux -p80%,60% -- \
-    --layout=reverse --multi --height=50% --min-height=20 --border \
+    --layout=reverse --multi --height=100% --min-height=20 --border \
     --color='header:italic:underline' \
     --preview-window='right,50%,border-left' \
     "$@"

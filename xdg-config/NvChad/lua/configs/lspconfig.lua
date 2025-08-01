@@ -5,6 +5,7 @@ local capabilities = require("nvchad.configs.lspconfig").capabilities
 
 local lspconfig = require("lspconfig")
 local servers = {
+  "bash-language-server", -- bash
 	"clangd", -- c, cpp, objc
 	"cmake", -- cmake
 	"hls", -- haskell

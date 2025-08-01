@@ -1,3 +1,6 @@
+---
+--- Check the full lazy plugin config spec at https://lazy.folke.io/spec
+---
 return {
   {
     "stevearc/conform.nvim",
@@ -11,7 +14,8 @@ return {
   {
     "neovim/nvim-lspconfig",
     dependencies = {
-      "jose-elias-alvarez/null-ls.nvim",
+      -- "jose-elias-alvarez/null-ls.nvim",  -- deprecated, overtaken by none-ls
+      "nvimtools/none-ls.nvim",
       config = function()
         require "configs.null-ls"
       end,
@@ -76,18 +80,6 @@ return {
     end,
   },
 
-  { "Pocco81/TrueZen.nvim" },
-
-  -- {
-  -- 	"williamboman/mason.nvim",
-  -- 	opts = {
-  -- 		ensure_installed = {
-  -- 			"lua-language-server", "stylua",
-  -- 			"html-lsp", "css-lsp" , "prettier"
-  -- 		},
-  -- 	},
-  -- },
-
   {
     "nvim-treesitter/nvim-treesitter",
     opts = {
@@ -103,4 +95,16 @@ return {
       },
     },
   },
+
+  { "Pocco81/TrueZen.nvim" },
+
+  -- {
+  -- 	"williamboman/mason.nvim",
+  -- 	opts = {
+  -- 		ensure_installed = {
+  -- 			"lua-language-server", "stylua",
+  -- 			"html-lsp", "css-lsp" , "prettier"
+  -- 		},
+  -- 	},
+  -- },
 }

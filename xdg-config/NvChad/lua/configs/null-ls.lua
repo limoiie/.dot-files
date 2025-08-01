@@ -8,6 +8,11 @@ local formatting = null_ls.builtins.formatting
 local lint = null_ls.builtins.diagnostics
 
 local sources = {
+  --#region lang-conf
+  --- Configure the formatter and linter for langs.
+  --- Use mason to manage the formatter and linter commands for any lang.
+  --- See more options on https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
+
   -- C, Cpp
   formatting.clang_format,
   lint.clang_check,
@@ -23,19 +28,17 @@ local sources = {
   formatting.ocamlformat,
 
   -- Python
-  -- formatting.autopep8,
   formatting.black,
-  -- lint.flake8,  -- overtaken by pylint
   lint.pylint,
 
   -- Rust
-  formatting.rustfmt,
+  -- Use the formatter and linter from lspconfig/rust-analyzer
 
   -- Shell
   formatting.shfmt,
-  lint.shellcheck.with { diagnostics_format = "#{m} [#{c}]" },
+  -- Use the linter from lspconfig/bash-language-server
 
-  -- reference https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md for more available sources
+  --#endregion
 }
 
 null_ls.setup {

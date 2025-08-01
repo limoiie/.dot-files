@@ -16,8 +16,8 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 if [[ -z ${USE_STARSHIP_THEME} ]]; then
   autoload -Uz promptinit
   promptinit
-  # prompt walters
-  prompt adam1
+  prompt walters
+  # prompt adam1
   case `uname` in
     Darwin) os_icon=' ' ;;
     Linux) 

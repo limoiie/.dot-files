@@ -39,7 +39,7 @@ proxy-off() {
 # Enable proxy
 proxy-on() {
   local host="127.0.0.1"
-  local port="7890"
+  local port="33505"
   
   # Parse command line arguments
   while [[ $# -gt 0 ]]; do

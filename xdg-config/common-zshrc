@@ -13,27 +13,23 @@ setopt promptsubst         # enable command substitution in prompt
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
 # zsh prompt initialization
-if [[ -z ${USE_STARSHIP_THEME} ]]; then
-  autoload -Uz promptinit
-  promptinit
-  prompt walters
-  # prompt adam1
-  case `uname` in
-    Darwin) os_icon=' ' ;;
-    Linux) 
-      case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
-        ubuntu) os_icon=' ' ;;
-        kali) os_icon=' ' ;;
-        arch) os_icon=' ' ;;
-        *) os_icon='󰌽 ' ;;
-      esac ;;
-    *) os_icon='' ;;
-  esac
-  export PROMPT="${os_icon}%B%(?..[%?] )%b%# "
-  [ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%U%m%u %# "
-else
-  eval "$(starship init zsh)"
-fi
+autoload -Uz promptinit
+promptinit
+prompt walters
+# prompt adam1
+case `uname` in
+  Darwin) os_icon=' ' ;;
+  Linux) 
+    case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
+      ubuntu) os_icon=' ' ;;
+      kali) os_icon=' ' ;;
+      arch) os_icon=' ' ;;
+      *) os_icon='󰌽 ' ;;
+    esac ;;
+  *) os_icon='' ;;
+esac
+export PROMPT="${os_icon}%B%(?..[%?] )%b%# "
+[ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%U%m%u %# "
 
 # zsh suggestion highlight
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'

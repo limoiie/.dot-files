@@ -22,7 +22,8 @@ mise exec -- uv tool install --editable .
 cat <<'EOF'
 
 dofu is installed. Next steps:
-  >> dofu help              # show help
+  >> dofu --help            # show help
   >> dofu list              # list available modules
-  >> dofu equip <module>    # set up a module
+  >> dofu install <module>  # set up a module
+  >> dofu equip             # set up modules via interactive menu
 EOF

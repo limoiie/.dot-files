@@ -5,7 +5,6 @@ rust = "latest"
 go = "latest"
 
 # Efficiency tools (migrated from dofu)
-zsh = "latest"
 tmux = "latest"
 fzf = "latest"
 

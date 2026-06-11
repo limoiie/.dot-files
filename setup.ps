@@ -15,17 +15,10 @@ mise install
 Install-Module -Name PSEverything,PSReadLine,ZLocation -Force -Confirm:$false
 
 % configure powershell
-New-Item -ItemType SymbolicLink -Path ${PROFILE} -Target ${DOT_FILES_ROOT}\Microsoft.PowerShell_profile.ps1
+New-Item -ItemType SymbolicLink -Path ${PROFILE} -Target ${DOT_CONFIG_HOME}\Microsoft.PowerShell_profile.ps1
 
 % configure lsd
 New-Item -ItemType SymbolicLink -Path ${XDG_CONFIG_HOME}\lsd -Target ${DOT_CONFIG_HOME}\lsd
 
 % configure mise
 New-Item -ItemType SymbolicLink -Path ${XDG_CONFIG_HOME}\mise -Target ${DOT_CONFIG_HOME}\mise
-
-% configure neovim
-% TBD
-
-% configure git
-% TBD
-

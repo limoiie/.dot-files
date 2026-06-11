@@ -26,11 +26,11 @@ class ZshModule(Module):
         ucs.UCAppendLine.make_source_line(
             path=env.user_home_path(".zshrc"),
             pattern=".*common-shrc",
-            file_to_source=env.project_path_relhome("common-shrc"),
+            file_to_source=env.dot_config_path_relhome("common-shrc"),
         ),
         ucs.UCAppendLine.make_source_line(
             path=env.user_home_path(".zshrc"),
             pattern=".*common-zshrc",
-            file_to_source=env.project_path_relhome("common-zshrc"),
+            file_to_source=env.dot_config_path_relhome("common-zshrc"),
         ),
     ]

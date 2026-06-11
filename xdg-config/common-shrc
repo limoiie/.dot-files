@@ -39,9 +39,14 @@ proxy-off() {
 
 # Enable proxy
 proxy-on() {
-  local host="127.0.0.1"
-  local port="33505"
-  
+  local host port
+
+  if [[ -f "${DOT_HOME}/.env" ]]; then
+    source "${DOT_HOME}/.env"
+  fi
+  host="${PROXY_HOST:-127.0.0.1}"
+  port="${PROXY_PORT:-33505}"
+
   # Parse command line arguments
   while [[ $# -gt 0 ]]; do
     case "$1" in

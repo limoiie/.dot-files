@@ -1,26 +1,37 @@
-[tool.poetry]
+[project]
 name = "dofu"
 version = "0.1.0"
 description = "DOt Files Utility for managing limo's dot files."
-authors = ["limo"]
-license = "LICENSE"
+authors = [{ name = "limo" }]
+license = { file = "LICENSE" }
 readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "rich>=13.7.0",
+    "fire>=0.5.0",
+    "autoserde",
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.0",
+    "networkx>=3.2.1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-rich = "^13.7.0"
-fire = "^0.5.0"
-autoserde = {git = "https://github.com/limoiie/autoserde.git", rev = "v0.0.9"}
-pyyaml = "^6.0.1"
-python-dotenv = "^1.0.0"
-networkx = "^3.2.1"
+[dependency-groups]
+dev = [
+    "pyright>=1.1.347",
+    "pylint>=3.0.3",
+    "black>=23.12.1",
+    "pytest>=7.4.4",
+]
 
-[tool.poetry.group.dev.dependencies]
-pyright = "^1.1.347"
-pylint = "^3.0.3"
-black = "^23.12.1"
-pytest = "^7.4.4"
+[project.scripts]
+dofu = "dofu.__main__:main"
+
+[tool.uv.sources]
+autoserde = { git = "https://github.com/limoiie/autoserde.git", rev = "v0.0.9" }
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dofu"]

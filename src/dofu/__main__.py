@@ -1,4 +1,5 @@
 import logging
+import shlex
 import typing
 
 import fire
@@ -243,19 +244,21 @@ class App:
         """
         Integrate dofu to your env.
 
-        This command will create a shell command in your .local/bin folder
-        to let you access dofu from everywhere in this computer.
+        Installs dofu as a uv tool in editable mode so the `dofu`
+        command is available globally (typically under ~/.local/bin/dofu).
+        Run `uv tool update-shell` once if that directory is not on PATH.
         """
-        from dofu import shutils, undoable_commands as ucs
+        from dofu import shutils
 
-        dofu_exec_file = env.user_home_path(".local", "bin", "dofu")
-        shutils.copy(src=env.project_path("dofu"), dst=dofu_exec_file)
-        ucs.UCAppendEnvVar(
-            varname="DOT_FILES_ROOT",
-            value=env.project_path_relhome(),
-            rc=dofu_exec_file,
-        ).exec()
+        project = str(env.project_path())
+        shutils.check_call(
+            f"uv tool install --force --editable {shlex.quote(project)}"
+        )
+
+
+def main():
+    fire.Fire(App())
 
 
 if __name__ == "__main__":
-    fire.Fire(App())
+    main()

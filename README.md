@@ -20,39 +20,44 @@ Dofu enables selective installation, removal, and synchronization of modules. Du
 
 ## Requirements
 
-To run this project, you need git and python>3.10. Additionally, you need [gum](https://github.com/charmbracelet/gum) for a user-friendly experience.
+To run this project, you need git, python>=3.10 and [uv](https://docs.astral.sh/uv/). Additionally, you need [gum](https://github.com/charmbracelet/gum) for a user-friendly experience.
 
 ## Installation
 
-You can directly install via pip:
-
-```sh
-pip install git+https://github.com/limoiie/.dot-files.git
-```
-
-Or, if you want to tweak the details, clone the repository to your preferred location:
+The recommended way is to install dofu as a uv tool. Clone the repository to your preferred location and install it in editable mode:
 
 ```sh
 git clone https://github.com/limoiie/.dot-files.git ~/.dofu
+uv tool install --editable ~/.dofu
 ```
 
-And then, install it using pip:
+This creates an isolated environment for dofu and exposes the `dofu` command globally (typically under `~/.local/bin/dofu`). If that directory is not on your `PATH`, run `uv tool update-shell` once.
+
+You can also install it directly from git without cloning:
 
 ```sh
-cd ~/.dofu && pip install -e .
+uv tool install git+https://github.com/limoiie/.dot-files.git
 ```
+
+Note that the git install is not editable, so you cannot tweak the sources locally.
 
 ## Usage
 
 Use the following command to check the basic commands:
 
 ```sh
-python -m dofu -- --help
+dofu --help
 ```
 
 List available modules:
 
 ```sh
-python -m dofu list
+dofu list
+```
+
+During development, you can also run dofu from a checkout without installing it globally:
+
+```sh
+uv run --project ~/.dofu dofu --help
 ```
 

@@ -5,11 +5,11 @@ $DOT_FILES_ROOT=${HOME}\.dot-files
 $DOT_CONFIG_HOME=${DOT_FILES_ROOT}\xdg-config
 $XDG_CONFIG_HOME=${ENV:APPDATA}
 
-% install system bins
-choco install -y 7zip fzf git neovim powertoys rustup vscode
+% install system bins (rustup and cargo are now managed by mise, see xdg-config/mise/config.toml)
+choco install -y 7zip fzf git mise neovim powertoys vscode
 
-% install cargo bins
-cargo install bat fd-find lsd ripgrep
+% install mise-managed tools (rust, go, ...)
+mise install
 
 % install powershell modules
 Install-Module -Name PSEverything,PSReadLine,ZLocation -Force -Confirm:$false
@@ -19,6 +19,9 @@ New-Item -ItemType SymbolicLink -Path ${PROFILE} -Target ${DOT_FILES_ROOT}\Micro
 
 % configure lsd
 New-Item -ItemType SymbolicLink -Path ${XDG_CONFIG_HOME}\lsd -Target ${DOT_CONFIG_HOME}\lsd
+
+% configure mise
+New-Item -ItemType SymbolicLink -Path ${XDG_CONFIG_HOME}\mise -Target ${DOT_CONFIG_HOME}\mise
 
 % configure neovim
 % TBD

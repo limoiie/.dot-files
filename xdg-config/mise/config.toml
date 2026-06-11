@@ -1,0 +1,25 @@
+[tools]
+# Toolchains (migrated from dofu)
+uv = "latest"
+rust = "latest"
+go = "latest"
+
+# Efficiency tools (migrated from dofu)
+zsh = "latest"
+tmux = "latest"
+fzf = "latest"
+
+neovim = "stable"
+
+# Cargo binaries (migrated from dofu's cargo-crates module)
+"cargo:bat"      = "latest"
+"cargo:eza"      = "latest"   # replaces the unmaintained exa
+"cargo:fd-find"  = "latest"   # binary: fd
+"cargo:procs"    = "latest"
+"cargo:ripgrep"  = "latest"   # binary: rg
+"cargo:sd"       = "latest"
+
+# Go binaries (migrated from dofu's go-mods module)
+"go:github.com/jesseduffield/lazygit"    = "latest"
+"go:github.com/jesseduffield/lazydocker" = "latest"
+"go:github.com/charmbracelet/gum"        = "latest"

@@ -87,21 +87,20 @@ __requires() {
   return 0
 }
 
-# Configure cargo
-__config_cargo() {
-  # activate cargo
-  [ -f "~/.cargo/env" ] && source ~/.cargo/env
-  __requires cargo || return
-
-  export PATH=$PATH:~/.cargo/bin
+# Configure mise
+__config_mise() {
+  __requires mise || return
+  if [ -n "$BASH_VERSION" ]; then
+    eval "$(mise activate bash)"
+  elif [ -n "$ZSH_VERSION" ]; then
+    eval "$(mise activate zsh)"
+  fi
 }
 
 # Configure go
 __config_go() {
-  __requires go || return
-
-  __requires lazydocker && alias dtop="lazydocker"
   __requires lazygit && alias gtop="lazygit"
+  __requires lazydocker && alias dtop="lazydocker"
 }
 
 # Configure fzf
@@ -112,9 +111,12 @@ __config_fzf() {
   export FZF_DEFAULT_OPTS='--border --bind="ctrl-k:kill-line,ctrl-v:page-down,alt-v:page-up,alt-n:preview-page-down,alt-p:preview-page-up"'
   export FZF_COMPLETION_TRIGGER='..'
 
-  # enable fzf completioin and key-bindings
-  #source /usr/share/doc/fzf/examples/completion.zsh
-  #source /usr/share/doc/fzf/examples/key-bindings.zsh
+  # enable fzf completion and key-bindings
+  if [ -n "$BASH_VERSION" ]; then
+    eval "$(fzf --bash)"
+  elif [ -n "$ZSH_VERSION" ]; then
+    eval "$(fzf --zsh)"
+  fi
 }
 
 
@@ -237,7 +239,7 @@ __config_starship() {
   __requires starship || return
 }
 
-__config_cargo
+__config_mise
 __config_go
 
 __config_fzf

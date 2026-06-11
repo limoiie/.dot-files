@@ -1,6 +1,5 @@
 from dofu import (
     env,
-    package_requirements as prs,
     requirement as req,
     undoable_commands as ucs,
 )
@@ -9,9 +8,7 @@ from dofu.module import Module
 
 @Module.module("zsh", requires=[])
 class ZshModule(Module):
-    _package_requirements = [
-        prs.PRSystem.make(name="zsh"),
-    ]
+    _package_requirements = []
 
     _gitrepo_requirements = [
         req.GitRepoRequirement(

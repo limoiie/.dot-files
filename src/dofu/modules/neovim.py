@@ -1,19 +1,18 @@
 from dofu import (
     env,
-    package_requirements as prs,
     requirement as req,
     undoable_commands as ucs,
 )
 from dofu.module import Module
-from .rust import RustModule
 
 
-@Module.module("neovim", requires=[RustModule])
+@Module.module("neovim", requires=[])
 class NeovimModule(Module):
-    _package_requirements = [
-        prs.PRCargoCrate.make(name="bob-nvim", command="bob"),
-        prs.PRNeovim(),
-    ]
+    # neovim itself is now managed by mise (see xdg-config/mise/config.toml).
+    # This module only owns the neovim config frameworks and the custom
+    # NvChad config symlink, which are dotfile-style changes better suited
+    # to dofu than to mise.
+    _package_requirements = []
 
     _gitrepo_requirements = [
         # download three neovim config frameworks
@@ -32,13 +31,6 @@ class NeovimModule(Module):
     ]
 
     _command_requirements = [
-        # add bob/nvim-bin to PATH to use the latest neovim
-        ucs.UCAppendEnvVarPath(
-            "$HOME/.local/share/bob/nvim-bin", env.user_home_path(".bashrc")
-        ),
-        ucs.UCAppendEnvVarPath(
-            "$HOME/.local/share/bob/nvim-bin", env.user_home_path(".zshrc")
-        ),
         # apply custom NvChad config
         ucs.UCSymlink(
             src=env.dot_config_path("NvChad", "lua", "custom"),

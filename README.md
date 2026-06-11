@@ -18,6 +18,17 @@ Dofu wraps collections of tool chains as modules, each of which is composed of t
 
 Dofu enables selective installation, removal, and synchronization of modules. During installation, existing packages and git repositories are directly applied, while existing configurations are backed up. During uninstallation, the backup is restored, the changes are rolled back, and the effects are replayed. Additionally, any packages and git repositories installed by dofu will be removed, while those applied from existing sources will be preserved.
 
+## Toolchains managed by mise
+
+The rust toolchain (rustup, cargo), the go toolchain, neovim, fzf, and the third-party binaries that used to live in dofu's `cargo-crates` and `go-mods` modules are all managed by [mise](https://mise.jdx.dev/). The full list lives in [`xdg-config/mise/config.toml`](xdg-config/mise/config.toml) and includes:
+
+- `rust`, `go` (the toolchains)
+- `neovim`, `fzf`
+- `bat`, `eza` (replaces the unmaintained `exa`), `fd`, `procs`, `ripgrep`, `sd` (cargo binaries)
+- `lazygit`, `lazydocker`, `gum` (go binaries)
+
+Mise is activated in `common-shrc` / `common-zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. `common-shrc` only needs to register the `gtop` / `dtop` shell aliases for lazygit / lazydocker. The dofu `neovim` module is kept around for the config frameworks (NvChad / AstroNvim / LazyVim) and the custom NvChad config symlink — the dotfile-shaped changes that don't fit a mise `[tools]` entry.
+
 ## Requirements
 
 To run this project, you need git, python>=3.10 and [uv](https://docs.astral.sh/uv/). Additionally, you need [gum](https://github.com/charmbracelet/gum) for a user-friendly experience.

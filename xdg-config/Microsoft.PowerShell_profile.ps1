@@ -25,13 +25,6 @@ Import-Module ZLocation
 <# - Alias for Vim #>
 Set-Alias -Name vi -Value nvim
 
-<# - Alias for LSD #>
-Function LLIT([string]$Folder) { lsd -l "$Folder" }
-Function LALIT([string]$Folder) { lsd -al "$Folder" }
-
-Set-Alias -Option AllScope -Name ls -Value lsd
-Set-Alias -Name ll -Value LLIT
-Set-Alias -Name lal -Value LALIT
 # #endregion
 
 #region theme configuration

@@ -1,6 +1,19 @@
-#!/bin/zsh
+# ============================================================================
+# System Settings
+# ============================================================================
 
+SCRIPT_DIR="${0:A:h}"
+
+# source the shared shell config first
+source "${SCRIPT_DIR}/shrc"
+
+# ============================================================================
+# zsh Settings
+# ============================================================================
+
+# ---
 # zsh common configurations
+
 setopt autocd              # change directory just by typing its name
 #setopt correct            # auto correct mistakes
 setopt interactivecomments # allow comments in interactive mode
@@ -12,33 +25,33 @@ setopt promptsubst         # enable command substitution in prompt
 
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
+# ---
 # zsh prompt initialization
-if [[ -z ${USE_STARSHIP_THEME} ]]; then
-  autoload -Uz promptinit
-  promptinit
-  prompt walters
-  # prompt adam1
-  case `uname` in
-    Darwin) os_icon=' ' ;;
-    Linux) 
-      case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
-        ubuntu) os_icon=' ' ;;
-        kali) os_icon=' ' ;;
-        arch) os_icon=' ' ;;
-        *) os_icon='󰌽 ' ;;
-      esac ;;
-    *) os_icon='' ;;
-  esac
-  export PROMPT="${os_icon}%B%(?..[%?] )%b%# "
-  [ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%U%m%u %# "
-else
-  eval "$(starship init zsh)"
-fi
+
+autoload -Uz promptinit
+promptinit
+prompt walters
+# prompt adam1
+case `uname` in
+  Darwin) os_icon=' ' ;;
+  Linux) 
+    case `awk -F= '/^ID=/{print $2}' /etc/os-release` in
+      ubuntu) os_icon=' ' ;;
+      kali) os_icon=' ' ;;
+      arch) os_icon=' ' ;;
+      *) os_icon='󰌽 ' ;;
+    esac ;;
+  *) os_icon='' ;;
+esac
+export PROMPT="${os_icon}%B%(?..[%?] )%b%# "
+[ -n "$SSH_TTY" ] && export PROMPT="${os_icon}%B%(?..[%?] )%b%U%m%u %# "
 
 # zsh suggestion highlight
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'
 
+# ---
 # zsh completion features
+
 fpath+=${XDG_CONFIG_HOME}/.zfunc
 autoload -Uz compinit
 compinit -d ~/.cache/zcompdump
@@ -56,12 +69,9 @@ zstyle ':completion:*' use-compctl false
 zstyle ':completion:*' verbose true
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
-# zsh edit command line via vi
-autoload -z edit-command-line
-zle -N edit-command-line
-bindkey "^V^E" edit-command-line
-
+# ---
 # zsh history configuration
+
 export HISTFILE=${XDG_CONFIG_HOME}/.zsh_history
 export HISTSIZE=99999
 export SAVEHIST=99999
@@ -76,17 +86,13 @@ setopt hist_find_no_dups        # do not find duplicates
 setopt hist_verify              # show command with history expansion to user before running it
 setopt inc_append_history_time  # append history incrementally
 
-# zsh keybindings configuration
-# Use emacs keybindings even if our EDITOR is set to vi
-bindkey -e
-## for jetbrains embedded terminal
-bindkey 'ƒ' forward-word
-bindkey '∫' backward-word
-bindkey '∂' kill-word
+# ---
+# zsh plugins -- zplug configuration
 
 # >>> shared customization >>>"
 export ZPLUG_HOME="${XDG_CONFIG_HOME}/zplug"
 source "${ZPLUG_HOME}/init.zsh"
+
 zplug "marlonrichert/zsh-autocomplete", as:plugin
 zplug "paulirish/git-open", as:plugin
 zplug "plugins/z", from:oh-my-zsh
@@ -108,7 +114,26 @@ fi
 # source plugins and add commands to the PATH
 zplug load
 
-# Make Tab go straight to the menu and cycle there
+# zsh plugin z cache file
+export _Z_DATA=~/.cache/z
+# <<< shared customization <<<"
+
+# ---
+# zsh keybindings configuration
+
+# emacs mode for normal editing
+bindkey -e
+# be compatible for jetbrains embedded terminal on MacOS
+bindkey 'ƒ' forward-word
+bindkey '∫' backward-word
+bindkey '∂' kill-word
+
+# vi mode for command line editing
+autoload -z edit-command-line
+zle -N edit-command-line
+bindkey "^V^E" edit-command-line
+
+# Make TAB go straight to the menu and cycle there
 bindkey '\t' menu-select "$terminfo[kcbt]" menu-select
 bindkey -M menuselect '\t' menu-complete "$terminfo[kcbt]" reverse-menu-complete
 
@@ -126,7 +151,3 @@ bindkey -M menuselect '\t' menu-complete "$terminfo[kcbt]" reverse-menu-complete
    bindkey -M emacs '^N' down-line-or-history
    bindkey -M emacs '^P' up-line-or-history
 }
-
-# zsh plugin z cache file
-export _Z_DATA=~/.cache/z
-# <<< shared customization <<<"

@@ -110,7 +110,7 @@ dofu integrate
 
 ### zsh
 
-Installs zsh, clones [zplug](https://github.com/zplug/zplug), changes the default shell to zsh, and sources `common-shrc` and `common-zshrc` from `~/.zshrc`.
+Installs zsh, clones [zplug](https://github.com/zplug/zplug), changes the default shell to zsh, and sources `shrc` and `zshrc` from `~/.zshrc`.
 
 ### tmux
 
@@ -143,7 +143,7 @@ The rust and go toolchains, neovim, fzf, and the third-party binaries that used 
 - `bat`, `eza`, `fd`, `procs`, `ripgrep`, `sd` (cargo binaries)
 - `lazygit`, `lazydocker`, `gum` (go binaries)
 
-Mise is activated in `common-shrc` / `common-zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. The dofu `neovim` module only owns the config frameworks (NvChad / AstroNvim / LazyVim) and the custom NvChad config symlink — dotfile-shaped changes that don't fit a mise `[tools]` entry.
+Mise is activated in `shrc` / `zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. The dofu `neovim` module only owns the config frameworks (NvChad / AstroNvim / LazyVim) and the custom NvChad config symlink — dotfile-shaped changes that don't fit a mise `[tools]` entry.
 
 ## Dependencies
 

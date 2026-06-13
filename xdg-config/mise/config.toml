@@ -7,6 +7,7 @@ go = "latest"
 # Efficiency tools (migrated from dofu)
 tmux = "latest"
 fzf = "latest"
+"aqua:junegunn/fzf/fzf-tmux" = "latest"
 
 neovim = "stable"
 

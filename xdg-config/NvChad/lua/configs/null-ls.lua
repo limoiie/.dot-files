@@ -18,9 +18,6 @@ local sources = {
   lint.clang_check,
   lint.cppcheck,
 
-  -- Haskell
-  formatting.stylish_haskell,
-
   -- Lua
   formatting.stylua,
 
@@ -28,8 +25,7 @@ local sources = {
   formatting.ocamlformat,
 
   -- Python
-  formatting.black,
-  lint.pylint,
+  -- ruff LSP handles formatting and linting natively
 
   -- Rust
   -- Use the formatter and linter from lspconfig/rust-analyzer

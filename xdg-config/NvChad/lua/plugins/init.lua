@@ -21,7 +21,9 @@ return {
       end,
     },
     config = function()
+      -- calls vim.lsp.config("*", ...) and enables lua_ls
       require("nvchad.configs.lspconfig").defaults()
+      -- enables additional LSP servers via vim.lsp.enable
       require "configs.lspconfig"
     end,
   },

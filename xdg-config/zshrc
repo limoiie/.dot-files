@@ -137,6 +137,18 @@ bindkey "^V^E" edit-command-line
 bindkey '\t' menu-select "$terminfo[kcbt]" menu-select
 bindkey -M menuselect '\t' menu-complete "$terminfo[kcbt]" reverse-menu-complete
 
+# Clear stale autosuggestion ghost text before Tab completes.
+# zsh-autocomplete opts out of autosuggestions' widget wrapping (sets
+# ZSH_AUTOSUGGEST_MANUAL_REBIND), so the ghost would otherwise stay
+# rendered after completing a filename even though it is not part of
+# the command line.
+_tab-clear-suggestion() {
+  unset POSTDISPLAY
+  zle menu-select
+}
+zle -N _tab-clear-suggestion
+bindkey '\t' _tab-clear-suggestion
+
 # Reset history key bindings to Zsh default
 () {
    local -a prefix=( '\e'{\[,O} )
@@ -151,3 +163,6 @@ bindkey -M menuselect '\t' menu-complete "$terminfo[kcbt]" reverse-menu-complete
    bindkey -M emacs '^N' down-line-or-history
    bindkey -M emacs '^P' up-line-or-history
 }
+
+# Re-assert fzf's Ctrl-R history search after zplug (zsh-autocomplete overrides ^R)
+(( ${+widgets[fzf-history-widget]} )) && bindkey '^R' fzf-history-widget

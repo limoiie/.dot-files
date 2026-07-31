@@ -224,10 +224,6 @@ __config_vim() {
   alias vi="nvim"
   alias nv="NVIM_APPNAME=NvChad nvim"
   alias nvchad="NVIM_APPNAME=NvChad nvim"
-  alias lv="NVIM_APPNAME=LazyVim nvim"
-  alias lazyvim="NVIM_APPNAME=LazyVim nvim"
-  alias av="NVIM_APPNAME=AstroNvim nvim"
-  alias astronvim="NVIM_APPNAME=AstroNvim nvim"
 
   # Relocate .vimrc file
   # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
@@ -279,4 +275,3 @@ fire-zsh-complete() {
 _clean_emacs_cache() {
   rm .*~
 }
-

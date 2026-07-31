@@ -118,7 +118,7 @@ Clones [oh-my-tmux](https://github.com/gpakosz/.tmux) and symlinks `tmux.conf` a
 
 ### neovim
 
-Clones [NvChad](https://github.com/NvChad/NvChad), [AstroNvim](https://github.com/AstroNvim/AstroNvim), and [LazyVim](https://github.com/LazyVim/starter) config frameworks, then symlinks the custom NvChad config. The neovim binary itself is managed by mise, not dofu.
+Symlinks the custom NvChad config directory into `$XDG_CONFIG_HOME/NvChad`. NvChad itself and all of its plugins are installed by lazy.nvim on first launch, so nothing is cloned by dofu. The neovim binary itself is managed by mise, not dofu.
 
 ### emacs
 
@@ -143,7 +143,7 @@ The rust and go toolchains, neovim, fzf, and the third-party binaries that used 
 - `bat`, `eza`, `fd`, `procs`, `ripgrep`, `sd` (cargo binaries)
 - `lazygit`, `lazydocker`, `gum` (go binaries)
 
-Mise is activated in `shrc` / `zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. The dofu `neovim` module only owns the config frameworks (NvChad / AstroNvim / LazyVim) and the custom NvChad config symlink — dotfile-shaped changes that don't fit a mise `[tools]` entry.
+Mise is activated in `shrc` / `zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. The dofu `neovim` module only owns the NvChad config symlink — a dotfile-shaped change that doesn't fit a mise `[tools]` entry.
 
 ## Dependencies
 

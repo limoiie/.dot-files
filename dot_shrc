@@ -229,11 +229,11 @@ __config_vim() {
   # export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
 }
 
-# Configure exa
-__config_exa() {
-  __requires exa || return
+# Configure eza
+__config_eza() {
+  __requires eza || return
 
-  alias ls="exa"
+  alias ls="eza"
 }
 
 # Configure starship
@@ -249,7 +249,7 @@ __config_fzf_plugins
 __config_bat
 __config_emacs
 __config_vim
-__config_exa
+__config_eza
 
 __config_starship
 

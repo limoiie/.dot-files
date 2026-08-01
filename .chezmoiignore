@@ -3,7 +3,6 @@ README.md
 LICENSE
 setup.sh
 windows/
-scripts/
 resources/
 
 # Optional emacs/spacemacs setup: only managed when emacs is enabled.

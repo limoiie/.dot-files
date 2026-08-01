@@ -2,7 +2,7 @@
 
 Personal dotfiles for macOS / Linux / Windows, managed with [chezmoi](https://www.chezmoi.io/).
 
-The repository doubles as chezmoi's source directory using the conventional layout: the source state (files with `dot_`/`dot_config` prefixes) lives at the repository root, and non-dotfile content (this README, `scripts/`, `windows/`, `resources/`) is excluded via [`.chezmoiignore`](.chezmoiignore).
+The repository doubles as chezmoi's source directory using the conventional layout: the source state (files with `dot_`/`dot_config` prefixes) lives at the repository root, and non-dotfile content (this README, `windows/`, `resources/`) is excluded via [`.chezmoiignore`](.chezmoiignore). Shell helper scripts are managed as [dot_local/bin](dot_local/bin) targets (`~/.local/bin`, already on `PATH`).
 
 Tools and toolchains are installed by [mise](https://mise.jdx.dev/) from [`dot_config/mise/config.toml`](dot_config/mise/config.toml).
 
@@ -71,7 +71,7 @@ chezmoi status             # show targets that differ from the source state
 
 ## Notes
 
-- The repo is expected to live at `~/.dot-files` — `dot_shrc` sources `$HOME/.dot-files/.env` and `$HOME/.dot-files/scripts/*`.
+- The repo is expected to live at `~/.dot-files` — `dot_shrc` sources `$HOME/.dot-files/.env`; shell helpers are installed by chezmoi to `~/.local/bin/`.
 - `~/.gitconfig` is intentionally **not** managed because it carries machine-local proxy settings. The repo's git config is installed to `~/.config/git/`, which git reads in addition to `~/.gitconfig`.
 - System packages (e.g. `zsh` on Linux) are not installed by `setup.sh`; install them with your package manager (`apt install zsh`, ...). Everything else is managed by mise.
 - After Neovim plugin updates, `~/.config/NvChad/lazy-lock.json` may change — run `chezmoi re-add ~/.config/NvChad/lazy-lock.json` to sync it back into the repo.

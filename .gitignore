@@ -1,8 +1,5 @@
 # Local environment overrides (sourced by xdg-config/dot_shrc)
 .env
 
-# chezmoi internal state (the source directory is the repo itself)
-.chezmoi/
-
 # OS noise
 .DS_Store

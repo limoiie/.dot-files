@@ -153,7 +153,7 @@ __config_fzf_plugins() {
 
   if __requires bat; then
     # Load git helper tui tools
-    source "${DOT_HOME}/scripts/git-fzf.sh"
+    source "$HOME/.local/bin/git-fzf.sh"
 
     # Boost tail with bat
     bail() {
@@ -181,7 +181,7 @@ __config_fzf_plugins() {
         rgp_options_len=$(($# > 0 ? $# - 1 : 0))
         rgp_options=${@: 1:${rgp_options_len}}
         rgp_prefix="rg --column --line-number --no-heading --color=always --smart-case $rgp_options"
-        cut_context="awk -v A=20 -v B=20 -f ${DOT_HOME}/scripts/awk/bat-range-arg-from-rg.awk"
+        cut_context="awk -v A=20 -v B=20 -f $HOME/.local/bin/bat-range-arg-from-rg.awk"
 
         FZF_DEFAULT_COMMAND="$rgp_prefix '$initial_query'" _pop_fzf \
           --bind "change:reload:$rgp_prefix {q} || true" \

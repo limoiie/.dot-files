@@ -9,3 +9,9 @@ resources/
 {{ if not .emacs }}
 .spacemacs
 {{ end }}
+
+# Optional kitty setup: only managed when kitty is enabled (desktop machines).
+# Headless environments (e.g. containers) disable it with kitty = false.
+{{ if not .kitty }}
+.config/kitty
+{{ end }}

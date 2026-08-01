@@ -2,4 +2,6 @@
 #
 #   [data]
 #   emacs = true
+#   kitty = false
 emacs = false
+kitty = true

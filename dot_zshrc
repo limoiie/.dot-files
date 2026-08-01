@@ -164,16 +164,3 @@ bindkey '\t' _tab-clear-suggestion
 
 # Re-assert fzf's Ctrl-R history search after zplug (zsh-autocomplete overrides ^R)
 (( ${+widgets[fzf-history-widget]} )) && bindkey '^R' fzf-history-widget
-
-# ============================================================================
-# Terminal integrations
-# ============================================================================
-
-# iterm2 shell integration (macOS)
-export ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX=YES
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# nvm (installed via Homebrew)
-export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"

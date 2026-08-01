@@ -25,7 +25,7 @@ fi
 mkdir -p "${HOME}/.local/share"
 ln -sfn "${DOT_FILES_ROOT}" "${HOME}/.local/share/chezmoi"
 
-# Generate the chezmoi config (from xdg-config/.chezmoi.toml.tmpl) and apply
+# Generate the chezmoi config (from .chezmoi.toml.tmpl) and apply
 chezmoi init
 chezmoi apply
 
@@ -35,7 +35,7 @@ mise install
 cat <<'EOF'
 
 Dotfiles applied. Next steps:
-  >> chezmoi apply        # apply changes after editing files in xdg-config/
+  >> chezmoi apply        # apply changes after editing dot_* files
   >> chezmoi update       # pull the repo and re-apply
   >> chezmoi add ~/.foo   # start managing a new file
   >> mise install         # (re)install tools listed in mise/config.toml

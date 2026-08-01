@@ -2,9 +2,9 @@
 
 Personal dotfiles for macOS / Linux / Windows, managed with [chezmoi](https://www.chezmoi.io/).
 
-The repository doubles as chezmoi's source directory. All managed files live under [`xdg-config/`](xdg-config/), which is declared as the chezmoi root in [`.chezmoiroot`](.chezmoiroot). Scripts, fonts, and this README live at the repo root and are not installed.
+The repository doubles as chezmoi's source directory using the conventional layout: the source state (files with `dot_`/`dot_config` prefixes) lives at the repository root, and non-dotfile content (this README, `scripts/`, `windows/`, `resources/`) is excluded via [`.chezmoiignore`](.chezmoiignore).
 
-Tools and toolchains are installed by [mise](https://mise.jdx.dev/) from [`xdg-config/dot_config/mise/config.toml`](xdg-config/dot_config/mise/config.toml).
+Tools and toolchains are installed by [mise](https://mise.jdx.dev/) from [`dot_config/mise/config.toml`](dot_config/mise/config.toml).
 
 ## Quick start
 
@@ -23,26 +23,45 @@ Windows: run `windows/setup.ps`.
 
 | Target | Source |
 | --- | --- |
-| `~/.zshrc`, `~/.shrc` | `xdg-config/dot_zshrc`, `xdg-config/dot_shrc` |
-| `~/.vimrc`, `~/.ideavimrc` | `xdg-config/dot_vimrc`, `xdg-config/dot_ideavimrc` |
-| `~/.spacemacs` | `xdg-config/dot_spacemacs` |
-| `~/.config/git/*` | `xdg-config/dot_config/git/*` |
-| `~/.config/tmux/*` | `xdg-config/dot_config/tmux/*` |
-| `~/.config/NvChad/*` | `xdg-config/dot_config/NvChad/*` |
-| `~/.config/kitty/*` | `xdg-config/dot_config/kitty/*` |
-| `~/.config/mise/*` | `xdg-config/dot_config/mise/*` |
+| `~/.zshrc`, `~/.shrc` | `dot_zshrc`, `dot_shrc` |
+| `~/.vimrc`, `~/.ideavimrc` | `dot_vimrc`, `dot_ideavimrc` |
+| `~/.spacemacs` *(only when emacs is enabled)* | `dot_spacemacs` |
+| `~/.config/git/*` | `dot_config/git/*` |
+| `~/.config/tmux/*` | `dot_config/tmux/*` |
+| `~/.config/NvChad/*` | `dot_config/NvChad/*` |
+| `~/.config/kitty/*` | `dot_config/kitty/*` |
+| `~/.config/mise/*` | `dot_config/mise/*` |
 
-External git repos, cloned and updated by chezmoi on every apply (see [`.chezmoiexternal.toml`](xdg-config/.chezmoiexternal.toml)):
+External git repos, cloned and updated by chezmoi on every apply (see [`.chezmoiexternal.toml`](.chezmoiexternal.toml)):
 
 - [zplug](https://github.com/zplug/zplug) → `~/.config/zplug`
 - [oh-my-tmux](https://github.com/gpakosz/.tmux) → `~/.config/oh-my-tmux`
-- [Spacemacs](https://github.com/syl20bnr/spacemacs) → `~/.emacs.d`
-- [limo-spacemacs-layers](https://github.com/limoiie/limo-spacemacs-layers) → `~/.emacs.d/private/layers`
+- [Spacemacs](https://github.com/syl20bnr/spacemacs) → `~/.emacs.d` *(only when emacs is enabled)*
+- [limo-spacemacs-layers](https://github.com/limoiie/limo-spacemacs-layers) → `~/.emacs.d/private/layers` *(only when emacs is enabled)*
+
+## Optional: emacs / Spacemacs
+
+The emacs setup (Spacemacs, the custom layers, and `~/.spacemacs`) is opt-in. It is disabled by default (see [`.chezmoidata.toml`](.chezmoidata.toml)) and enabled per machine:
+
+```sh
+chezmoi edit-config   # add the following, then save:
+```
+
+```toml
+[data]
+emacs = true
+```
+
+```sh
+chezmoi apply
+```
+
+The `emacs` package itself is not installed by `setup.sh`; install it with your package manager (`brew install emacs`).
 
 ## Daily usage
 
 ```sh
-chezmoi apply              # apply changes after editing files in xdg-config/
+chezmoi apply              # apply changes after editing dot_* files
 chezmoi update             # git pull + apply
 chezmoi add ~/.foo         # start managing a new file
 chezmoi re-add ~/.foo      # adopt changes made outside the repo (e.g. lazy-lock.json)
@@ -52,9 +71,9 @@ chezmoi status             # show targets that differ from the source state
 
 ## Notes
 
-- The repo is expected to live at `~/.dot-files` — `xdg-config/dot_shrc` sources `$HOME/.dot-files/.env` and `$HOME/.dot-files/scripts/*`.
+- The repo is expected to live at `~/.dot-files` — `dot_shrc` sources `$HOME/.dot-files/.env` and `$HOME/.dot-files/scripts/*`.
 - `~/.gitconfig` is intentionally **not** managed because it carries machine-local proxy settings. The repo's git config is installed to `~/.config/git/`, which git reads in addition to `~/.gitconfig`.
-- System packages (e.g. `emacs` on macOS, `zsh` on Linux) are not installed by `setup.sh`; install them with your package manager (`brew install emacs`, `apt install zsh`, ...). Everything else is managed by mise.
+- System packages (e.g. `zsh` on Linux) are not installed by `setup.sh`; install them with your package manager (`apt install zsh`, ...). Everything else is managed by mise.
 - After Neovim plugin updates, `~/.config/NvChad/lazy-lock.json` may change — run `chezmoi re-add ~/.config/NvChad/lazy-lock.json` to sync it back into the repo.
 - `windows/Microsoft.PowerShell_profile.ps1` is linked into `$PROFILE` by `windows/setup.ps`; it is not a chezmoi target.
 

@@ -1,0 +1,5 @@
+# Per-machine defaults. Override per machine in ~/.config/chezmoi/chezmoi.toml:
+#
+#   [data]
+#   emacs = true
+emacs = false

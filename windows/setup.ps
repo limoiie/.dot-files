@@ -1,0 +1,38 @@
+# Bootstrap script for Windows.
+# Installs mise and chezmoi, links the PowerShell profile, and applies dotfiles.
+$ErrorActionPreference = "Stop"
+
+$DOT_FILES_ROOT = Join-Path $HOME ".dot-files"
+$REPO_URL = "https://github.com/limoiie/.dot-files.git"
+
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    Invoke-Expression (Invoke-RestMethod https://mise.run)
+}
+
+if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) {
+    Invoke-Expression (Invoke-RestMethod https://get.chezmoi.io)
+}
+
+if (-not (Test-Path (Join-Path $DOT_FILES_ROOT ".git"))) {
+    git clone $REPO_URL $DOT_FILES_ROOT
+}
+
+# Point chezmoi's source directory at the repo
+$chezmoiSource = Join-Path $HOME ".local\share\chezmoi"
+New-Item -ItemType Directory -Force -Path (Split-Path $chezmoiSource) | Out-Null
+New-Item -ItemType SymbolicLink -Force -Path $chezmoiSource -Target $DOT_FILES_ROOT
+
+# Link the PowerShell profile into the repo
+$profileTarget = Join-Path $DOT_FILES_ROOT "windows\Microsoft.PowerShell_profile.ps1"
+if (Test-Path $PROFILE) {
+    Move-Item -Force $PROFILE "$PROFILE.before-chezmoi.bak"
+}
+try {
+    New-Item -ItemType SymbolicLink -Force -Path $PROFILE -Target $profileTarget | Out-Null
+} catch {
+    Copy-Item $profileTarget $PROFILE
+}
+
+chezmoi init
+chezmoi apply
+mise install

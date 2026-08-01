@@ -1,37 +1,8 @@
-# IDE
-.vscode/
-.idea/
-
-# Mac/OSX
-.DS_Store
-
-# Windows
-Thumbs.db
-
-# Source for the following rules: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Unit test / coverage reports
-.pytest_cache/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-
-# IPython
-profile_default/
-ipython_config.py
-
-# Virtual environement
-.venv
-
-# Environments
+# Local environment overrides (sourced by xdg-config/dot_shrc)
 .env
-.env.tests
-.env.dev
 
+# chezmoi internal state (the source directory is the repo itself)
+.chezmoi/
 
+# OS noise
+.DS_Store

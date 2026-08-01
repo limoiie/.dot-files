@@ -1,158 +1,62 @@
-# dofu
+# dotfiles
 
-DOt Files Utility for managing dotfiles.
+Personal dotfiles for macOS / Linux / Windows, managed with [chezmoi](https://www.chezmoi.io/).
 
-dofu equips, removes, and syncs modules across different machines. Each module bundles packages, git repositories, and undoable configuration commands so that your entire environment can be reproduced with a single tool.
+The repository doubles as chezmoi's source directory. All managed files live under [`xdg-config/`](xdg-config/), which is declared as the chezmoi root in [`.chezmoiroot`](.chezmoiroot). Scripts, fonts, and this README live at the repo root and are not installed.
 
-## Requirements
-
-- git
-- Python >= 3.10
-- [uv](https://docs.astral.sh/uv/)
-- [mise](https://mise.jdx.dev/) (for toolchain and binary management)
-- [gum](https://github.com/charmbracelet/gum) (for interactive prompts)
+Tools and toolchains are installed by [mise](https://mise.jdx.dev/) from [`xdg-config/dot_config/mise/config.toml`](xdg-config/dot_config/mise/config.toml).
 
 ## Quick start
 
-Clone and run the bootstrap script:
+macOS / Linux:
 
 ```sh
 git clone https://github.com/limoiie/.dot-files.git ~/.dot-files
 ~/.dot-files/setup.sh
 ```
 
-This installs mise, sets up toolchains and binaries from `xdg-config/mise/config.toml`, and installs dofu itself as an editable `uv tool`.
+Windows: run `windows/setup.ps`.
 
-## Manual installation
+`setup.sh` installs mise and chezmoi, clones the repo to `~/.dot-files`, points chezmoi's source directory at it (`ln -s ~/.dot-files ~/.local/share/chezmoi`), applies the dotfiles, and runs `mise install`.
 
-Install dofu as a uv tool in editable mode:
+## What chezmoi manages
 
-```sh
-git clone https://github.com/limoiie/.dot-files.git ~/.dofu
-uv tool install --editable ~/.dofu
-```
+| Target | Source |
+| --- | --- |
+| `~/.zshrc`, `~/.shrc` | `xdg-config/dot_zshrc`, `xdg-config/dot_shrc` |
+| `~/.vimrc`, `~/.ideavimrc` | `xdg-config/dot_vimrc`, `xdg-config/dot_ideavimrc` |
+| `~/.spacemacs` | `xdg-config/dot_spacemacs` |
+| `~/.config/git/*` | `xdg-config/dot_config/git/*` |
+| `~/.config/tmux/*` | `xdg-config/dot_config/tmux/*` |
+| `~/.config/NvChad/*` | `xdg-config/dot_config/NvChad/*` |
+| `~/.config/kitty/*` | `xdg-config/dot_config/kitty/*` |
+| `~/.config/mise/*` | `xdg-config/dot_config/mise/*` |
 
-The `dofu` command will be available under `~/.local/bin/dofu`. If that directory is not on your `PATH`, run `uv tool update-shell` once.
+External git repos, cloned and updated by chezmoi on every apply (see [`.chezmoiexternal.toml`](xdg-config/.chezmoiexternal.toml)):
 
-You can also install directly from git (not editable):
+- [zplug](https://github.com/zplug/zplug) → `~/.config/zplug`
+- [oh-my-tmux](https://github.com/gpakosz/.tmux) → `~/.config/oh-my-tmux`
+- [Spacemacs](https://github.com/syl20bnr/spacemacs) → `~/.emacs.d`
+- [limo-spacemacs-layers](https://github.com/limoiie/limo-spacemacs-layers) → `~/.emacs.d/private/layers`
 
-```sh
-uv tool install git+https://github.com/limoiie/.dot-files.git
-```
-
-During development, run dofu from a checkout without installing globally:
-
-```sh
-uv run --project ~/.dofu dofu --help
-```
-
-## Global options
-
-Every subcommand accepts these flags:
-
-| Flag | Values | Default | Description |
-|------|--------|---------|-------------|
-| `--dry-run` | | `False` | Log what would happen without making changes |
-| `--strategy` | `ask`, `force`, `auto`, `quit` | `ask` | How to handle destructive operations |
-| `--loglevel` | `debug`, `info`, `warn`, `error`, `fatal` | `info` | Log verbosity |
-
-## Commands
-
-### `dofu equip [module...]`
-
-Equip modules. If no module names are given, an interactive `gum choose` menu lets you select modules. Dependencies are resolved and equipped in topological order.
+## Daily usage
 
 ```sh
-dofu equip zsh tmux
+chezmoi apply              # apply changes after editing files in xdg-config/
+chezmoi update             # git pull + apply
+chezmoi add ~/.foo         # start managing a new file
+chezmoi re-add ~/.foo      # adopt changes made outside the repo (e.g. lazy-lock.json)
+chezmoi diff               # preview what would change
+chezmoi status             # show targets that differ from the source state
 ```
 
-### `dofu install [module...]`
+## Notes
 
-Like `equip`, but the interactive menu only shows modules that are not yet installed.
-
-```sh
-dofu install neovim
-```
-
-### `dofu remove [module...]`
-
-Remove modules. Dependents are removed together in reverse dependency order. The interactive menu only shows currently equipped modules.
-
-```sh
-dofu remove emacs
-```
-
-### `dofu sync [module...]`
-
-Sync modules: chosen modules are equipped, unchosen modules (that were previously equipped) are removed. The interactive menu pre-selects currently equipped modules.
-
-```sh
-dofu sync
-```
-
-### `dofu list [module...]`
-
-List modules and their requirements. Use `--installed-only` to filter to equipped modules only.
-
-```sh
-dofu list --installed-only
-```
-
-### `dofu integrate`
-
-Installs dofu as a uv tool in editable mode from the current checkout, making the `dofu` command globally available.
-
-```sh
-dofu integrate
-```
-
-## Modules
-
-### zsh
-
-Installs zsh, clones [zplug](https://github.com/zplug/zplug), changes the default shell to zsh, and sources `shrc` and `zshrc` from `~/.zshrc`.
-
-### tmux
-
-Clones [oh-my-tmux](https://github.com/gpakosz/.tmux) and symlinks `tmux.conf` and `tmux.conf.local` into `$XDG_CONFIG_HOME/tmux`.
-
-### neovim
-
-Symlinks the custom NvChad config directory into `$XDG_CONFIG_HOME/NvChad`. NvChad itself and all of its plugins are installed by lazy.nvim on first launch, so nothing is cloned by dofu. The neovim binary itself is managed by mise, not dofu.
-
-### emacs
-
-Installs emacs, clones [Spacemacs](https://github.com/syl20bnr/spacemacs) and custom layers.
-
-## How modules work
-
-Each module is composed of three kinds of requirements:
-
-- **Packages** — installed or removed via platform-specific package managers (apt, brew, pacman, yum, chocolatey, scoop, cargo, or curl-sh).
-- **Git repositories** — cloned to provide config frameworks (e.g. NvChad, oh-my-tmux) or additional commands.
-- **Undoable commands** — idempotent configuration patches (symlinks, env var exports, line appends, etc.) that can be rolled back when a module is removed.
-
-During equipping, existing packages and git repos are applied directly, while existing configurations are backed up. During removal, backups are restored, changes are rolled back, and packages/repos installed by dofu are cleaned up — pre-existing items are preserved.
-
-## Toolchains managed by mise
-
-The rust and go toolchains, neovim, fzf, and the third-party binaries that used to live in dofu's `cargo-crates` and `go-mods` modules are all managed by [mise](https://mise.jdx.dev/). The full list lives in [`xdg-config/mise/config.toml`](xdg-config/mise/config.toml) and includes:
-
-- `rust`, `go` (toolchains)
-- `neovim`, `fzf`
-- `bat`, `eza`, `fd`, `procs`, `ripgrep`, `sd` (cargo binaries)
-- `lazygit`, `lazydocker`, `gum` (go binaries)
-
-Mise is activated in `shrc` / `zshrc` via `eval "$(mise activate <shell>)"`, and its shims put every binary on `PATH` automatically. The dofu `neovim` module only owns the NvChad config symlink — a dotfile-shaped change that doesn't fit a mise `[tools]` entry.
-
-## Dependencies
-
-- [rich](https://github.com/Textualize/rich) — terminal formatting
-- [fire](https://github.com/google/python-fire) — CLI framework
-- [pyyaml](https://pyyaml.org/) — YAML persistence
-- [python-dotenv](https://github.com/theskumar/python-dotenv) — environment file loading
-- [networkx](https://networkx.org/) — dependency graph resolution
-- [autoserde](https://github.com/limoiie/autoserde) — serialization
+- The repo is expected to live at `~/.dot-files` — `xdg-config/dot_shrc` sources `$HOME/.dot-files/.env` and `$HOME/.dot-files/scripts/*`.
+- `~/.gitconfig` is intentionally **not** managed because it carries machine-local proxy settings. The repo's git config is installed to `~/.config/git/`, which git reads in addition to `~/.gitconfig`.
+- System packages (e.g. `emacs` on macOS, `zsh` on Linux) are not installed by `setup.sh`; install them with your package manager (`brew install emacs`, `apt install zsh`, ...). Everything else is managed by mise.
+- After Neovim plugin updates, `~/.config/NvChad/lazy-lock.json` may change — run `chezmoi re-add ~/.config/NvChad/lazy-lock.json` to sync it back into the repo.
+- `windows/Microsoft.PowerShell_profile.ps1` is linked into `$PROFILE` by `windows/setup.ps`; it is not a chezmoi target.
 
 ## License
 

@@ -1,0 +1,15 @@
+[".config/zplug"]
+    type = "git-repo"
+    url = "https://github.com/zplug/zplug.git"
+
+[".config/oh-my-tmux"]
+    type = "git-repo"
+    url = "https://github.com/gpakosz/.tmux.git"
+
+[".emacs.d"]
+    type = "git-repo"
+    url = "https://github.com/syl20bnr/spacemacs.git"
+
+[".emacs.d/private/layers"]
+    type = "git-repo"
+    url = "https://github.com/limoiie/limo-spacemacs-layers.git"

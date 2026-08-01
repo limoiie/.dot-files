@@ -9,6 +9,7 @@
 [".emacs.d"]
     type = "git-repo"
     url = "https://github.com/syl20bnr/spacemacs.git"
+    pull.args = ["--autostash"]
 
 [".emacs.d/private/layers"]
     type = "git-repo"

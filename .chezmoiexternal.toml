@@ -6,7 +6,7 @@
     type = "git-repo"
     url = "https://github.com/gpakosz/.tmux.git"
 
-{{ if .emacs }}
+{{ if and .emacs (not .headless) }}
 [".emacs.d"]
     type = "git-repo"
     url = "https://github.com/syl20bnr/spacemacs.git"

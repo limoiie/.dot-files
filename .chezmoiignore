@@ -5,13 +5,14 @@ setup.sh
 windows/
 resources/
 
-# Optional emacs/spacemacs setup: only managed when emacs is enabled.
-{{ if not .emacs }}
+# Optional emacs/spacemacs setup: only managed when emacs is enabled on a
+# non-headless machine (headless machines never manage it).
+{{ if or .headless (not .emacs) }}
 .spacemacs
 {{ end }}
 
-# Optional kitty setup: only managed when kitty is enabled (desktop machines).
-# Headless environments (e.g. containers) disable it with kitty = false.
-{{ if not .kitty }}
+# Optional kitty setup: only managed when kitty is enabled on a non-headless
+# machine (headless machines never manage it).
+{{ if or .headless (not .kitty) }}
 .config/kitty
 {{ end }}

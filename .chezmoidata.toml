@@ -3,5 +3,7 @@
 #   [data]
 #   emacs = true
 #   kitty = false
+#   headless = true
 emacs = false
 kitty = true
+headless = false

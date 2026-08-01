@@ -58,6 +58,27 @@ chezmoi apply
 
 The `emacs` package itself is not installed by `setup.sh`; install it with your package manager (`brew install emacs`).
 
+## Headless machines
+
+On headless machines (e.g. Docker containers, servers), set `headless = true` to
+disable GUI tools like kitty and emacs:
+
+```sh
+chezmoi edit-config   # add the following, then save:
+```
+
+```toml
+[data]
+headless = true
+```
+
+```sh
+chezmoi apply
+```
+
+`headless` forces emacs and kitty off regardless of their individual flags; the
+individual flags (`emacs`, `kitty`) still work independently on desktop machines.
+
 ## Daily usage
 
 ```sh

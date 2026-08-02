@@ -7,7 +7,4 @@ set softtabstop=4
 set autoindent
 set cindent
 
-packadd! dracula
-colorscheme dracula
-
 set viminfo+=n~/.config/vim/viminfo

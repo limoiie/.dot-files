@@ -8,6 +8,7 @@ go = "latest"
 tmux = "latest"
 fzf = "latest"
 "aqua:junegunn/fzf/fzf-tmux" = "latest"
+direnv = "latest"
 
 neovim = "v0.12.3"
 

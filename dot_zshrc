@@ -55,7 +55,9 @@ autoload -Uz compinit
 compinit -d ~/.cache/zcompdump
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' completer _expand _complete
+# Complete paths with Tab instead of expanding `~`, globs, or $vars to full
+# (often absolute) text. (`_expand` is what rewrites `~/...` to `/Users/...`.)
+zstyle ':completion:*' completer _complete
 zstyle ':completion:*' format 'Completing %d'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' list-colors ''
@@ -111,6 +113,11 @@ fi
 
 # source plugins and add commands to the PATH
 zplug load
+
+# zsh-autocomplete installs `_expand` as the FIRST completer, so Tab rewrites
+# `~/...` to the full absolute path (and expands globs) before completing.
+# Override the completer list here (after zplug load) to complete instead.
+zstyle ':completion:*' completer _complete _complete:-fuzzy _correct _approximate _ignored
 
 # zsh plugin z cache file
 export _Z_DATA=~/.cache/z

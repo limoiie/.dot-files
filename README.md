@@ -28,6 +28,7 @@ Windows: run `windows/setup.ps`.
 | `~/.spacemacs` *(only when emacs is enabled)* | `dot_spacemacs` |
 | `~/.config/git/*` | `dot_config/git/*` |
 | `~/.config/tmux/*` | `dot_config/tmux/*` |
+| `~/.config/zellij/*` | `dot_config/zellij/*` |
 | `~/.config/NvChad/*` | `dot_config/NvChad/*` |
 | `~/.config/kitty/*` | `dot_config/kitty/*` |
 | `~/.config/mise/*` | `dot_config/mise/*` |
